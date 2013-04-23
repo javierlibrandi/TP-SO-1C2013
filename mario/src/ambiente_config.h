@@ -1,10 +1,17 @@
-#define PATH_PLATAFORMA_CONFIG "resources/config_orquestador.cfg"
+#define PATH_CONFIG "resources/config_orquestador.cfg"
 
 
 
 typedef struct {
 	char* IP;
 	char* PUERTO;
-} t_param;
+} t_param_orq;
 
-t_param leer_archivo_orquestador_config();
+typedef struct {
+	char** planificador_nivel;
+
+} t_param_plat;
+
+t_param_orq leer_archivo_orquestador_config();
+
+t_param_plat leer_archivo_plataforma_config();

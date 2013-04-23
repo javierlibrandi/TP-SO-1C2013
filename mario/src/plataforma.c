@@ -14,7 +14,11 @@
 
 
 int main(void) {
-	t_param param_orquestador;
+	t_param_orq param_orquestador;
+	t_param_plat param_plataforma;
+
+	//leo el archivo de configuracion para el hilo orquestador
+	param_plataforma = leer_archivo_plataforma_config();
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_orquestador = leer_archivo_orquestador_config();

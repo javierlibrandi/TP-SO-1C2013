@@ -6,17 +6,17 @@
 C_SRCS += \
 ../src/ambiente_config.c \
 ../src/grabar.c \
-../src/mario.c 
+../src/plataforma.c 
 
 OBJS += \
 ./src/ambiente_config.o \
 ./src/grabar.o \
-./src/mario.o 
+./src/plataforma.o 
 
 C_DEPS += \
 ./src/ambiente_config.d \
 ./src/grabar.d \
-./src/mario.d 
+./src/plataforma.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
