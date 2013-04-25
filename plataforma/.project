@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>commons</project>
+		<project>mario_para_todos</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
