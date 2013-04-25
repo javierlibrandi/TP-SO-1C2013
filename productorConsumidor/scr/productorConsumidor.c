@@ -17,9 +17,10 @@
 #include <string.h>
 #include <time.h>
 #include <semaphore.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
 
-#define HILOS_CONSUMIDORES 2
-#define HILOS_PRODUCTORES 2
+#define BUFFER_SIZE 100
 
 typedef struct {
 	unsigned int cont;
@@ -37,12 +38,23 @@ unsigned int nodo = 0;
 t_nodo* nodo_thr = NULL;
 t_queue* queue;
 
+int buffer[BUFFER_SIZE]; // puntero para el identificador de los semáforo
+sem_t *sem_cont, *sem_free;
 
 int main(void) {
 	int i;
 	pthread_t tabla_thr[200];
 	queue = queue_create();
 	int res;
+
+	printf("Creando semáforos .....\n");
+	/* semáforo del contador de productos sino lo crea inicializado(0)*/
+	if ((sem_cont = sem_open("/sem_cont", O_CREAT, 0644, 0)) == (sem_t *) -1)
+		perror("Error creando semáforo 1");
+	/* semáforo del espacio libre y sino lo crea inicializado (BUFFER_SIZE)*/
+	if ((sem_free = sem_open("/sem_free", O_CREAT, 0644, BUFFER_SIZE))
+			== (sem_t *) -1)
+		perror("Error creando semáforo 2");
 
 	// creamos los threads consumidores
 	printf("Creando threads consumidores...\n");
@@ -55,11 +67,14 @@ int main(void) {
 	pthread_create(&tabla_thr[1], NULL, (void*) productor_thr,
 			(void*) "Productor 2");
 
-	for (i = 0; i < (HILOS_PRODUCTORES); i++) {
+	for (i = 0; i < 2; i++) {
 		pthread_join(tabla_thr[i], NULL );
 		printf("El thread %d devolvio el valor %d\n", i, res);
 	}
 
+	/* libero semáforos */
+	sem_close(sem_cont);
+	sem_close(sem_free);
 	return EXIT_SUCCESS;
 
 }
@@ -78,16 +93,28 @@ static t_nodo* create_nodo_thr(unsigned int cont, char *productod_thr) {
  * funcion hilo productor
  */
 void* productor_thr(void* p) {
-
+	int val;
+	int entrada;
 	char* hilo_productor = (char*) p;
 
-
-	for (; ; ) {
+	for (;;) {
 		nodo_thr = create_nodo_thr(nodo++, hilo_productor);
 		printf("incremento del contador a %d por el hilo %s \n", nodo_thr->cont,
 				nodo_thr->productod_thr);
+
+		/**
+		 * zona critica
+		 */
+
+		sem_wait(sem_free); /* espera que haya espacio en el buffer y decrementa */
 		queue_push(queue, nodo_thr);
-	sleep(1);
+		sem_post(sem_cont); /* incrementa el contador del semáforo */
+
+		sem_getvalue(sem_cont, &val); // valor del contador del semáforo
+		printf("Soy el Productor: entrada=%d, Estado %d productos\n", entrada,
+				val);
+
+		sleep(5);
 	}
 
 	pthread_exit(EXIT_SUCCESS);
@@ -95,16 +122,23 @@ void* productor_thr(void* p) {
 
 void* consumidor_thr() {
 
-	for (; ; ) {
+	for (;;) {
+		/**
+		 * zona critica
+		 */
+		sem_wait(sem_cont); /* espera datos en el buffer (contador>0) y dec.*/
 		t_nodo *aux = (t_nodo*) queue_pop(queue);
-		if(aux!=NULL){
-		printf("El nodo consumido es el %d constuido por el hilo %s \n",
-				aux->cont, aux->productod_thr);
-		}else{
+		sem_post(sem_free); /* incrementa el contador de espacio */
+
+		int sem_wait(sem_t *sem);
+		if (aux != NULL ) {
+			printf("El nodo consumido es el %d constuido por el hilo %s \n",
+					aux->cont, aux->productod_thr);
+		} else {
 			printf("Se trata de sacar un elemento de un lista vacia \n");
-			exit (1);
+			exit(1);
 		}
-	sleep(1);
+		sleep(1);
 	}
 	pthread_exit(EXIT_SUCCESS);
 }
