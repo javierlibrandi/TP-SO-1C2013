@@ -28,14 +28,12 @@
 
 #define LOG_ENUM_SIZE 5
 
-static char *enum_names[LOG_ENUM_SIZE] = { "TRACE", "DEBUG", "INFO", "WARNING",
-		"ERROR" };
+static char *enum_names[LOG_ENUM_SIZE] = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR"};
 
 /**
  * Private Functions
  */
-static void _log_write_in_level(t_log* logger, t_log_level level,
-		const char* message_template, va_list arguments);
+static void _log_write_in_level(t_log* logger, t_log_level level, const char* message_template, va_list arguments);
 static bool _isEnableLevelInLogger(t_log* logger, t_log_level level);
 
 #define log_impl_template(log_function, level_enum) 									\
@@ -50,30 +48,30 @@ static bool _isEnableLevelInLogger(t_log* logger, t_log_level level);
  * Public Functions
  */
 
+
 /**
  * @NAME: log_create
  * @DESC: Crea una instancia de logger, tomando por parametro
  * el nombre del programa, el nombre del archivo donde se van a generar los logs,
  * el nivel de detalle minimo a loguear y si además se muestra por pantalla lo que se loguea.
  */
-t_log* log_create(char* file, char *program_name, bool is_active_console,
-		t_log_level detail) {
+t_log* log_create(char* file, char *program_name, bool is_active_console, t_log_level detail) {
 	t_log* logger = malloc(sizeof(t_log));
 
-	if (logger == NULL ) {
+	if (logger == NULL) {
 		perror("Cannot create logger");
-		return NULL ;
+		return NULL;
 	}
 
 	FILE *file_opened = NULL;
 
-	if (file != NULL ) {
+	if (file != NULL) {
 		file_opened = txt_open_for_append(file);
 
-		if (file_opened == NULL ) {
+		if (file_opened == NULL) {
 			perror("Cannot create/open log file");
 			free(logger);
-			return NULL ;
+			return NULL;
 		}
 	}
 
@@ -84,6 +82,7 @@ t_log* log_create(char* file, char *program_name, bool is_active_console,
 	logger->program_name = string_duplicate(program_name);
 	return logger;
 }
+
 
 /**
  * @NAME: log_destroy
@@ -102,8 +101,8 @@ void log_destroy(t_log* logger) {
  * [TRACE] hh:mm:ss:mmmm PROCESS_NAME/(PID:TID): MESSAGE
  *
  */
-log_impl_template(log_trace, LOG_LEVEL_TRACE)
-;
+log_impl_template(log_trace, LOG_LEVEL_TRACE);
+
 
 /**
  * @NAME: log_debug
@@ -112,8 +111,7 @@ log_impl_template(log_trace, LOG_LEVEL_TRACE)
  * [DEBUG] hh:mm:ss:mmmm PROCESS_NAME/(PID:TID): MESSAGE
  *
  */
-log_impl_template(log_debug, LOG_LEVEL_DEBUG)
-;
+log_impl_template(log_debug, LOG_LEVEL_DEBUG);
 
 /**
  * @NAME: log_info
@@ -122,8 +120,7 @@ log_impl_template(log_debug, LOG_LEVEL_DEBUG)
  * [INFO] hh:mm:ss:mmmm PROCESS_NAME/(PID:TID): MESSAGE
  *
  */
-log_impl_template(log_info, LOG_LEVEL_INFO)
-;
+log_impl_template(log_info, LOG_LEVEL_INFO);
 
 /**
  * @NAME: log_warning
@@ -132,8 +129,8 @@ log_impl_template(log_info, LOG_LEVEL_INFO)
  * [WARNING] hh:mm:ss:mmmm PROCESS_NAME/(PID:TID): MESSAGE
  *
  */
-log_impl_template(log_warning, LOG_LEVEL_WARNING)
-;
+log_impl_template(log_warning, LOG_LEVEL_WARNING);
+
 
 /**
  * @NAME: log_error
@@ -142,8 +139,8 @@ log_impl_template(log_warning, LOG_LEVEL_WARNING)
  * [ERROR] hh:mm:ss:mmmm PROCESS_NAME/(PID:TID): MESSAGE
  *
  */
-log_impl_template(log_error, LOG_LEVEL_ERROR)
-;
+log_impl_template(log_error, LOG_LEVEL_ERROR);
+
 
 /**
  * @NAME: log_level_as_string
@@ -161,7 +158,7 @@ t_log_level log_level_from_string(char *level) {
 	int i;
 
 	for (i = 0; i < LOG_ENUM_SIZE; i++) {
-		if (string_equals_ignore_case(level, enum_names[i])) {
+		if (string_equals_ignore_case(level, enum_names[i])){
 			return i;
 		}
 	}
@@ -171,22 +168,25 @@ t_log_level log_level_from_string(char *level) {
 
 /** PRIVATE FUNCTIONS **/
 
-static void _log_write_in_level(t_log* logger, t_log_level level,
-		const char* message_template, va_list list_arguments) {
+static void _log_write_in_level(t_log* logger, t_log_level level, const char* message_template, va_list list_arguments) {
 
 	if (_isEnableLevelInLogger(logger, level)) {
 		char *message, *time, *buffer;
 		unsigned int thread_id;
 
-		message = string_from_vformat(message_template, list_arguments);
+                message = string_from_vformat(message_template, list_arguments);
 		time = temporal_get_string_time();
 		thread_id = process_get_thread_id();
 
-		buffer = string_from_format("[%s] %s %s/(%d:%d): %s\n",
-				log_level_as_string(level), time, logger->program_name,
-				logger->pid, thread_id, message);
+		buffer = string_from_format("[%s] %s %s/(%d:%d): %s\n", 
+                                log_level_as_string(level), 
+                                time, 
+                                logger->program_name,
+				logger->pid, 
+                                thread_id,
+                                message);
 
-		if (logger->file != NULL ) {
+		if (logger->file != NULL) {
 			txt_write_in_file(logger->file, buffer);
 		}
 
