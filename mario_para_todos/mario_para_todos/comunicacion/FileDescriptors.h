@@ -5,14 +5,13 @@
  *      Author: utnso
  */
 
-//Se definen los tipos de header para
+//Se definen los tipos de header para los mensajes
 typedef enum {
-	PERSONAJE
+	SALUDO_PERSONAJE
 } t_header_mensaje;
 
 typedef struct {
 	char t_header_mensaje;
 	char payLoadLength[2];
-	void * payLoad[128];
 } t_trama;
 
