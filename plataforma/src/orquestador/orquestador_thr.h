@@ -8,6 +8,9 @@
 #ifndef ORQUESTADOR_THR_H_
 #define ORQUESTADOR_THR_H_
 
+/**
+ * Este es el hilo que va a escucha a los personajes
+ */
 void *orequestador_thr();
 
 

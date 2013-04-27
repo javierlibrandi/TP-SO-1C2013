@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void *orequestador_thr(){
- printf("definir \n");
- return 0;
+void *orequestador_thr() {
+	printf("VAMOOSSSS MAXXXXXSSSSS!!!!!! \n");
+	return 0;
 }

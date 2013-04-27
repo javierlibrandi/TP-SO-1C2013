@@ -27,6 +27,7 @@ int main(void) {
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_orquestador = leer_archivo_orquestador_config();
+
 	/**
 	 * creo el hilo orquetador
 	 */
