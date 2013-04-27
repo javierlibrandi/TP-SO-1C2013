@@ -15,6 +15,7 @@
 #include <commons/string.h>
 #include <commons/txt.h>
 #include <commons/process.h>
+#include "entorno.h"
 
 static void grabar_log(t_log_level nivel, t_log* logger, const char* message_template,
 		va_list list_arguments);

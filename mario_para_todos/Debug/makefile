@@ -8,7 +8,8 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include mario_para_todos/prueba/subdir.mk
+-include mario_para_todos/comunicacion/subdir.mk
+-include mario_para_todos/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -25,11 +26,14 @@ endif
 # All Target
 all: libmario_para_todos.so
 
+dependents:
+	-cd /home/utnso/git/tp-20131c-gaturro/commons/Debug && $(MAKE) all
+
 # Tool invocations
-libmario_para_todos.so: $(OBJS) $(USER_OBJS)
+libmario_para_todos.so: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -shared -o "libmario_para_todos.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/git/tp-20131c-gaturro/commons/Debug" -shared -o "libmario_para_todos.so" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -40,5 +44,6 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
+/home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so:
 
 -include ../makefile.targets

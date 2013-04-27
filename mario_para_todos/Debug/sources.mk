@@ -13,5 +13,6 @@ LIBRARIES :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-mario_para_todos/prueba \
+mario_para_todos \
+mario_para_todos/comunicacion \
 

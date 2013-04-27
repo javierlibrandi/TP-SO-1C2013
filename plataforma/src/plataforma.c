@@ -10,13 +10,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "biblioteca/ambiente_config.h"
-#include <mario_para_todos/prueba/prueba.h>
+#include "mario_para_todos/ambiente_config.h"
+#include "orquestador/orquestador_thr.h"
+#include <commons/collections/list.h>
+#include <pthread.h>
 
 
 int main(void) {
 	t_param_orq param_orquestador;
 	t_param_plat param_plataforma;
+	pthread_t orquestador_thr;
 
 
 	//leo el archivo de configuracion para el hilo orquestador
@@ -24,8 +27,12 @@ int main(void) {
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_orquestador = leer_archivo_orquestador_config();
+	/**
+	 * creo el hilo orquetador
+	 */
+	pthread_create(&orquestador_thr, NULL, (void *) orequestador_thr, NULL );
 
-	hola_javi();
+	pthread_join(orquestador_thr, NULL );
 
 	return EXIT_SUCCESS;
 }

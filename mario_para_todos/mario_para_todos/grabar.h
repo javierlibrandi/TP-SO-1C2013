@@ -9,14 +9,6 @@
 #define GRABAR_H_
 
 #include <commons/log.h>
-#define PATH_PLATAFORMA_LOG "log/tracer.orquestador.log"
-#define LOG_NIVEL LOG_LEVEL_TRACE
-//		niveles de log
-//		LOG_LEVEL_TRACE,
-//		LOG_LEVEL_DEBUG,
-//		LOG_LEVEL_INFO,
-//		LOG_LEVEL_WARNING,
-//		LOG_LEVEL_ERROR
 
 
 /**Grabo log orquestador*/
