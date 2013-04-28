@@ -1,2 +1,5 @@
-  Explcacion de como se configuira el eclipse para usar hilos
-  http://blog.asteriosk.gr/2009/02/15/adding-pthread-to-eclipse-for-using-posix-threads/
+ #Explcacion de como se configuira el eclipse para usar hilos
+  	http://blog.asteriosk.gr/2009/02/15/adding-pthread-to-eclipse-for-using-posix-threads/
+ 
+ #ver los semaforos
+ 	ipcs –saclr

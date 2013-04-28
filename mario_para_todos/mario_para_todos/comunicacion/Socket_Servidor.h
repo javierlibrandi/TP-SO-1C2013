@@ -1,18 +1,19 @@
 /**
- * Javier Abellán. 14 Abril 2003
+ * Javier Abellï¿½n. 14 Abril 2003
  *
  * Funciones para que un servidor puede abrir sockets para atender un servicio y aceptar
  * conexiones de un cliente.
  */
 #ifndef _SOCKET_SERVIDOR_H
 #define _SOCKET_SERVIDOR_H
+#define BACKLOG 10 // CuÃ¡ntas conexiones pendientes se mantienen en cola
 
 /**
  * Abre un socket INET para atender al servicio cuyo nombre es Servicio.
  * El Servicio debe estar dado de alta en /etc/services como tcp.
  * Devuelve el descriptor del socket que atiende a ese servicio o -1 si ha habido error.
  */
-int Abre_Socket_Inet (char *Servicio);
+int Abre_Socket_Inet (char *puerto);
 
 
 /**
@@ -31,8 +32,8 @@ int Abre_Socket_Unix (char *Servicio);
 
 /**
  * Acepta un cliente para un socket INET.
- * Devuelve el descriptor de la conexión con el cliente o -1 si ha habido error.
+ * Devuelve el descriptor de la conexiï¿½n con el cliente o -1 si ha habido error.
  */
-int Acepta_Conexion_Cliente (int Descriptor);
+int Acepta_Conexion_Cliente (int sck_server);
 
 #endif
