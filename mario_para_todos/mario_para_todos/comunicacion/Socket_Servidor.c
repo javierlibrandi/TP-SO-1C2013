@@ -26,7 +26,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-
 /*
  *	Abre socket servidor UNIX. Se le pasa el servicio que se desea atender.
  * Deja el socket preparado
@@ -150,9 +149,10 @@ int Abre_Socket_Inet(char *puerto) {
 	}
 
 	my_addr.sin_family = AF_INET; // Ordenación de bytes de la máquina
-	my_addr.sin_port = htons(puerto); // short, Ordenación de bytes de la red
+	my_addr.sin_port = htons(atoi(puerto)); // short, Ordenación de bytes de la red
 	my_addr.sin_addr.s_addr = INADDR_ANY; // Rellenar con mi dirección IP
 	memset(&(my_addr.sin_zero), '\0', 8); // Poner a cero el resto de la estructura
+
 	if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr))
 			== -1) {
 		perror("bind");
