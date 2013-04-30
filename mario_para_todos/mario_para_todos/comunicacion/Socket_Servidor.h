@@ -15,21 +15,6 @@
  */
 int Abre_Socket_Inet (char *puerto);
 
-
-/**
- * Abre un socket UDP para atender al servicio cuyo nombre es Servicio.
- * El Servicio debe estar dado de alta en /etc/services como udp.
- * Devuelve el descriptor del socket que atiende a ese servicio o -1 si ha habido error.
- */
-int Abre_Socket_Udp (char *Servicio);
-
-
-/**
- * Abre un socket UNIX para atender al servicio cuyo nombre es Servicio.
- * Devuelve el descriptor del socket que atiende a ese servicio o -1 si ha habido error.
- */
-int Abre_Socket_Unix (char *Servicio);
-
 /**
  * Acepta un cliente para un socket INET.
  * Devuelve el descriptor de la conexi�n con el cliente o -1 si ha habido error.

@@ -114,7 +114,7 @@ void* productor_thr(void* p) {
 		printf("Soy el Productor: entrada=%d, Estado %d productos\n", entrada,
 				val);
 
-		sleep(5);
+		sleep(10);
 	}
 
 	pthread_exit(EXIT_SUCCESS);

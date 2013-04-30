@@ -7,7 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "comunicacion.h"
 
-void main(){
+int main(void){
 	puts("hola soy un personaje\n");
+	return EXIT_SUCCESS;
 }

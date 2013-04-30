@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -llib_mario -lmario_para_todos -lcommons
+LIBS := -lmario_para_todos -lcommons
 

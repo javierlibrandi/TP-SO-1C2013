@@ -1,9 +1,9 @@
-/* Javier Abellán, 20 Junio 2000
+/* Javier Abellï¿½n, 20 Junio 2000
  *
  * Funciones para abrir/establecer sockets de un cliente con un servidor.
  *
  * MODIFICACIONES:
- * 4 Septiembre 2003. Añadida función Abre_Conexion_Udp()
+ * 4 Septiembre 2003. Aï¿½adida funciï¿½n Abre_Conexion_Udp()
  */
 
 
@@ -39,8 +39,8 @@ int Abre_Conexion_Unix (char *Servicio)
 	/* Se establece la conexion.
 	 * Devuelve 0 si todo va bien, -1 en caso de error */
 	if (connect (
-			Descriptor, 
-			(struct sockaddr *)&Direccion, 
+			Descriptor,
+			(struct sockaddr *)&Direccion,
 			strlen (Direccion.sun_path) + sizeof (Direccion.sun_family)) == -1)
 	{
 		return -1;
@@ -54,16 +54,15 @@ int Abre_Conexion_Unix (char *Servicio)
 */
 int Abre_Conexion_Inet (
 	char *Host_Servidor, 
-	char *Servicio)
+	char *puerto)
 {
 	struct sockaddr_in Direccion;
-	struct servent *Puerto;
 	struct hostent *Host;
 	int Descriptor;
 
-	Puerto = getservbyname (Servicio, "tcp");
-	if (Puerto == NULL)
-		return -1;
+//	Puerto = getservbyname (Servicio, "tcp");
+//	if (Puerto == NULL)
+//		return -1;
 
 	Host = gethostbyname (Host_Servidor);
 	if (Host == NULL)
@@ -71,7 +70,7 @@ int Abre_Conexion_Inet (
 
 	Direccion.sin_family = AF_INET;
 	Direccion.sin_addr.s_addr = ((struct in_addr *)(Host->h_addr))->s_addr;
-	Direccion.sin_port = Puerto->s_port;
+	Direccion.sin_port =htons(atoi(puerto));
 	
 	Descriptor = socket (AF_INET, SOCK_STREAM, 0);
 	if (Descriptor == -1)
@@ -93,7 +92,7 @@ int Abre_Conexion_Inet (
  * Prepara un socket para un cliente UDP.
  * Asocia un socket a un cliente UDP en un servicio cualquiera elegido por el sistema,
  * de forma que el cliente tenga un sitio por el que enviar y recibir mensajes.
- * Devuelve el descriptor del socket que debe usar o -1 si ha habido algún error.
+ * Devuelve el descriptor del socket que debe usar o -1 si ha habido algï¿½n error.
  */
 int Abre_Conexion_Udp ()
 {
@@ -109,13 +108,13 @@ int Abre_Conexion_Udp ()
 
 	/* Se rellena la estructura de datos necesaria para hacer el bind() */
 	Direccion.sin_family = AF_INET;            /* Socket inet */
-	Direccion.sin_addr.s_addr = htonl(INADDR_ANY);    /* Cualquier dirección IP */
+	Direccion.sin_addr.s_addr = htonl(INADDR_ANY);    /* Cualquier direcciï¿½n IP */
 	Direccion.sin_port = htons(0);                    /* Dejamos que linux eliga el servicio */
 
 	/* Se hace el bind() */
 	if (bind (
-			Descriptor, 
-			(struct sockaddr *)&Direccion, 
+			Descriptor,
+			(struct sockaddr *)&Direccion,
 			sizeof (Direccion)) == -1)
 	{
 		close (Descriptor);

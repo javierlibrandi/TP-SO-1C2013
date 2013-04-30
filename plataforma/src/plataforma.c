@@ -62,6 +62,7 @@ int main(void) {
 	}
 
 	list_iterate(list_plataforma, (void*) _list_elements);
+
 	list_destroy(list_plataforma);
 	puts("fin\n");
 	return EXIT_SUCCESS;

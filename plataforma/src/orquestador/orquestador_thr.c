@@ -9,5 +9,6 @@
 
 void *orequestador_thr() {
 	printf("VAMOOSSSS MAXXXXXSSSSS!!!!!! \n");
+
 	return 0;
 }

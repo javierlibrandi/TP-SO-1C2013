@@ -27,54 +27,6 @@
 #include <signal.h>
 
 /*
- *	Abre socket servidor UNIX. Se le pasa el servicio que se desea atender.
- * Deja el socket preparado
- * para aceptar conexiones de clientes.
- * Devuelve el descritor del socket servidor, que se debera pasar
- * a la funcion Acepta_Conexion_Cliente(). Devuelve -1 en caso de error
- */
-int Abre_Socket_Unix(char *Servicio) {
-	struct sockaddr_un Direccion;
-	int Descriptor;
-
-	/*
-	 * Se abre el socket
-	 */
-	Descriptor = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (Descriptor == -1)
-		return -1;
-
-	/*
-	 * Se rellenan en la estructura Direccion los datos necesarios para
-	 * poder llamar a la funcion bind()
-	 */
-	strcpy(Direccion.sun_path, Servicio);
-	Direccion.sun_family = AF_UNIX;
-
-	if (bind(Descriptor, (struct sockaddr *) &Direccion,
-			strlen(Direccion.sun_path) + sizeof(Direccion.sun_family)) == -1) {
-		/*
-		 * En caso de error cerramos el socket y devolvemos error
-		 */
-		close(Descriptor);
-		return -1;
-	}
-
-	/*
-	 * Avisamos al sistema que comience a atender peticiones de clientes.
-	 */
-	if (listen(Descriptor, 1) == -1) {
-		close(Descriptor);
-		return -1;
-	}
-
-	/*
-	 * Se devuelve el descriptor del socket servidor
-	 */
-	return Descriptor;
-}
-
-/*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
  * devuelve el descriptor del socket del cliente o -1 si hay problemas.
  * Esta funcion vale para socket AF_INET o AF_UNIX.
@@ -97,32 +49,10 @@ int Acepta_Conexion_Cliente(int sck_server) {
 	 * funcion, esta variable contiene la longitud de la informacion
 	 * util devuelta en Cliente
 	 */
-//	Longitud_Cliente = sizeof(Cliente);
-//	Hijo = accept(Descriptor, &Cliente, &Longitud_Cliente);
-//	if (Hijo == -1)
-//		return -1;
-	/*
-	 * Se devuelve el descriptor en el que esta "enchufado" el cliente.
-	 */
-//	return Hijo;
-
 	sin_size = sizeof(struct sockaddr_in);
-	if ((new_fd = accept(sck_server, (struct sockaddr *) &their_addr, &sin_size))
-			== -1) {
-		perror("accept");
+	new_fd = accept(sck_server, (struct sockaddr *) &their_addr, &sin_size);
+	return new_fd;
 
-	}
-	printf("server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
-	if (!fork()) { // Este es el proceso hijo
-		close(sck_server); // El hijo no necesita este descriptor
-		if (send(new_fd, "Hello, world!\n", 14, 0) == -1)
-			perror("send");
-		close(new_fd);
-		exit(0);
-	}
-	close(new_fd); // El proceso padre no lo necesita
-
-	return 0;
 }
 
 /*
@@ -177,48 +107,3 @@ int Abre_Socket_Inet(char *puerto) {
 	return sockfd;
 }
 
-/**
- * Abre un socket inet de udp.
- * Se le pasa el nombre de servicio del socket al que debe atender.
- * Devuelve el descriptor del socket abierto o -1 si ha habido alg�n error.
- */
-int Abre_Socket_Udp(char *Servicio) {
-	struct sockaddr_in Direccion;
-	struct servent *Puerto = NULL;
-	int Descriptor;
-
-	/*
-	 * se abre el socket
-	 */
-	Descriptor = socket(AF_INET, SOCK_DGRAM, 0);
-	if (Descriptor == -1) {
-		return -1;
-	}
-
-	/*
-	 * Se obtiene el servicio del fichero /etc/services
-	 */
-	Puerto = getservbyname(Servicio, "udp");
-	if (Puerto == NULL ) {
-		return -1;
-	}
-
-	/*
-	 * Se rellenan los campos de la estructura Direccion, necesaria
-	 * para la llamada a la funcion bind() y se llama a esta.
-	 */
-	Direccion.sin_family = AF_INET;
-	Direccion.sin_port = Puerto->s_port;
-	Direccion.sin_addr.s_addr = INADDR_ANY;
-
-	if (bind(Descriptor, (struct sockaddr *) &Direccion, sizeof(Direccion))
-			== -1) {
-		close(Descriptor);
-		return -1;
-	}
-
-	/*
-	 * Se devuelve el descriptor del socket servidor
-	 */
-	return Descriptor;
-}
