@@ -54,7 +54,7 @@ int Abre_Conexion_Unix (char *Servicio)
 */
 int Abre_Conexion_Inet (
 	char *Host_Servidor, 
-	char *puerto)
+	int puerto)
 {
 	struct sockaddr_in Direccion;
 	struct hostent *Host;
@@ -70,7 +70,7 @@ int Abre_Conexion_Inet (
 
 	Direccion.sin_family = AF_INET;
 	Direccion.sin_addr.s_addr = ((struct in_addr *)(Host->h_addr))->s_addr;
-	Direccion.sin_port =htons(atoi(puerto));
+	Direccion.sin_port =htons(puerto);
 	
 	Descriptor = socket (AF_INET, SOCK_STREAM, 0);
 	if (Descriptor == -1)

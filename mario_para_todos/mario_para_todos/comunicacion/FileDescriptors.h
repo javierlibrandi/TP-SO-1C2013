@@ -7,7 +7,9 @@
 
 //Se definen los tipos de header para los mensajes
 typedef enum {
-	SALUDO_PERSONAJE
+	SALUDO_PERSONAJE,
+	PUERTO_PLANIFICADOR,
+	PUETO_NIVEL
 } t_header_mensaje;
 
 typedef struct {
@@ -15,3 +17,6 @@ typedef struct {
 	char payLoadLength[2];
 } t_trama;
 
+typedef struct {
+	char *payLoad;
+} t_msj;

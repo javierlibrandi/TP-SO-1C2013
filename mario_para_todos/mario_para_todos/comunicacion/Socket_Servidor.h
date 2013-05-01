@@ -13,7 +13,7 @@
  * El Servicio debe estar dado de alta en /etc/services como tcp.
  * Devuelve el descriptor del socket que atiende a ese servicio o -1 si ha habido error.
  */
-int Abre_Socket_Inet (char *puerto);
+int Abre_Socket_Inet (int puerto);
 
 /**
  * Acepta un cliente para un socket INET.

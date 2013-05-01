@@ -19,12 +19,9 @@
 #include "Socket_Servidor.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include <sys/wait.h>
-#include <signal.h>
+
 
 /*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
@@ -32,15 +29,9 @@
  * Esta funcion vale para socket AF_INET o AF_UNIX.
  */
 int Acepta_Conexion_Cliente(int sck_server) {
-	socklen_t Longitud_Cliente;
-	struct sockaddr Cliente;
 	int new_fd; // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd
-	struct sockaddr_in my_addr; // información sobre mi dirección
 	struct sockaddr_in their_addr; // información sobre la dirección delcliente
 	int sin_size;
-	struct sigaction sa;
-
-	int Hijo;
 
 	/*
 	 * La llamada a la funcion accept requiere que el parametro
@@ -61,12 +52,9 @@ int Acepta_Conexion_Cliente(int sck_server) {
  * Se pasa como parametro el nombre del servicio. Debe estar dado
  * de alta en el fichero /etc/services
  */
-int Abre_Socket_Inet(char *puerto) {
+int Abre_Socket_Inet(int puerto) {
 	int sockfd; // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd
 	struct sockaddr_in my_addr; // información sobre mi dirección
-	struct sockaddr_in their_addr; // información sobre la dirección delcliente
-	int sin_size;
-	struct sigaction sa;
 	int yes = 1;
 
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -79,7 +67,7 @@ int Abre_Socket_Inet(char *puerto) {
 	}
 
 	my_addr.sin_family = AF_INET; // Ordenación de bytes de la máquina
-	my_addr.sin_port = htons(atoi(puerto)); // short, Ordenación de bytes de la red
+	my_addr.sin_port = htons(puerto); // short, Ordenación de bytes de la red
 	my_addr.sin_addr.s_addr = INADDR_ANY; // Rellenar con mi dirección IP
 	memset(&(my_addr.sin_zero), '\0', 8); // Poner a cero el resto de la estructura
 

@@ -11,19 +11,20 @@
 #include "ambiente_config.h"
 #include "grabar.h"
 
-t_param_orq leer_archivo_orquestador_config() {
+struct t_param_orq leer_archivo_orquestador_config() {
 	t_config* config;
-	t_param_orq param;
+	struct t_param_orq param;
 
 	log_in_disk_orq(LOG_LEVEL_TRACE,
-			"comienzo lectura archivo de configuracion %s ", PATH_CONFIG);
+			"comienzo lectura archivo de configuracion orquestador en el path %s ",
+			PATH_CONFIG);
 
 	config = config_create(PATH_CONFIG);
 
 	param.IP = config_get_string_value(config, "IP");
-	param.PUERTO = config_get_string_value(config, "PUERTO");
+	param.PUERTO = config_get_int_value(config, "PUERTO");
 
-	log_in_disk_orq(LOG_LEVEL_TRACE, "ip %s puerto %s", param.IP, param.PUERTO);
+	log_in_disk_orq(LOG_LEVEL_TRACE, "ip %s puerto %d", param.IP, param.PUERTO);
 
 	return param;
 }
@@ -33,7 +34,8 @@ t_param_plat leer_archivo_plataforma_config() {
 	t_param_plat param;
 
 	log_in_disk_plat(LOG_LEVEL_TRACE,
-			"comienzo lectura archivo de configuracion %s ", PATH_CONFIG);
+			"comienzo lectura archivo de configuracion plataforma en el %s ",
+			PATH_CONFIG);
 
 	config = config_create(PATH_CONFIG);
 
@@ -51,5 +53,24 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	return param;
 
+}
+
+t_param_plan leer_archivo_plan_config(char *nivel) {
+	t_config* config;
+	t_param_plan param;
+
+	log_in_disk_plat(LOG_LEVEL_TRACE,
+			"comienzo lectura archivo de configuracion panificador nivel en el path %s ",
+			PATH_CONFIG);
+
+	config = config_create(PATH_CONFIG);
+
+	param.PUERTO = config_get_int_value(config, nivel);
+
+	log_in_disk_plat(LOG_LEVEL_TRACE,
+			"el nivel  %s  tiene asignado el puerto %d", nivel ,
+			param.PUERTO);
+
+	return param;
 }
 
