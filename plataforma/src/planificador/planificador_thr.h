@@ -10,11 +10,12 @@
 
 #include <pthread.h>
 
-typedef struct{
+
+typedef struct {
 	pthread_t planificador_thr; //descriptor del hilo
 	char *desc_nivel; //nombre del nivel al que reprecenta el hilo
-}t_h_planificador;
-
+	int puerto; //puerto donde escucha el planificador
+} t_h_planificador;
 
 void *planificador_nivel_thr(void *p);
 
