@@ -22,7 +22,7 @@
  *	suficiente para los datos. Devuelve el numero de bytes leidos o
  * 0 si se cierra fichero o -1 si hay error.
  */
-int Lee_Socket(int fd, char *Datos, int Longitud) {
+int Lee_Socket(int fd, void *Datos, int Longitud) {
 	int Leido = 0;
 	int Aux = 0;
 
@@ -85,7 +85,7 @@ int Lee_Socket(int fd, char *Datos, int Longitud) {
  * Escribe dato en el socket cliente. Devuelve numero de bytes escritos,
  * o -1 si hay error.
  */
-int Escribe_Socket(int fd, char *Datos, int Longitud) {
+int Escribe_Socket(int fd, void *Datos, int Longitud) {
 	int Escrito = 0;
 	int Aux = 0;
 
