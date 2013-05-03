@@ -6,6 +6,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> //para funcione de cadena como strcpy
+#include <unistd.h> //para el close
 #include <mario_para_todos/ambiente_config.h>
 #include <commons/config.h>
 #include <mario_para_todos/grabar.h>
