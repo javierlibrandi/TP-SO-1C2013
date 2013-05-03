@@ -74,7 +74,7 @@ int Abre_Socket_Inet(int puerto) {
 	if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr))
 			== -1) {
 		perror("bind");
-		exit(1);
+		return -1;
 	}
 	if (listen(sockfd, BACKLOG) == -1) {
 		perror("listen");
