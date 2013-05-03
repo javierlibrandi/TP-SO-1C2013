@@ -17,6 +17,11 @@ typedef struct {
 	int puerto; //puerto donde escucha el planificador
 } t_h_planificador;
 
+typedef struct t_h_parlante{
+	char *desc_nivel;
+	pthread_t parlante_thr;
+}t_h_parlante;
+
 void *planificador_nivel_thr(void *p);
 
 #endif /* PLANIFICADOR_THR_H_ */
