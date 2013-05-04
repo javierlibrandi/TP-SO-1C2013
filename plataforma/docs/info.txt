@@ -6,3 +6,6 @@
  	
 #ver puerto que estan escuchando
 	netstat -lpt 	
+	
+#Socket de la catedra
+	https://docs.google.com/presentation/d/1EjcPErOSoY7asgTFZmiqq7eTfRE8PQSgowIH62bQ2JM/edit#slide=id.g312c12c9_0_117	

@@ -9,6 +9,7 @@
 #define PLANIFICADOR_THR_H_
 
 #include <pthread.h>
+#include <commons/collections/list.h>
 
 
 typedef struct {
@@ -19,7 +20,7 @@ typedef struct {
 
 typedef struct t_h_parlante{
 	char *desc_nivel;
-	pthread_t parlante_thr;
+	pthread_t sock;
 }t_h_parlante;
 
 void *planificador_nivel_thr(void *p);
