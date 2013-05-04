@@ -17,10 +17,10 @@ typedef enum {
  * el cambio en los tipos lo saco del ejemplo
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c
  */
-typedef struct {
+typedef struct t_header{
 	t_header_mensaje  t_header_mensaje; //catiar ante de enviar a int8_t
 	int16_t payLoadLength;
-} t_heder;
+} t_header;
 
 typedef struct {
 	char *payLoad;

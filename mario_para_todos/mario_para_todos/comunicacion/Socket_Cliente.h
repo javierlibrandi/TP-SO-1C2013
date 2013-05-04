@@ -8,11 +8,6 @@
 
 #include <sys/socket.h>
 
-/**
- * Abre un socket UNIX con un servidor que est� en la misma m�quina y que atienda al
- * servicio de nombre Servicio. 
- */
-int Abre_Conexion_Unix (char *Servicio);
 
 /**
  * Abre un socket INET con un servidor que est� corriendo en Host_Servidor y que atienda

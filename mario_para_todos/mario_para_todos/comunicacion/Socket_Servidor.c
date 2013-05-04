@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
-
+#include "FileDescriptors.h"
 
 /*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
@@ -57,13 +57,19 @@ int Abre_Socket_Inet(int puerto) {
 	struct sockaddr_in my_addr; // información sobre mi dirección
 	int yes = 1;
 
+	// Crear un socket:
+	// AF_INET: Socket de internet IPv4
+	// SOCK_STREAM: Orientado a la conexion, TCP
+	// 0: Usar protocolo por defecto para AF_INET-SOCK_STREAM: Protocolo TCP/IPv4
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("socket");
-		exit(1);
+		return EXIT_FAILURE;
 	}
-	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+
+	// Hacer que el SO libere el puerto inmediatamente luego de cerrar el socket.
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
 		perror("setsockopt");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	my_addr.sin_family = AF_INET; // Ordenación de bytes de la máquina
@@ -71,27 +77,45 @@ int Abre_Socket_Inet(int puerto) {
 	my_addr.sin_addr.s_addr = INADDR_ANY; // Rellenar con mi dirección IP
 	memset(&(my_addr.sin_zero), '\0', 8); // Poner a cero el resto de la estructura
 
+	// Vincular el socket con una direccion de red almacenada en 'socketInfo'
 	if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr))
 			== -1) {
-		perror("bind");
-		return -1;
-	}
-	if (listen(sockfd, BACKLOG) == -1) {
-		perror("listen");
-		exit(1);
+		perror("Error al bindear socket escucha");
+		return EXIT_FAILURE;
 	}
 
-	/*
-	 * Se avisa al sistema que comience a atender llamadas de clientes
-	 */
+	// Escuchar nuevas conexiones entrantes.
 	if (listen(sockfd, BACKLOG) == -1) {
-		perror("listen");
-		return -1;
+		perror("Error al poner a escuchar socket");
+		return EXIT_FAILURE;
 	}
 
 	/*
 	 * Se devuelve el descriptor del socket servidor
 	 */
 	return sockfd;
+}
+
+
+int recv_variable(int socketReceptor, void* buffer) {
+
+	t_header header;
+	int bytesRecibidos;
+
+// Primero: Recibir el header para saber cuando ocupa el payload.
+	if (recv(socketReceptor, &header, sizeof(header), MSG_WAITALL) <= 0)
+		return EXIT_FAILURE;
+
+// Segundo: Alocar memoria suficiente para el payload.
+	buffer = malloc(header.payLoadLength);
+
+// Tercero: Recibir el payload.
+	if((bytesRecibidos = recv(socketReceptor, buffer, header.payLoadLength, MSG_WAITALL)) < 0){
+		free(buffer);
+		return EXIT_FAILURE;
+	}
+
+	return bytesRecibidos;
+
 }
 

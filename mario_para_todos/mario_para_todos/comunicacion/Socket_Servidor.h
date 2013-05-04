@@ -20,5 +20,11 @@ int Abre_Socket_Inet (int puerto);
  * Devuelve el descriptor de la conexi�n con el cliente o -1 si ha habido error.
  */
 int Acepta_Conexion_Cliente (int sck_server);
+/**
+ * Leo primero la cabecera y luego el mensaje.
+ * Devolviendo solo el mensaje en el puntero a void buffer
+ * quien lo llama debe castiar el puntero al tipo de dato esperado
+ */
+int recv_variable(int socketReceptor, void* buffer);
 
 #endif
