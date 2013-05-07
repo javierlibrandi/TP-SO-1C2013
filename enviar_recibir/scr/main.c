@@ -50,18 +50,14 @@ void send_thr() {
 	Escribe_Socket(sck, &send_t, sizeof(struct t_send));
 
 }
-
 void reciv_thr() {
-	int sck_server, new_fd;
 
-	char* msj=NULL;
+	int sck_server, new_fd;
+		char* msj;
 
 	sck_server = Abre_Socket_Inet(5000);
 	new_fd = Acepta_Conexion_Cliente(sck_server);
-
-	printf("el largo de mesaje es de %d\n", recv_variable(new_fd, msj));
-
+	printf("el largo de mesaje es de %d\n",recv_variable(new_fd, &msj));
 	printf("Mi nombre es %s\n", (char*) msj);
-
 	exit(0);
 }
