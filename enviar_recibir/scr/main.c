@@ -62,6 +62,6 @@ void reciv_thr() {
 
 	msj = recv_variable(new_fd);
 
-	printf("Mi nombre es %s y tengo  %d añitos\n", msj->nombre,msj->edad);
+	fprintf(stderr,"Mi nombre es %s y tengo  %d añitos\n", msj->nombre,msj->edad);
 	exit(0);
 }
