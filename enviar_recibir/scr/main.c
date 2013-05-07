@@ -41,7 +41,7 @@ void send_thr() {
 
 	send_t.header_mensaje = PUERTO_PLANIFICADOR;
 
-	send_t.payLoadLength = strlen(persona.nombre);
+	send_t.payLoadLength = strlen(persona.nombre) + 1;
 
 	memcpy(send_t.mensaje, persona.nombre, strlen(persona.nombre));
 
@@ -54,14 +54,13 @@ void send_thr() {
 void reciv_thr() {
 	int sck_server, new_fd;
 
-	char* msj=NULL;
+	char *msj = "\0";
 
 	sck_server = Abre_Socket_Inet(5000);
 	new_fd = Acepta_Conexion_Cliente(sck_server);
 
-	printf("el largo de mesaje es de %d\n", recv_variable(new_fd, msj));
+	msj = recv_variable(new_fd);
 
-	printf("Mi nombre es %s\n", (char*) msj);
-
+	printf("Mi nombre es %s\n", msj);
 	exit(0);
 }

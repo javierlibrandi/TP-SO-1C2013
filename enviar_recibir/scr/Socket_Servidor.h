@@ -25,6 +25,6 @@ int Acepta_Conexion_Cliente (int sck_server);
  * Devolviendo solo el mensaje en el puntero a void buffer
  * quien lo llama debe castiar el puntero al tipo de dato esperado
  */
-int recv_variable(int socketReceptor, void* buffer);
+void* recv_variable(int socketReceptor );
 
 #endif

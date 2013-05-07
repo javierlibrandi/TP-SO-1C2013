@@ -22,7 +22,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "FileDescriptors.h"
-
+#include "Socket.h"
 /*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
  * devuelve el descriptor del socket del cliente o -1 si hay problemas.
@@ -96,31 +96,29 @@ int Abre_Socket_Inet(int puerto) {
 	return sockfd;
 }
 
-
-int recv_variable(int socketReceptor, void* buffer) {
+void* recv_variable(int socketReceptor) {
 
 	t_header header;
 	int bytesRecibidos;
+	void* buffer;
+
 
 // Primero: Recibir el header para saber cuando ocupa el payload.
-	if (recv(socketReceptor, &header, sizeof(header), MSG_WAITALL) <= 0)
-		return EXIT_FAILURE;
+	if (Lee_Socket(socketReceptor, &header, sizeof(header)) <= 0)
+		return NULL;
 
 // Segundo: Alocar memoria suficiente para el payload.
 	buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
-	if((bytesRecibidos = recv(socketReceptor, buffer, header.payLoadLength, MSG_WAITALL)) < 0){
+	if ((bytesRecibidos = Lee_Socket(socketReceptor, buffer,
+			header.payLoadLength)) < 0) {
 		free(buffer);
-		return EXIT_FAILURE;
+		return NULL;
 	}
-	char *p;
-	p = (char*) buffer;
-
-	printf("aca si lo imprime %s\n",p);
 
 
-	return bytesRecibidos;
+	return buffer;
 
 }
 

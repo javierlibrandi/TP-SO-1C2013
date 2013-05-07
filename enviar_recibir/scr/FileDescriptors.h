@@ -35,6 +35,7 @@ typedef struct t_send{
 	int8_t header_mensaje;
 	int16_t payLoadLength;
 	char mensaje[20];
+	int edad;
 } t_send;
 
 #endif /* FILEDESCRIPTORS_H_*/
