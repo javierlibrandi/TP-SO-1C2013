@@ -9,9 +9,9 @@
 #include "Socket.h"
 
 typedef struct {
-	char nombre[20];
 	int edad;
-} persona_t;
+	char nombre[20];
+	} persona_t;
 
 void send_thr(void);
 void reciv_thr(void);
@@ -40,8 +40,9 @@ void send_thr() {
 	strcpy(persona.nombre, "tomys");
 
 	send_t.header_mensaje = PUERTO_PLANIFICADOR;
+	send_t.edad =5;
 
-	send_t.payLoadLength = strlen(persona.nombre) + 1;
+	send_t.payLoadLength = strlen(persona.nombre) + 1 +4;
 
 	memcpy(send_t.mensaje, persona.nombre, strlen(persona.nombre));
 
@@ -54,13 +55,13 @@ void send_thr() {
 void reciv_thr() {
 	int sck_server, new_fd;
 
-	char *msj = "\0";
+	 persona_t *msj = NULL;
 
 	sck_server = Abre_Socket_Inet(5000);
 	new_fd = Acepta_Conexion_Cliente(sck_server);
 
 	msj = recv_variable(new_fd);
 
-	printf("Mi nombre es %s\n", msj);
+	printf("Mi nombre es %s y tengo  %d añitos\n", msj->nombre,msj->edad);
 	exit(0);
 }
