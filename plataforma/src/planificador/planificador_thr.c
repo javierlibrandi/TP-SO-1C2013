@@ -18,8 +18,6 @@
 #include <commons/collections/list.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 
-//static void *hilo_parlante_thr_mentiroso(t_h_parlante *h_parlante);
-
 static void *hilo_parlante_thr(t_h_parlante *h_parlante);
 
 void* planificador_nivel_thr(void *p) {
@@ -91,34 +89,11 @@ static void *hilo_parlante_thr(t_h_parlante *h_parlante) {
 		log_in_disk_plan(LOG_LEVEL_TRACE, "mensaje recivido %s  \n ",
 				h_parlante->desc_nivel);
 	}
+
+	close(h_parlante->sock);
+
 	return 0;
 }
 
-//static void *hilo_parlante_thr_mentiroso(t_h_parlante *h_parlante) {
-//	char msj[1024], rec[5];
-//	int enviados;
-//
-//	while (1) {
-//
-//		strcpy(msj, "Hello, world!\n");
-//		enviados = Escribe_Socket(h_parlante->parlante_thr, msj, strlen(msj));
-//		if (enviados == -1) {
-//			perror("send");
-//			log_in_disk_plan(LOG_LEVEL_ERROR, "error en send %s", h_parlante->desc_nivel);
-//			exit(1);
-//		}
-//
-//		enviados = Lee_Socket(h_parlante->parlante_thr, rec, 5);
-//		log_in_disk_plan(LOG_LEVEL_TRACE,
-//				"mensaje recivido %s de un len %d \n ", rec, enviados);
-//
-//		if (strncmp(rec, "fin", 3) == 0) {
-//			close(h_parlante->parlante_thr); //cierro el socket con el que estoy hablando
-//			break; //salgo del segundo while para atender otra conexion
-//		}
-//	}
-//
-//	return 0;
-//
-//}
+
 
