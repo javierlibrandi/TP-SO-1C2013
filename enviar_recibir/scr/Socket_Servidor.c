@@ -99,7 +99,7 @@ int Abre_Socket_Inet(int puerto) {
 	return sockfd;
 }
 
-int recv_variable(int socketReceptor, char** buffer) {
+int recv_variable(int socketReceptor, void** buffer) {
 
 	t_header header;
 	int bytesRecibidos;
@@ -117,6 +117,10 @@ int recv_variable(int socketReceptor, char** buffer) {
 		free(buffer);
 		return EXIT_FAILURE;
 	}
+	char* nombre;
+	//nombre = (char*) (*buffer);
+	nombre = "prueba";
+	printf("aca lo muestra: %s", nombre);
 
 	return bytesRecibidos;
 

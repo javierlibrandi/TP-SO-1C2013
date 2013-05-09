@@ -54,7 +54,7 @@ void send_thr() {
 void reciv_thr() {
 
 	int sck_server, new_fd;
-		char* msj;
+		void* msj;
 
 	sck_server = Abre_Socket_Inet(5000);
 	new_fd = Acepta_Conexion_Cliente(sck_server);
