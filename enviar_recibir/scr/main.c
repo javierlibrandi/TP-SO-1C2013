@@ -71,5 +71,6 @@ void reciv_thr() {
 	printf("el tamaño de una persona es = %d \n", sizeof(persona_t));
 
 	printf("el header del mensaje es= %d \n", head.header_mensaje);
+	fprintf(stderr,"Mi nombre es %s y tengo  %d añitos \n", msj->nombre,msj->edad);
 	exit(0);
 }
