@@ -11,7 +11,7 @@
 typedef struct {
 	int edad;
 	char nombre[20];
-} persona_t;
+} persona_t;//
 
 void send_thr(void);
 void reciv_thr(void);

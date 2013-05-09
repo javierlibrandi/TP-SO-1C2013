@@ -14,7 +14,7 @@
 #define EDAD_PERSONAJE 101
 
 /**
- * el cambio en los tipos lo saco del ejemplo
+ * el cambio en los tipos lo saco del ejemplo**
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c
  */
 typedef struct {

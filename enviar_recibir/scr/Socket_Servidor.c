@@ -1,6 +1,6 @@
 /*
  * Javier Abellan, 20 Jun 2000
- *
+ *ssss
  * Funciones para la apertura de un socket servidor y la conexion con sus
  * clientes
  *
