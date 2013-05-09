@@ -9,8 +9,8 @@
 #include "Socket.h"
 
 typedef struct {
-	char nombre[20];
 	int edad;
+	char nombre[20];
 } persona_t;
 
 void send_thr(void);
@@ -42,8 +42,9 @@ void send_thr() {
 
 	send_t.header_mensaje = PUERTO_PLANIFICADOR;
 
-	send_t.payLoadLength = strlen(persona.nombre);
-
+	//send_t.payLoadLength = strlen(persona.nombre);
+	send_t.payLoadLength = sizeof(persona_t);
+	send_t.edad = 10;
 	memcpy(send_t.mensaje, persona.nombre, strlen(persona.nombre));
 
 	sck = Abre_Conexion_Inet("127.0.0.1", 5000);
@@ -51,14 +52,24 @@ void send_thr() {
 	Escribe_Socket(sck, &send_t, sizeof(struct t_send));
 
 }
+
 void reciv_thr() {
 
 	int sck_server, new_fd;
-		void* msj;
 
+	persona_t* msj;
+	int bytes_recibidos;
+	t_header head;
 	sck_server = Abre_Socket_Inet(5000);
 	new_fd = Acepta_Conexion_Cliente(sck_server);
-	printf("el largo de mesaje es de %d\n",recv_variable(new_fd, &msj));
-	printf("Mi nombre es %s\n", (char*) msj);
+	bytes_recibidos = recv_variable(new_fd, &msj, &head);
+
+	printf("el largo de mesaje es de %d \n", bytes_recibidos);
+	fprintf(stderr, "Mi nombre es %s y tengo  %d añitos \n", msj->nombre,
+			msj->edad);
+
+	printf("el tamaño de una persona es = %d \n", sizeof(persona_t));
+
+	printf("el header del mensaje es= %d \n", head.header_mensaje);
 	exit(0);
 }
