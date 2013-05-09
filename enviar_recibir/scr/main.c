@@ -36,13 +36,13 @@ void send_thr() {
 	int sck;
 	memset(send_t.mensaje, '\0', 20);
 
-	sleep(2); //me aseguro que el servidor esta levantado
+	sleep(2); //me aseguro que el servidor esta levantados
 
 	strcpy(persona.nombre, "tomys");
 
 	send_t.header_mensaje = PUERTO_PLANIFICADOR;
 
-	//send_t.payLoadLength = strlen(persona.nombre);
+	///send_t.payLoadLength = strlen(persona.nombre);
 	send_t.payLoadLength = sizeof(persona_t);
 	send_t.edad = 10;
 	memcpy(send_t.mensaje, persona.nombre, strlen(persona.nombre));

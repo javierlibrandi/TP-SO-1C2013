@@ -27,7 +27,7 @@
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
  * devuelve el descriptor del socket del cliente o -1 si hay problemas.
  * Esta funcion vale para socket AF_INET o AF_UNIX.
- */
+ *///
 
 int Acepta_Conexion_Cliente(int sck_server) {
 	int new_fd; // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd

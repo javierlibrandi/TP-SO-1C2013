@@ -3,7 +3,7 @@
  *
  *  Created on: Apr 27, 2013
  *      Author: utnso
- */
+ *///
 
 #ifndef FILEDESCRIPTORS_H_
 #define FILEDESCRIPTORS_H_
