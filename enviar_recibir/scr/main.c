@@ -42,7 +42,7 @@ void send_thr() {
 
 	send_t.header_mensaje = PUERTO_PLANIFICADOR;
 
-	///send_t.payLoadLength = strlen(persona.nombre);
+	////send_t.payLoadLength = strlen(persona.nombre);
 	send_t.payLoadLength = sizeof(persona_t);
 	send_t.edad = 10;
 	memcpy(send_t.mensaje, persona.nombre, strlen(persona.nombre));
