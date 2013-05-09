@@ -1,6 +1,6 @@
 /*
  * Javier Abellan, 20 Jun 2000
- *
+ *ssss
  * Funciones para la apertura de un socket servidor y la conexion con sus
  * clientes
  *
@@ -22,18 +22,19 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "FileDescriptors.h"
-#include "Socket.h"
-/*
+
+/*//
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
  * devuelve el descriptor del socket del cliente o -1 si hay problemas.
  * Esta funcion vale para socket AF_INET o AF_UNIX.
- */
+ *///
+
 int Acepta_Conexion_Cliente(int sck_server) {
 	int new_fd; // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd
 	struct sockaddr_in their_addr; // información sobre la dirección delcliente
 	int sin_size;
 
-	/*
+	/*33
 	 * La llamada a la funcion accept requiere que el parametro
 	 * Longitud_Cliente contenga inicialmente el tamano de la
 	 * estructura Cliente que se le pase. A la vuelta de la
@@ -96,29 +97,27 @@ int Abre_Socket_Inet(int puerto) {
 	return sockfd;
 }
 
-void* recv_variable(int socketReceptor) {
+int recv_variable(int socketReceptor, void** buffer, t_header* head) {
 
 	t_header header;
 	int bytesRecibidos;
-	void* buffer;
-
 
 // Primero: Recibir el header para saber cuando ocupa el payload.
-	if (Lee_Socket(socketReceptor, &header, sizeof(header)) <= 0)
-		return NULL;
+	if (recv(socketReceptor, &header, sizeof(header), MSG_WAITALL) <= 0)
+		return EXIT_FAILURE;
 
-// Segundo: Alocar memoria suficiente para el payload.
-	buffer = malloc(header.payLoadLength);
+// Segundo: Alocar memoria suficientae para el payload.
+	*head = header;
+	*buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
-	if ((bytesRecibidos = Lee_Socket(socketReceptor, buffer,
-			header.payLoadLength)) < 0) {
+	if ((bytesRecibidos = recv(socketReceptor, (*buffer), header.payLoadLength,
+			MSG_WAITALL)) < 0) {
 		free(buffer);
-		return NULL;
+		return EXIT_FAILURE;
 	}
 
-
-	return buffer;
+	return bytesRecibidos;
 
 }
 

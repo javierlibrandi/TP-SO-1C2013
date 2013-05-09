@@ -3,11 +3,10 @@
  *
  *  Created on: Apr 27, 2013
  *      Author: utnso
- */
-
+ *///
+//
 #ifndef FILEDESCRIPTORS_H_
 #define FILEDESCRIPTORS_H_
-
 #define SALUDO_PERSONAJE 1
 #define PUERTO_PLANIFICADOR 2
 #define PUETO_NIVEL 3
@@ -15,7 +14,7 @@
 #define EDAD_PERSONAJE 101
 
 /**
- * el cambio en los tipos lo saco del ejemplo
+ * el cambio en los tipos lo saco del ejemplo**
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c
  */
 typedef struct {
