@@ -23,7 +23,7 @@
 #include <arpa/inet.h>
 #include "FileDescriptors.h"
 
-/*
+/*//
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
  * devuelve el descriptor del socket del cliente o -1 si hay problemas.
  * Esta funcion vale para socket AF_INET o AF_UNIX.
@@ -34,7 +34,7 @@ int Acepta_Conexion_Cliente(int sck_server) {
 	struct sockaddr_in their_addr; // información sobre la dirección delcliente
 	int sin_size;
 
-	/*
+	/*33
 	 * La llamada a la funcion accept requiere que el parametro
 	 * Longitud_Cliente contenga inicialmente el tamano de la
 	 * estructura Cliente que se le pase. A la vuelta de la

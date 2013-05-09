@@ -16,7 +16,7 @@ typedef struct {
 void send_thr(void);
 void reciv_thr(void);
 
-///PROBANDO EL GIT!!
+///PROBANDO EL GIT!!/
 int main(void) {
 
 	pthread_t send_thr_t, reciv_thr_t;
