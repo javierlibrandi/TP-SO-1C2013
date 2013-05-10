@@ -22,6 +22,7 @@
 #include <mario_para_todos/comunicacion/Socket.h>
 #include <string.h> //para funcione de cadena como strcpy
 #include <mario_para_todos/grabar.h>
+#include <errno.h>
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma);
@@ -63,6 +64,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,t_list *list_platafo
 			puerto);
 
 	sck = Abre_Socket_Inet(puerto);
+
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck);
 
@@ -79,6 +81,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,t_list *list_platafo
 					"opcion en el switch no implementada", puerto);
 			exit(1);
 		}
+		free(buffer);
 	}
 }
 
@@ -86,19 +89,31 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma) {
 
 	pthread_t planificador_thr;
 	t_h_planificador *h_planificador;
+	int tot_lista;
 
-	h_planificador = malloc(sizeof(h_planificador)); //recervo la memoria para almacenar el nuevo hilo
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s",
+			desc_nivel);
+
+	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
+
+	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
 	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
 
 	/**
 	 * creo los hilos planificador
 	 */
-	pthread_create(&planificador_thr, NULL, (void*) planificador_nivel_thr,
-			(void*) h_planificador);
+	if (pthread_create(&planificador_thr, NULL, (void*) planificador_nivel_thr,
+			(void*) h_planificador)!=0){
+		perror("Error al crear el thread");
+		exit(1);
+	}
+
+
 
 	h_planificador->planificador_thr = planificador_thr;
-	list_add(list_plataforma, h_planificador); //agrego el nuevo hilo a la lista
 
+	tot_lista = list_add(list_plataforma, h_planificador); //agrego el nuevo hilo a la lista
+	log_in_disk_plat(LOG_LEVEL_TRACE,"Elementos en la lista plataforma %d", tot_lista);
 }
 
 void libero_memoria(t_list *list_plataforma) {

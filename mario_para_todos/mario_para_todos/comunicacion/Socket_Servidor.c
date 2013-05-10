@@ -96,26 +96,29 @@ int Abre_Socket_Inet(int puerto) {
 	return sockfd;
 }
 
-
-int recv_variable(int socketReceptor, void* buffer) {
+void *recv_variable(int socketReceptor, int *tipo) {
 
 	t_header header;
 	int bytesRecibidos;
+	void *buffer;
 
 // Primero: Recibir el header para saber cuando ocupa el payload.
-	if (recv(socketReceptor, &header, sizeof(header), MSG_WAITALL) <= 0)
-		return EXIT_FAILURE;
+	if (Lee_Socket(socketReceptor, &header, sizeof(header)) == -1) {
+		perror("error el Lee_Socket");
+		exit(-1);
+	}
 
+	*tipo = (int) header.header_mensaje;
 // Segundo: Alocar memoria suficiente para el payload.
 	buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
-	if((bytesRecibidos = recv(socketReceptor, buffer, header.payLoadLength, MSG_WAITALL)) < 0){
-		free(buffer);
-		return EXIT_FAILURE;
+	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
+		perror("error el Lee_Socket");
+		exit(-1);
 	}
 
-	return bytesRecibidos;
+	return buffer;
 
 }
 

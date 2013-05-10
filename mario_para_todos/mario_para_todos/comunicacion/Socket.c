@@ -30,7 +30,7 @@ int Lee_Socket(int fd, void *Datos, int Longitud) {
 	 */
 	if ((fd == -1) || (Datos == NULL )|| (Longitud < 1))return -1;
 
-	if((Leido = recv(fd, Datos + Leido, Longitud, MSG_WAITALL))==-1){
+	if((Leido = recv(fd, Datos, Longitud, MSG_WAITALL))==-1){
 		/*
 				 * En caso de error, la variable errno nos indica el tipo
 				 * de error.

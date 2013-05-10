@@ -5,23 +5,36 @@
  *      Author: utnso
  */
 
-//Se definen los tipos de header para los mensajes
-typedef enum {
-	SALUDO_PERSONAJE,
-	PUERTO_PLANIFICADOR,
-	PUETO_NIVEL
-} t_header_mensaje;
+#ifndef FILEDESCRIPTORS_H_
+#define FILEDESCRIPTORS_H_
 
+#define SALUDO_PERSONAJE 1
+#define PUERTO_PLANIFICADOR 2
+#define PUETO_NIVEL 3
+#define NOMBRE_PERSONAJE 4
+#define SALUDO_NIVEL 5
 
 /**
  * el cambio en los tipos lo saco del ejemplo
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c
  */
-typedef struct t_header{
-	t_header_mensaje  t_header_mensaje; //catiar ante de enviar a int8_t
+typedef struct {
+	int8_t header_mensaje;
 	int16_t payLoadLength;
 } t_header;
 
 typedef struct {
-	char *payLoad;
+	void *payLoad;
 } t_msj;
+
+/**
+ * el cambio en los tipos lo saco del ejemplo
+ * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c
+ */
+typedef struct t_send{
+	int8_t header_mensaje;
+	int16_t payLoadLength;
+	char mensaje[20];
+} t_send;
+
+#endif /* FILEDESCRIPTORS_H_*/

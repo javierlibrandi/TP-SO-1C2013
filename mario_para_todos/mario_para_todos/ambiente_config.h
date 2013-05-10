@@ -10,6 +10,7 @@ typedef struct t_param_orq{
 
 typedef struct t_param_plat{
 	char** planificador_nivel;
+	int   PUERTO;
 } t_param_plat;
 
 /**
