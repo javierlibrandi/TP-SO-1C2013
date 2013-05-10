@@ -22,10 +22,9 @@ static void *hilo_parlante_thr(t_h_parlante *h_parlante);
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
-	pthread_t parlante_thr;
-	t_h_parlante *h_parlante;
 
-	int sck_server, new_fd;
+	void *buffer = NULL;
+	int tipo;
 
 	struct t_param_plan param_planificador; //si no declaro la variable como  "struct t_param_plan" tengo problemas para resolver el nombre
 	char *des_nivel;
@@ -37,38 +36,18 @@ void* planificador_nivel_thr(void *p) {
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_planificador = leer_archivo_plan_config(des_nivel);
-	h_planificador->puerto = param_planificador.PUERTO;
 
-	if ((sck_server = Abre_Socket_Inet(param_planificador.PUERTO)) == -1) {
-
-		log_in_disk_plan(LOG_LEVEL_ERROR,
-				"Error al abrir la conexion para el planificador de nivel",
-				des_nivel);
-		exit(1);
-	}
 
 	log_in_disk_plan(LOG_LEVEL_TRACE, "servidor escuchando %s", des_nivel);
 
 	while (1) {
-		if ((new_fd = Acepta_Conexion_Cliente(sck_server)) == -1) {
-			log_in_disk_plan(LOG_LEVEL_ERROR,
-					"error en Acepta_Conexion_Cliente %s", des_nivel);
-			exit(1);
-		}
 
-		h_parlante = malloc(sizeof(h_parlante)); //recervo la memoria para almacenar el nuevo hilo
-		h_parlante->desc_nivel = des_nivel; //agrego la des del nivel
-		h_parlante->sock = new_fd;
-		/**
-		 * creo los hilos parlante
-		 */
-		pthread_create(&parlante_thr, NULL, (void*) hilo_parlante_thr,
-				h_parlante);
-
+		buffer = recv_variable(h_planificador->sock, &tipo);
+		printf("salida del segundo llamado %s",(char*)buffer);
 	}
 	//cierro el socket que escucha para no aceptar nuevas conexiones.
 	//Como estoy en un while infinito no tiene sentido lo pogo como ejempo
-	close(sck_server);
+
 
 	return 0;
 }

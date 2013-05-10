@@ -22,11 +22,11 @@
 #include <mario_para_todos/comunicacion/Socket.h>
 #include <string.h> //para funcione de cadena como strcpy
 #include <mario_para_todos/grabar.h>
-#include <errno.h>
 
 void libero_memoria(t_list *list_plataforma);
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma);
-void escucho_conexiones(const t_param_plat param_plataforma,t_list *list_plataforma);
+void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma, int sock);
+void escucho_conexiones(const t_param_plat param_plataforma,
+		t_list *list_plataforma);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
 
 int main(void) {
@@ -54,7 +54,12 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-void escucho_conexiones(const t_param_plat param_plataforma,t_list *list_plataforma) {
+/////////////////////////////////////////////////////////////////////
+///					  escucho_conexiones						////
+////////////////////////////////////////////////////////////////////
+
+void escucho_conexiones(const t_param_plat param_plataforma,
+		t_list *list_plataforma) {
 	int sck, new_sck;
 	void *buffer = NULL;
 	int puerto = param_plataforma.PUERTO;
@@ -67,14 +72,13 @@ void escucho_conexiones(const t_param_plat param_plataforma,t_list *list_platafo
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck);
-
-		buffer = recv_variable(new_sck,&tipo);
+		buffer = recv_variable(new_sck, &tipo);
 
 		switch (tipo) {
 		case SALUDO_PERSONAJE:
 			//agrego del descirptor del socket para que hable con el oruqetador
 		case SALUDO_NIVEL: //creo el planificador del nivel
-			creo_hilos_planificador(buffer, list_plataforma);
+			creo_hilos_planificador(buffer, list_plataforma, new_sck);
 			break;
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
@@ -85,36 +89,41 @@ void escucho_conexiones(const t_param_plat param_plataforma,t_list *list_platafo
 	}
 }
 
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma) {
+/////////////////////////////////////////////////////////////////////
+///					creo_hilos_planificador						////
+////////////////////////////////////////////////////////////////////
+
+void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
+		int sock) {
 
 	pthread_t planificador_thr;
 	t_h_planificador *h_planificador;
 	int tot_lista;
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s",
-			desc_nivel);
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", desc_nivel);
 
 	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
 
 	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
 	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
+	h_planificador->sock = sock;
 
 	/**
 	 * creo los hilos planificador
 	 */
-	if (pthread_create(&planificador_thr, NULL, (void*) planificador_nivel_thr,
-			(void*) h_planificador)!=0){
-		perror("Error al crear el thread");
-		exit(1);
-	}
-
-
+	pthread_create(&planificador_thr, NULL, (void*) planificador_nivel_thr,
+			(void*) h_planificador);
 
 	h_planificador->planificador_thr = planificador_thr;
 
 	tot_lista = list_add(list_plataforma, h_planificador); //agrego el nuevo hilo a la lista
-	log_in_disk_plat(LOG_LEVEL_TRACE,"Elementos en la lista plataforma %d", tot_lista);
+	log_in_disk_plat(LOG_LEVEL_TRACE, "Elementos en la lista plataforma %d",
+			tot_lista);
 }
+
+/////////////////////////////////////////////////////////////////////
+///					      libero_memoria						////
+////////////////////////////////////////////////////////////////////
 
 void libero_memoria(t_list *list_plataforma) {
 	int index;
@@ -128,6 +137,10 @@ void libero_memoria(t_list *list_plataforma) {
 	list_iterate(list_plataforma, (void*) _list_elements);
 
 }
+
+/////////////////////////////////////////////////////////////////////
+///					      join_orquestador						////
+////////////////////////////////////////////////////////////////////
 
 //pthread_join de los hilos orquestadores
 void join_orquestador(t_list *list_plataforma) {
