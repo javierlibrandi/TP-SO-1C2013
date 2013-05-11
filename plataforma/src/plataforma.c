@@ -24,7 +24,8 @@
 #include <mario_para_todos/grabar.h>
 
 void libero_memoria(t_list *list_plataforma);
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma, int sock);
+void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
+		int sock);
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
@@ -106,6 +107,8 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 
 	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
 	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
+
+
 	h_planificador->sock = sock;
 
 	/**
