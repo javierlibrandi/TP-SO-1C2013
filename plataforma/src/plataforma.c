@@ -97,9 +97,9 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 		int sock) {
 
-	pthread_t planificador_thr;
+	pthread_t planificador_pthread;
 	t_h_planificador *h_planificador;
-	int tot_lista;
+	fd_set readfds;
 
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", desc_nivel);
 
@@ -108,20 +108,24 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
 	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
 
-
-	h_planificador->sock = sock;
+	///////configuro el select() que despues voy a usar en el hilo////////
+	FD_ZERO(&readfds);
+	FD_SET(sock, &readfds);
+	h_planificador->sock = &sock; //IMPORTANTE QUE SEA UN PUNTERO ASI LO VEO EN EL SELECT() DEL HILO CUANDO LO MODIFICO EN LA PLATAFORMA
+	h_planificador->readfds = &readfds;
+	///////fin configuro el select() que despues voy a usar en el hilo////////
 
 	/**
 	 * creo los hilos planificador
 	 */
-	pthread_create(&planificador_thr, NULL, (void*) planificador_nivel_thr,
+	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
 
-	h_planificador->planificador_thr = planificador_thr;
+	h_planificador->planificador_thr = planificador_pthread;
 
-	tot_lista = list_add(list_plataforma, h_planificador); //agrego el nuevo hilo a la lista
+	//agrego el nuevo hilo a la lista
 	log_in_disk_plat(LOG_LEVEL_TRACE, "Elementos en la lista plataforma %d",
-			tot_lista);
+			list_add(list_plataforma, h_planificador));
 }
 
 /////////////////////////////////////////////////////////////////////
