@@ -48,9 +48,18 @@ int main() {
 
 	//memcpy(send_t.mensaje, persona.nombre, strlen(persona.nombre));
 
+
 	sck = Abre_Conexion_Inet("127.0.0.1", 5000);
 
 	Escribe_Socket(sck, &send_t, sizeof(t_send));
 
-	return 0;
+	memset(send_t.mensaje, '\0', 20 * sizeof(char));
+	strcpy(send_t.mensaje, "ppwpwpwpw");
+	send_t.header_mensaje = SALUDO_NIVEL;
+
+	send_t.payLoadLength = sizeof(send_t.mensaje);
+
+	Escribe_Socket(sck, &send_t, sizeof(t_send));
+sleep(20);
+	return EXIT_SUCCESS;
 }
