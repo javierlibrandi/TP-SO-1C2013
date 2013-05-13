@@ -60,6 +60,6 @@ int main() {
 	send_t.payLoadLength = sizeof(send_t.mensaje);
 
 	Escribe_Socket(sck, &send_t, sizeof(t_send));
-sleep(20);
+sleep(1200);
 	return EXIT_SUCCESS;
 }

@@ -18,40 +18,38 @@
 #include <commons/collections/list.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 
-
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 
 	void *buffer = NULL;
 	int tipo;
-
-//	struct t_param_plan param_planificador; //si no declaro la variable como  "struct t_param_plan" tengo problemas para resolver el nombre
-	char *des_nivel;
-
-	des_nivel = h_planificador->desc_nivel;
+	int i;
 
 	log_in_disk_plan(LOG_LEVEL_DEBUG, "Creo el panificador del nivel %s ",
-			des_nivel);
+			h_planificador->desc_nivel);
 
-	//leo el archivo de configuracion para el hilo orquestador
-//	param_planificador = leer_archivo_plan_config(des_nivel);
+	for (;;) {
+		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
+				NULL, NULL ) == -1) {
+			perror("select");
+			exit(EXIT_FAILURE);
+		}
+
+		for (i = 0; i <= *(h_planificador->sock); i++) {
+			if (FD_ISSET(i, h_planificador->readfds)) {
+				buffer = recv_variable(*(h_planificador->sock), &tipo);
+				log_in_disk_plan(LOG_LEVEL_TRACE,
+						"salida del segundo llamado %s nivel %s \n", (char*) buffer,h_planificador->desc_nivel);
+
+				free(buffer);
 
 
-	log_in_disk_plan(LOG_LEVEL_TRACE, "servidor escuchando %s", des_nivel);
-
-	while (1) {
-
-		buffer = recv_variable(h_planificador->sock, &tipo);
-		printf("salida del segundo llamado %s\n",(char*)buffer);
-		free(buffer);
+			}
+		}
 	}
 	//cierro el socket que escucha para no aceptar nuevas conexiones.
 	//Como estoy en un while infinito no tiene sentido lo pogo como ejempo
 
-
-	return 0;
+	pthread_exit(EXIT_SUCCESS);
 }
-
-
-
 

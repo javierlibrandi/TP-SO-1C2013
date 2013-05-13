@@ -11,4 +11,10 @@
 	https://docs.google.com/presentation/d/1EjcPErOSoY7asgTFZmiqq7eTfRE8PQSgowIH62bQ2JM/edit#slide=id.g312c12c9_0_117	
 	
 #puerto 
-	netstat -plt	
+	netstat -plt
+	
+#declaracion de semaforos mutex	
+static int contador = 0;
+static pthread_mutex_t candado = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_lock(&candado);
+pthread_mutex_unlock(&candado);		

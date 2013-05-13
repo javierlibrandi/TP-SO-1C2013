@@ -29,6 +29,8 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
+bool existe_nivel(char *desc_nivel, t_list *list_plataforma);
+
 
 int main(void) {
 
@@ -79,7 +81,9 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case SALUDO_PERSONAJE:
 			//agrego del descirptor del socket para que hable con el oruqetador
 		case SALUDO_NIVEL: //creo el planificador del nivel
-			creo_hilos_planificador(buffer, list_plataforma, new_sck);
+			if (!existe_nivel(buffer, list_plataforma)) {
+				creo_hilos_planificador(buffer, list_plataforma, new_sck);
+				}
 			break;
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
@@ -111,21 +115,27 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 	///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
 	FD_SET(sock, &readfds);
-	h_planificador->sock = &sock; //IMPORTANTE QUE SEA UN PUNTERO ASI LO VEO EN EL SELECT() DEL HILO CUANDO LO MODIFICO EN LA PLATAFORMA
-	h_planificador->readfds = &readfds;
+	/*	IMPORTANTE QUE SEA UN PUNTERO ASI LO VEO EN EL SELECT() DEL HILO
+	 CUANDO LO MODIFICO EN LA PLATAFORMA.
+	 TAMBIEN HAGO UNA COPIA DE MEMORIA PARA NO PERDER EL VALOR.
+	 NO OLVIDARCE DE HACER UN FREE EN libero_memoria
+	 */
+	h_planificador->sock = malloc(sizeof(int));
+	memcpy(h_planificador->sock, &sock, sizeof(int));
+	h_planificador->readfds = malloc(sizeof(fd_set));
+	memcpy(h_planificador->readfds, &readfds, sizeof(fd_set));
 	///////fin configuro el select() que despues voy a usar en el hilo////////
 
-	/**
-	 * creo los hilos planificador
-	 */
+	//creo los hilos planificador
 	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
 
 	h_planificador->planificador_thr = planificador_pthread;
 
-	//agrego el nuevo hilo a la lista
+	//agrego el nuevo hilo a la lista y muestro cuanto elemnetos tengo
 	log_in_disk_plat(LOG_LEVEL_TRACE, "Elementos en la lista plataforma %d",
 			list_add(list_plataforma, h_planificador));
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -138,6 +148,8 @@ void libero_memoria(t_list *list_plataforma) {
 
 	void _list_elements(t_h_planificador *h_planificador) {
 		free(h_planificador->desc_nivel);
+		free(h_planificador->readfds);
+		free(h_planificador->sock);
 		index++;
 	}
 
@@ -164,3 +176,27 @@ void join_orquestador(t_list *list_plataforma) {
 
 }
 
+/////////////////////////////////////////////////////////////////////
+///					      existe_nivel							////
+////////////////////////////////////////////////////////////////////
+
+bool existe_nivel(char *desc_nivel, t_list *list_plataforma) {
+
+	if (list_is_empty(list_plataforma) == 1) {
+		return false;
+	}
+
+	bool _list_elements(t_h_planificador *h_planificador) {
+
+		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
+			log_in_disk_plat(LOG_LEVEL_WARNING,
+					"Ya se declaro un nivel con el nombre %s", desc_nivel);
+			return true;
+		}
+		return false;
+
+	}
+
+	return (bool*) list_find(list_plataforma, (void*) _list_elements);
+
+}

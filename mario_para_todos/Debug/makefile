@@ -27,7 +27,7 @@ endif
 all: libmario_para_todos.so
 
 dependents:
-	-cd /home/utnso/git/tp-20131c-gaturro/commons/Debug && $(MAKE) all
+	-cd /home/utnso/git/tp-20131c-gaturro/commons/Debug && $(MAKE) clean all
 
 # Tool invocations
 libmario_para_todos.so: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so

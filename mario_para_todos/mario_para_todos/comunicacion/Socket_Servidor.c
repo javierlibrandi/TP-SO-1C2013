@@ -104,7 +104,7 @@ void *recv_variable(int socketReceptor, int *tipo) {
 
 // Primero: Recibir el header para saber cuando ocupa el payload.
 	if (Lee_Socket(socketReceptor, &header, sizeof(header)) == -1) {
-		perror("error el Lee_Socket");
+		perror("error al Lee_Socket recibe  header");
 		exit(-1);
 	}
 
@@ -113,8 +113,9 @@ void *recv_variable(int socketReceptor, int *tipo) {
 	buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
+
 	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
-		perror("error el Lee_Socket");
+		perror("error al Lee_Socket receptor");
 		exit(-1);
 	}
 

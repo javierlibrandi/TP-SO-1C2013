@@ -28,7 +28,10 @@ int Lee_Socket(int fd, void *Datos, int Longitud) {
 	/*
 	 * Comprobacion de que los parametros de entrada son correctos
 	 */
-	if ((fd == -1) || (Datos == NULL )|| (Longitud < 1))return -1;
+	if ((fd == -1) || (Datos == NULL )|| (Longitud < 1)){
+		fprintf(stderr,"error en validacion (fd == -1) %d || (Datos == NULL ) || (Longitud < 1) %d \n",fd,Longitud);
+		return -1;
+	}
 
 	if((Leido = recv(fd, Datos, Longitud, MSG_WAITALL))==-1){
 		/*
