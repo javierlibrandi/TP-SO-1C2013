@@ -29,6 +29,7 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
+
 bool existe_nivel(char *desc_nivel, t_list *list_plataforma);
 
 
@@ -81,9 +82,13 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case SALUDO_PERSONAJE:
 			//agrego del descirptor del socket para que hable con el oruqetador
 		case SALUDO_NIVEL: //creo el planificador del nivel
+
 			if (!existe_nivel(buffer, list_plataforma)) {
 				creo_hilos_planificador(buffer, list_plataforma, new_sck);
 				}
+
+			creo_hilos_planificador(buffer, list_plataforma, new_sck);
+
 			break;
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
@@ -92,6 +97,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		}
 		free(buffer);
 	}
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -174,7 +180,9 @@ void join_orquestador(t_list *list_plataforma) {
 
 	list_iterate(list_plataforma, (void*) _list_elements);
 
+
 }
+
 
 /////////////////////////////////////////////////////////////////////
 ///					      existe_nivel							////
@@ -200,3 +208,6 @@ bool existe_nivel(char *desc_nivel, t_list *list_plataforma) {
 	return (bool*) list_find(list_plataforma, (void*) _list_elements);
 
 }
+
+
+
