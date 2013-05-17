@@ -20,11 +20,7 @@
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket_Servidor.h>
 #include <mario_para_todos/comunicacion/Socket.h>
-<<<<<<< HEAD
 #include <string.h> //para funciones de cadena como strcpy
-=======
-#include <string.h> //para funcione de cadena como strcpy
->>>>>>> refs/remotes/origin/master
 #include <mario_para_todos/grabar.h>
 
 void libero_memoria(t_list *list_plataforma);
@@ -33,11 +29,9 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
-<<<<<<< HEAD
+
 bool existe_nivel(char *desc_nivel, t_list *list_plataforma);
 
-=======
->>>>>>> refs/remotes/origin/master
 
 int main(void) {
 
@@ -88,13 +82,13 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case SALUDO_PERSONAJE:
 			//agrego del descirptor del socket para que hable con el oruqetador
 		case SALUDO_NIVEL: //creo el planificador del nivel
-<<<<<<< HEAD
+
 			if (!existe_nivel(buffer, list_plataforma)) {
 				creo_hilos_planificador(buffer, list_plataforma, new_sck);
 				}
-=======
+
 			creo_hilos_planificador(buffer, list_plataforma, new_sck);
->>>>>>> refs/remotes/origin/master
+
 			break;
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
@@ -103,7 +97,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		}
 		free(buffer);
 	}
-<<<<<<< HEAD
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -186,51 +180,9 @@ void join_orquestador(t_list *list_plataforma) {
 
 	list_iterate(list_plataforma, (void*) _list_elements);
 
-=======
->>>>>>> refs/remotes/origin/master
+
 }
 
-/////////////////////////////////////////////////////////////////////
-////					creo_hilos_planificador					////
-////////////////////////////////////////////////////////////////////
-
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
-		int sock) {
-
-	pthread_t planificador_pthread;
-	t_h_planificador *h_planificador;
-	fd_set readfds;
-
-	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", desc_nivel);
-
-	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
-
-	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
-	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
-
-	///////configuro el select() que despues voy a usar en el hilo////////
-	FD_ZERO(&readfds);
-	FD_SET(sock, &readfds);
-	h_planificador->sock = &sock; //IMPORTANTE QUE SEA UN PUNTERO ASI LO VEO EN EL SELECT() DEL HILO CUANDO LO MODIFICO EN LA PLATAFORMA
-	h_planificador->readfds = &readfds;
-	///////fin configuro el select() que despues voy a usar en el hilo////////
-
-	/**
-	 * creo los hilos planificador
-	 */
-	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
-			(void*) h_planificador);
-
-	h_planificador->planificador_thr = planificador_pthread;
-
-	//agrego el nuevo hilo a la lista
-	log_in_disk_plat(LOG_LEVEL_TRACE, "Elementos en la lista plataforma %d",
-			list_add(list_plataforma, h_planificador));
-}
-
-/////////////////////////////////////////////////////////////////////
-///					      libero_memoria						////
-////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 ///					      existe_nivel							////
@@ -257,22 +209,5 @@ bool existe_nivel(char *desc_nivel, t_list *list_plataforma) {
 
 }
 
-/////////////////////////////////////////////////////////////////////
-///					      join_orquestador						////
-////////////////////////////////////////////////////////////////////
 
-//pthread_join de los hilos orquestadores
-void join_orquestador(t_list *list_plataforma) {
-	int index = 0;
-
-	void _list_elements(t_h_planificador *h_planificador) {
-
-		pthread_join(h_planificador->planificador_thr, NULL );
-
-		index++;
-	}
-
-	list_iterate(list_plataforma, (void*) _list_elements);
-
-}
 
