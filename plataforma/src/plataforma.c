@@ -20,7 +20,7 @@
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket_Servidor.h>
 #include <mario_para_todos/comunicacion/Socket.h>
-#include <string.h> //para funcione de cadena como strcpy
+#include <string.h> //para funciones de cadena como strcpy
 #include <mario_para_todos/grabar.h>
 
 void libero_memoria(t_list *list_plataforma);
