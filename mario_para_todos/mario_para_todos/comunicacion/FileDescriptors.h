@@ -5,8 +5,12 @@
  *      Author: utnso
  */
 
+
+
 #ifndef FILEDESCRIPTORS_H_
 #define FILEDESCRIPTORS_H_
+
+#include <stdint.h>
 
 #define SALUDO_PERSONAJE 1
 #define PUERTO_PLANIFICADOR 2

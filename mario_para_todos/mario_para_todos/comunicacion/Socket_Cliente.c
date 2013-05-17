@@ -31,7 +31,7 @@ int Abre_Conexion_Inet(char *Host_Servidor, int puerto) {
 		return -1;
 
 	Direccion.sin_family = AF_INET;
-	Direccion.sin_addr.s_addr = ((struct in_addr *) (Host->h_addr))->s_addr;
+	Direccion.sin_addr.s_addr = ((struct in_addr *) (v))->s_addr;
 	Direccion.sin_port = htons(puerto);
 
 	Descriptor = socket(AF_INET, SOCK_STREAM, 0);
