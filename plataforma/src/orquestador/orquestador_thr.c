@@ -22,6 +22,7 @@ void *orequestador_thr() {
 	//leo el archivo de configuracion para el hilo orquestador
 
 	log_in_disk_orq(LOG_LEVEL_DEBUG, "se crea el orquestador");
+	///probandoooooooooooooooo
 
 
 }
