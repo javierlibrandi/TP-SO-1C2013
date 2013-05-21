@@ -29,9 +29,8 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
-
 bool existe_nivel(char *desc_nivel, t_list *list_plataforma);
-
+void fd_mensaje(const int socket,const char *accion);
 
 int main(void) {
 
@@ -84,7 +83,11 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case SALUDO_NIVEL: //creo el planificador del nivel
 
 			if (!existe_nivel(buffer, list_plataforma)) {
+				//TODO: remplazar el OK por un define
+				fd_mensaje(new_sck, "OK");
 				creo_hilos_planificador(buffer, list_plataforma, new_sck);
+				}else{
+					fd_mensaje(new_sck, "ERROR");
 				}
 
 			creo_hilos_planificador(buffer, list_plataforma, new_sck);
@@ -210,5 +213,7 @@ bool existe_nivel(char *desc_nivel, t_list *list_plataforma) {
 }
 
 
-
+void fd_mensaje(const int socket,const char *accion){
+	fprintf(stderr,"Responder con la fomfirmacion o el error segun corresponda");
+}
 
