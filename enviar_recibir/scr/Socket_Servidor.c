@@ -97,7 +97,7 @@ int Abre_Socket_Inet(int puerto) {
 	return sockfd;
 }
 
-int recv_variable(int socketReceptor, void** buffer, t_header* head) {
+int recv_variable(int socketReceptor, void** buffer, int* header_mensaje) {
 
 	t_header header;
 	int bytesRecibidos;
@@ -107,7 +107,7 @@ int recv_variable(int socketReceptor, void** buffer, t_header* head) {
 		return EXIT_FAILURE;
 
 // Segundo: Alocar memoria suficientae para el payload.
-	*head = header;
+	*header_mensaje = header.header_mensaje;
 	*buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
