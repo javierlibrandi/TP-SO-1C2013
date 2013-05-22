@@ -8,8 +8,8 @@
 #ifndef ENTORNO_H_
 #define ENTORNO_H_
 
-#define PATH_CONFIG "resources/config_orquestador.cfg"
-#define PATH_PLATAFORMA_LOG "log/tracer.orquestador.log"
+
+#define PATH_PLATAFORMA_LOG "log/tracer.log"
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
