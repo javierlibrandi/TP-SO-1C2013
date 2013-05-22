@@ -120,6 +120,6 @@ void *recv_variable(int socketReceptor, int *tipo) {
 	}
 
 	return buffer;
-// ves esto max
+
 }
 
