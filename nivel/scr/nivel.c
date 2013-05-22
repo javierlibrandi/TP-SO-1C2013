@@ -13,8 +13,13 @@
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket.h>
+#include <mario_para_todos/ambiente_config.h>
 
 int main() {
+	t_param_nivel param_nivel;
+
+	param_nivel = leer_nivel_config("preuba");
+/*
 	t_send send_t;
 
 	int sck;
@@ -61,5 +66,7 @@ int main() {
 
 	Escribe_Socket(sck, &send_t, sizeof(t_send));
 sleep(1200);
+*/
 	return EXIT_SUCCESS;
+
 }
