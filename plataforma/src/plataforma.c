@@ -10,19 +10,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> //para funciones de cadena como strcpy
 #include <mario_para_todos/ambiente_config.h>
 #include "orquestador/orquestador_thr.h"
 #include <commons/collections/list.h>
 #include <pthread.h>
 #include "planificador/planificador_thr.h"
 #include  <commons/log.h>
-#include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket_Servidor.h>
 #include <mario_para_todos/comunicacion/Socket.h>
-#include <string.h> //para funciones de cadena como strcpy
 #include <mario_para_todos/grabar.h>
 #include "plataforma.h"
+#include <mario_para_todos/comunicacion/FileDescriptors.h>
+#include <mario_para_todos/comunicacion/Socket.h>
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
@@ -39,16 +40,17 @@ int main(void) {
 	t_param_plat param_plataforma;
 	pthread_t orquestador_thr;
 	t_list *list_plataforma = list_create(); //creo lista de hilos
-	t_estados *lista_estados= NULL;
-	t_h_orquestadro *h_orquestador = NULL;
+	t_estados lista_estados;
+	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_plataforma = leer_archivo_plataforma_config();
 
+	lista_estados.prj_listo = list_create();
+	lista_estados.prj_bloquedo = list_create();
+	h_orquestador->lista_estados = malloc(sizeof(t_estados));
+	h_orquestador->lista_estados = &lista_estados;
 
-	lista_estados->prj_listo = list_create();
-	lista_estados->prj_bloquedo = list_create();
-	h_orquestador->lista_estados = lista_estados;
 
 	/**
 	 * creo el hilo orquetador
@@ -84,11 +86,12 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck);
-		buffer = recv_variable(new_sck, &tipo);
+		recv_variable(new_sck, buffer,&tipo);
 
 		switch (tipo) {
 		case SALUDO_PERSONAJE:
 			h_orquestador = creo_personaje_lista(new_sck,buffer);
+			break;
 		case SALUDO_NIVEL: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
 				//TODO: remplazar el OK por un define
@@ -230,8 +233,7 @@ t_h_orquestadro *creo_personaje_lista(int sock,void *buffer){
 
 	h_orq = malloc(sizeof(t_h_orquestadro));
 
-	FD_ZERO(&readfds);
-	FD_SET(sock, &readfds);
+
 
 	h_orq->sock = malloc(sizeof(int));
 	memcpy(h_orq->sock, &sock, sizeof(int));
@@ -246,9 +248,14 @@ t_h_orquestadro *creo_personaje_lista(int sock,void *buffer){
 }
 
 
-//void fd_mensaje(const int socket,const char *accion){
-//
-//	//Escribe_Socke(socket,&send_t, sizeof(t_send))
-//
-//}
+void fd_mensaje(const int socket,const char *accion){
+	t_send t_send;
+
+	strcpy(t_send.mensaje, accion);
+	t_send.header_mensaje = MESAJE_CONFIRMACION;
+	t_send.payLoadLength = sizeof(t_send.mensaje);
+
+	Escribe_Socket(socket,&t_send, sizeof(t_send));
+
+}
 

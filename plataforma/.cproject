@@ -35,8 +35,6 @@
 								<option id="gnu.c.compiler.option.include.paths.1055930602" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/plataforma/mario_para_todos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/plataforma/commons}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.verbose.1254567997" name="Verbose (-v)" superClass="gnu.c.compiler.option.misc.verbose" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.misc.other.959234173" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-pthread -c -fmessage-length=0 " valueType="string"/>
@@ -62,8 +60,6 @@
 								<option id="gnu.both.asm.option.include.paths.130450047" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/plataforma/mario_para_todos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/plataforma/commons}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.2018907093" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
