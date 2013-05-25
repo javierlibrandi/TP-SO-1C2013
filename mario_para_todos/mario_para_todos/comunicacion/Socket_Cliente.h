@@ -12,8 +12,6 @@
 /**
  * Abre un socket INET con un servidor que est� corriendo en Host_Servidor y que atienda
  * al servicio cuyo nombre es Servicio. 
- * Host_Servidor debe estar dado de alta en /etc/hosts.
- * Servicio debe estar dado de alta en /etc/services como tcp.
  */
 int Abre_Conexion_Inet (char *Host_Servidor, int Servicio);
 

@@ -17,7 +17,11 @@
 #define PUETO_NIVEL 3
 #define NOMBRE_PERSONAJE 4
 #define SALUDO_NIVEL 5
+#define N_TO_O_SALUDO 6
 
+
+#define OK 100
+#define ERROR 101
 /**
  * el cambio en los tipos lo saco del ejemplo
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c

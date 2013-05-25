@@ -7,7 +7,7 @@
  Description : Hello World in C, Ansi-style
  ============================================================================
  */
-//una prueba
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> //para funciones de cadena como strcpy
@@ -32,7 +32,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
-bool existe_nivel(char *desc_nivel, t_list *list_plataforma);
+bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
 void fd_mensaje(const int socket, const int header_mensaje, const char *msj);
 t_h_orquestadro *creo_personaje_lista(char crear_orquesado,int new_sck, void *buffer);
 
@@ -84,7 +84,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck);
-		recv_variable(new_sck, buffer, &tipo);
+		buffer = recv_variable(new_sck,&tipo);
 
 		switch (tipo) {
 		case SALUDO_PERSONAJE:
@@ -101,7 +101,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 				h_orquestador = creo_personaje_lista('S',new_sck, buffer);
 			}
 			break;
-		case SALUDO_NIVEL: //creo el planificador del nivel
+		case N_TO_O_SALUDO: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
 				//TODO: remplazar el OK por un define
 				fd_mensaje(new_sck, OK, "Planificador creado\0");
@@ -210,7 +210,9 @@ void join_orquestador(t_list *list_plataforma) {
 ///					      existe_nivel							////
 ////////////////////////////////////////////////////////////////////
 
-bool existe_nivel(char *desc_nivel, t_list *list_plataforma) {
+bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
+
+	log_in_disk_plat(LOG_LEVEL_TRACE, "existe_nivel nivel: \t", desc_nivel);
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;
@@ -263,6 +265,7 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 
 void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
 	t_send t_send;
+	log_in_disk_plat(LOG_LEVEL_TRACE, "fd_mensaje");
 
 	strcpy(t_send.mensaje, msj);
 	t_send.header_mensaje = header_mensaje;

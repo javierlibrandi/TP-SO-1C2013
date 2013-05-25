@@ -22,6 +22,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "FileDescriptors.h"
+#include "Socket.h"
 
 /*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
@@ -99,7 +100,6 @@ int Abre_Socket_Inet(int puerto) {
 void *recv_variable(int socketReceptor, int *tipo) {
 
 	t_header header;
-	int bytesRecibidos;
 	void *buffer;
 
 // Primero: Recibir el header para saber cuando ocupa el payload.
@@ -120,6 +120,5 @@ void *recv_variable(int socketReceptor, int *tipo) {
 	}
 
 	return buffer;
-
 }
 
