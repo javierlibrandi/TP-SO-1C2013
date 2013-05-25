@@ -13,18 +13,15 @@
 
 //Falta definir estructura de personaje implementando listas.
 
-typedef struct{
-	t_list recursosRestantes;
- }Objetivo;
-
  typedef struct{
-	t_list objetivoRestantes;
+	char* nombre;
+	t_list recursosRestantes;
  }Nivel;
 
  typedef struct{
 	char *nombre;
 	char simbolo;
-	Nivel nivelesRestantes;
+	t_list nivelesRestantes;
 	int vidas;
 	char *ip_orquestador;
  }Personaje;
@@ -35,6 +32,11 @@ typedef struct{
 	 char* ip_planif;
 	 int puerto_planif;
  }InfoProxNivel;
+
+ typedef struct{
+	 char* nombrePersonaje;
+	 char* proxNivel;
+ }PersonajeNivel;
 
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/

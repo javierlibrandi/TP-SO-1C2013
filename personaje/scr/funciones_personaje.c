@@ -82,7 +82,7 @@ t_msj consultarProximoNivel(Personaje* personaje){
 	//Crear header de mensaje
 	header.payLoadLength= sizeof(mensaje.payLoad);
 	// Tipo 0 :P_TO_O_PROX_NIVEL
-	header.t_header_mensaje=0;
+	header.header_mensaje=0;
 
 	//Envía header y mensaje del tipo <P_TO_O_PROX_NIVEL> a orquestador
 	bytes_enviados= Escribe_Socket(descriptor, (void*)&header, sizeof(header));

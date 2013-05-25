@@ -28,75 +28,79 @@ int main(void){
 	int descriptor;
 	char nombre_per[10];
 	Personaje *personaje=NULL;
-	char mensaje[1000], respuesta[2000];
+	t_send *mensaje, respuesta;
 	int bytes_enviados, bytes_recibidos;
+	PersonajeNivel pers_nivel;
+	Nivel nivel;
 
 	puts("Elija el nombre para su personaje:");
 	printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
 	nuevoPersonaje(nombre_per, personaje);
 
+	// Establezco conexión con el orquestador
 	descriptor=Abre_Conexion_Inet(IP, PUERTO);
 
 	if(descriptor==-1){
-		puts("Hubo un error al conectarse al servidor");
+		puts("Hubo un error al conectarse al orquestador");
 
 	}else{
-		puts("Conexión exitosa");
+		puts("Conexión exitosa con el orquestador");
 	}
 
-	//Mantengo la conexión con el servidor
-	while(1){
-		printf("Ingrese mensaje a enviar al servidor:");
-		scanf("%s", mensaje);
+	// Envía SALUDO_PERSONAJE.
+	mensaje.header_mensaje=1;
+	mensaje.mensaje = "Hola soy un personaje ";
+	mensaje.payLoadLength = strlen(mensaje.mensaje);
 
+	bytes_enviados= Escribe_Socket(descriptor, &mensaje, sizeof(mensaje));
 
-		bytes_enviados= Escribe_Socket(descriptor, &mensaje, strlen(mensaje));
+	if(bytes_enviados == -1){
+			puts("Hubo un error al enviar el mensaje SALUDO_PERSONAJE");
+	}
 
-		if(bytes_enviados == -1){
-					puts("Hubo un error al enviar el mensaje");
-				}
+	//Recibo OK del orquestador
 
-		/* Enviar sin usar biblioteca socket.h
-
-		bytes_enviados= send(descriptor, mensaje, strlen(mensaje),0);
-
-		if(bytes_enviados == strlen(mensaje)){
-			puts("Se transmitió el mensaje entero con éxito");
-		}
-		if (bytes_enviados < 0){
-			puts("Falló el envío");
-		}else if(bytes_enviados < strlen(mensaje))
-				puts("Se transmitió el mensaje parcialmente");
-
-		Enviar sin usar biblioteca socket.h*/
-
-		bytes_recibidos= Lee_Socket(descriptor, &respuesta, MAXLEN);
-
-		if(bytes_recibidos == 0){
-			puts("El servidor cerró la conexión");
-		}
-		if(bytes_recibidos == -1)
-			puts("Falló la respuesta");
-		else {
-			puts("La respuesta del servidor es la siguiente: ");
-			puts(respuesta);}
-
-		/* Recibir sin usar librería socket.h
-
-		bytes_recibidos= recv(descriptor, respuesta, MAXLEN,0);
+	bytes_recibidos= Lee_Socket(descriptor, (void*) respuesta, MAXLEN);
 
 			if(bytes_recibidos == 0){
-				puts("El servidor cerró la conexión");
-				}
-			if(bytes_recibidos < 0)
-					puts("Falló la respuesta");
-			else{
-				puts("La respuesta del servidor es la siguiente: ");
+				puts("El orquestador cerró la conexión");
+			}
+			if(bytes_recibidos == -1)
+				puts("Falló la respuesta del orquestador");
+			else {
+				puts("La respuesta del orquestador es la siguiente: ");
 				puts(respuesta);}
 
-		Recibir sin usar biblioteca socket.h*/
+	//Creo estructura Personajenivel para enviársela al Orquestador en P_TO_O_PROX_NIVEL
+	pers_nivel.nombrePersonaje=personaje->nombre;
+	//void *list_get(t_list *, int index);
+	//nivel= list_get(personaje->nivelesRestantes, 1);
+	//por ahora harcodeo
+	pers_nivel.proxNivel="Nivel1";
+
+	mensaje.header_mensaje=7;
+	//mensaje.mensaje = pers_nivel;
+	mensaje.payLoadLength = sizeof(mensaje.mensaje);
+
+	bytes_enviados= Escribe_Socket(descriptor, &mensaje, sizeof(mensaje));
+
+	if(bytes_enviados == -1){
+		puts("Hubo un error al enviar el mensaje P_TO_O_PROX_NIVEL");
 	}
+
+	//Recibo ip/puerto del nivel 0_TO_P_UBIC_NIVEL
+
+	bytes_recibidos= Lee_Socket(descriptor, (void*) respuesta, MAXLEN);
+
+				if(bytes_recibidos == 0){
+					puts("El orquestador cerró la conexión");
+				}
+				if(bytes_recibidos == -1)
+					puts("Falló la respuesta del orquestador");
+				else {
+					puts("La respuesta del orquestador es la siguiente: ");
+					puts(respuesta);}
 
 close(descriptor);
 
