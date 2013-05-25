@@ -23,10 +23,7 @@ void *orequestador_thr(void* p) {
 	void *buffer = NULL;
 	int i;
 	int tipo;
-	//inicializo los parametros para el select
-	t_h_orq->sock=0;
-	FD_ZERO(t_h_orq->readfds);
-	FD_SET(*(t_h_orq->sock), t_h_orq->readfds);
+
 
 
 	for (;;) {

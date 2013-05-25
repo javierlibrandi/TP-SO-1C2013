@@ -29,19 +29,21 @@ void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 		int sock);
 void escucho_conexiones(const t_param_plat param_plataforma,
-		t_list *list_plataforma,t_h_orquestadro *h_orquestador);
+		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
+		pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
 bool existe_nivel(char *desc_nivel, t_list *list_plataforma);
-void fd_mensaje(const int socket,const char *accion);
-t_h_orquestadro *creo_personaje_lista(int new_sck,void *buffer);
+void fd_mensaje(const int socket, const int header_mensaje, const char *msj);
+t_h_orquestadro *creo_personaje_lista(char crear_orquesado,int new_sck, void *buffer);
 
 int main(void) {
 
 	t_param_plat param_plataforma;
-	pthread_t orquestador_thr;
+	pthread_t orquestador_thr=NULL;
 	t_list *list_plataforma = list_create(); //creo lista de hilos
 	t_estados lista_estados;
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
+	fd_set readfds;
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_plataforma = leer_archivo_plataforma_config();
@@ -51,13 +53,8 @@ int main(void) {
 	h_orquestador->lista_estados = malloc(sizeof(t_estados));
 	h_orquestador->lista_estados = &lista_estados;
 
-
-	/**
-	 * creo el hilo orquetador
-	 */
-	pthread_create(&orquestador_thr, NULL, (void *) orequestador_thr, (void*) h_orquestador );
-
-	escucho_conexiones(param_plataforma, list_plataforma,h_orquestador);
+	escucho_conexiones(param_plataforma, list_plataforma, h_orquestador,
+			&orquestador_thr);
 
 	pthread_join(orquestador_thr, NULL );
 	join_orquestador(list_plataforma);
@@ -73,33 +70,46 @@ int main(void) {
 ////////////////////////////////////////////////////////////////////
 
 void escucho_conexiones(const t_param_plat param_plataforma,
-		t_list *list_plataforma,t_h_orquestadro *h_orquestador) {
+		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
+		pthread_t *orquestador_thr) {
 	int sck, new_sck;
 	void *buffer = NULL;
 	int puerto = param_plataforma.PUERTO;
 	int tipo;
 
+	sck = Abre_Socket_Inet(puerto);
+
 	log_in_disk_plat(LOG_LEVEL_TRACE, "escucho conexiones en el puerto %d",
 			puerto);
 
-	sck = Abre_Socket_Inet(puerto);
-
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck);
-		recv_variable(new_sck, buffer,&tipo);
+		recv_variable(new_sck, buffer, &tipo);
 
 		switch (tipo) {
 		case SALUDO_PERSONAJE:
-			h_orquestador = creo_personaje_lista(new_sck,buffer);
+
+			if (orquestador_thr == NULL ) {
+				h_orquestador = creo_personaje_lista('N',new_sck, buffer);
+				/**
+				 * creo el hilo orquetador
+				 */
+				pthread_create(orquestador_thr, NULL,
+						(void *) orequestador_thr, (void*) h_orquestador);
+
+			} else {
+				h_orquestador = creo_personaje_lista('S',new_sck, buffer);
+			}
 			break;
 		case SALUDO_NIVEL: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
 				//TODO: remplazar el OK por un define
-				fd_mensaje(new_sck, "OK");
+				fd_mensaje(new_sck, OK, "Planificador creado\0");
 				creo_hilos_planificador(buffer, list_plataforma, new_sck);
-				}else{
-					fd_mensaje(new_sck, "ERROR");
-				}
+			} else {
+				fd_mensaje(new_sck, ERROR,
+						"Ya hay un nivel con ese nombre dado de alta\0");
+			}
 
 			creo_hilos_planificador(buffer, list_plataforma, new_sck);
 
@@ -194,9 +204,7 @@ void join_orquestador(t_list *list_plataforma) {
 
 	list_iterate(list_plataforma, (void*) _list_elements);
 
-
 }
-
 
 /////////////////////////////////////////////////////////////////////
 ///					      existe_nivel							////
@@ -222,18 +230,24 @@ bool existe_nivel(char *desc_nivel, t_list *list_plataforma) {
 	return (bool*) list_find(list_plataforma, (void*) _list_elements);
 
 }
-
-t_h_orquestadro *creo_personaje_lista(int sock,void *buffer){
+/**
+ * Si crear_orquesador es N es el primer personaje y tengo que crear el hilo orquestador
+ * si el crear_orquesador es S ya el orquestador esta creado
+ */
+t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
+		void *buffer) {
 
 	t_h_orquestadro *h_orq;
 	fd_set readfds;
 	char* des_personaje = buffer;
 
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", des_personaje);
+	if (crear_orquesador == 'N') {
+		FD_ZERO(&readfds);
+		FD_SET(0, &readfds);
+	}
 
 	h_orq = malloc(sizeof(t_h_orquestadro));
-
-
 
 	h_orq->sock = malloc(sizeof(int));
 	memcpy(h_orq->sock, &sock, sizeof(int));
@@ -247,15 +261,14 @@ t_h_orquestadro *creo_personaje_lista(int sock,void *buffer){
 
 }
 
-
-void fd_mensaje(const int socket,const char *accion){
+void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
 	t_send t_send;
 
-	strcpy(t_send.mensaje, accion);
-	t_send.header_mensaje = MESAJE_CONFIRMACION;
+	strcpy(t_send.mensaje, msj);
+	t_send.header_mensaje = header_mensaje;
 	t_send.payLoadLength = sizeof(t_send.mensaje);
 
-	Escribe_Socket(socket,&t_send, sizeof(t_send));
+	Escribe_Socket(socket, &t_send, sizeof(t_send));
 
 }
 
