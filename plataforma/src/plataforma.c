@@ -7,7 +7,7 @@
  Description : Hello World in C, Ansi-style
  ============================================================================
  */
-
+//una prueba
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> //para funciones de cadena como strcpy
