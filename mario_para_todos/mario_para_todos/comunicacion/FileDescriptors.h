@@ -11,28 +11,7 @@
 #define FILEDESCRIPTORS_H_
 
 #include <netinet/in.h>
-
-#define SALUDO_PERSONAJE 1
-#define PUERTO_PLANIFICADOR 2
-#define PUETO_NIVEL 3
-#define NOMBRE_PERSONAJE 4
-#define SALUDO_NIVEL 5
-#define N_TO_O_SALUDO 6
-#define	P_TO_O_PROX_NIVEL 7
-
-
-/* JAZ
- *
- * #define SALUDO_PERSONAJE 0
-
-//#define PUERTO_PLANIFICADOR 2
-//#define PUETO_NIVEL 3
-//#define NOMBRE_PERSONAJE 4 ??
-//#define SALUDO_NIVEL 5
-
-#define	P_TO_O_PROX_NIVEL 1
-//
-
+#define	P_TO_P_SALUDO  1//personaje saluda a la plataforma
 #define	O_TO_P_UBIC_NIVEL 2//del tipo InfoProxNivel	//ex PUETO_NIVEL y PUERTO_PLANIFICADOR
 #define P_TO_N_INICIAR_NIVEL 3
 #define	P_TO_PL_INICIAR_NIVEL 4 //ex SALUDO_NIVEL
@@ -46,6 +25,22 @@
 #define	P_TO_N_OBJ_CUMPLIDO 12
 #define	P_TO_N_REINICIAR_NIVEL 13
 #define	P_TO_O_REINICIAR_JUEGO 14
+#define N_TO_O_SALUDO 15
+#define OK 100
+#define ERROR 101
+
+/* JAZ
+ *
+ * #define SALUDO_PERSONAJE 0
+
+//#define PUERTO_PLANIFICADOR 2
+//#define PUETO_NIVEL 3
+//#define NOMBRE_PERSONAJE 4 ??
+//#define SALUDO_NIVEL 5
+
+#define	P_TO_O_PROX_NIVEL 1
+//
+
 
 //SALUDO_PERSONAJE: primer mensaje a orquestador solo para identificarse como personaje
 //P_TO_O_PROX_NIVEL: mensaje que envía el personaje al orquestador para solicitar ip/puerto de su proximo nivel y planif
@@ -56,8 +51,7 @@
  */
 
 
-#define OK 100
-#define ERROR 101
+
 /**
  * el cambio en los tipos lo saco del ejemplo
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c

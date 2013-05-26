@@ -15,6 +15,9 @@
 #include <errno.h>
 #include <stdio.h>
 #include "Socket.h"
+#include "FileDescriptors.h"
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * Lee datos del socket. Supone que se le pasa un buffer con hueco
@@ -87,3 +90,39 @@ int Escribe_Socket(int fd, void *Datos, int Longitud) {
 	return Escrito;
 }
 
+void *recv_variable(int socketReceptor, int *tipo) {
+
+	t_header header;
+	void *buffer;
+
+// Primero: Recibir el header para saber cuando ocupa el payload.
+	if (Lee_Socket(socketReceptor, &header, sizeof(header)) == -1) {
+		perror("error al Lee_Socket recibe  header");
+		exit(-1);
+	}
+
+	*tipo = (int) header.header_mensaje;
+// Segundo: Alocar memoria suficiente para el payload.
+	buffer = malloc(header.payLoadLength);
+
+// Tercero: Recibir el payload.
+
+	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
+		perror("error al Lee_Socket receptor");
+		exit(-1);
+	}
+
+	return buffer;
+}
+
+//informa si acepto o rechazo la conexion
+void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
+	t_send t_send;
+
+	strcpy(t_send.mensaje, msj);
+	t_send.header_mensaje = header_mensaje;
+	t_send.payLoadLength = sizeof(t_send.mensaje);
+
+	Escribe_Socket(socket, &t_send, sizeof(t_send));
+
+}

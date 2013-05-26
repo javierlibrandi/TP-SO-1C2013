@@ -21,8 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "FileDescriptors.h"
-#include "Socket.h"
+
+
 
 /*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
@@ -97,28 +97,5 @@ int Abre_Socket_Inet(int puerto) {
 	return sockfd;
 }
 
-void *recv_variable(int socketReceptor, int *tipo) {
 
-	t_header header;
-	void *buffer;
-
-// Primero: Recibir el header para saber cuando ocupa el payload.
-	if (Lee_Socket(socketReceptor, &header, sizeof(header)) == -1) {
-		perror("error al Lee_Socket recibe  header");
-		exit(-1);
-	}
-
-	*tipo = (int) header.header_mensaje;
-// Segundo: Alocar memoria suficiente para el payload.
-	buffer = malloc(header.payLoadLength);
-
-// Tercero: Recibir el payload.
-
-	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
-		perror("error al Lee_Socket receptor");
-		exit(-1);
-	}
-
-	return buffer;
-}
 

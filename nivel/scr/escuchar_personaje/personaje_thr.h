@@ -11,7 +11,9 @@
 typedef struct{
 	char *nomb_nivel;
 	int pueto;
-	int sck_personaje;
+	int *sck_personaje;
+	fd_set *readfds;
+	fd_set *exceptfds;
 } t_h_personaje;
 
 void *escucho_personaje(void *p);

@@ -27,7 +27,12 @@ void *escucho_personaje(void *p) {
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck);
-		buffer = recv_variable(new_sck, &tipo);
+		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
+		if(new_sck > t_personaje->sck_personaje ){
+			t_personaje->sck_personaje = new_sck;
+		}
+		//buffer = recv_variable(new_sck, &tipo);
+
 	}
 }
 

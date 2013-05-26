@@ -20,5 +20,13 @@ int Lee_Socket (int fd, void *Datos, int Longitud);
  * Devuelve el n�mero de bytes escritos o -1 si ha habido error. */
 int Escribe_Socket (int fd, void *Datos, int Longitud);
 
+/**
+ * Leo primero la cabecera y luego el mensaje.
+ * Devolviendo solo el mensaje en el puntero a void buffer
+ * quien lo llama debe castiar el puntero al tipo de dato esperado
+ */
+void *recv_variable(int socketReceptor, int *tipo);
 
+//fedback si acepto o no la nueva conexion e informo el motivo del rechazo de la misma
+void fd_mensaje(const int socket, const int header_mensaje, const char *msj);
 #endif
