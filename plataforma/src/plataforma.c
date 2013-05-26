@@ -33,7 +33,6 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
-void fd_mensaje(const int socket, const int header_mensaje, const char *msj);
 t_h_orquestadro *creo_personaje_lista(char crear_orquesado,int new_sck, void *buffer);
 
 int main(void) {
@@ -103,8 +102,8 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
-				//TODO: remplazar el OK por un define
 				fd_mensaje(new_sck, OK, "Planificador creado\0");
+				buffer = recv_variable(new_sck,&tipo);
 				creo_hilos_planificador(buffer, list_plataforma, new_sck);
 			} else {
 				fd_mensaje(new_sck, ERROR,
@@ -263,15 +262,4 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 
 }
 
-void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
-	t_send t_send;
-	log_in_disk_plat(LOG_LEVEL_TRACE, "fd_mensaje");
-
-	strcpy(t_send.mensaje, msj);
-	t_send.header_mensaje = header_mensaje;
-	t_send.payLoadLength = sizeof(t_send.mensaje);
-
-	Escribe_Socket(socket, &t_send, sizeof(t_send));
-
-}
 

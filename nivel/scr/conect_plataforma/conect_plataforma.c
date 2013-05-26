@@ -13,8 +13,9 @@
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/grabar.h>
 int con_pla_nival(char *ip, int puerto, char *nombre_nivel) {
-	int sck;
+	int sck, tipo;
 	struct t_send t_send;
+	void *buffer = NULL;
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "con_pla_nival del planificador %s ",
 			nombre_nivel);
@@ -29,6 +30,15 @@ int con_pla_nival(char *ip, int puerto, char *nombre_nivel) {
 
 	Escribe_Socket(sck, &t_send, sizeof(struct t_send));
 
-	return sck;
+	buffer = recv_variable(sck, &tipo);
+	if (tipo == ERROR) {
+		log_in_disk_niv(LOG_LEVEL_ERROR, "%s", (char*) buffer);
+		exit(EXIT_FAILURE);
 
+	}
+	log_in_disk_niv(LOG_LEVEL_INFO, "%s", (char*) buffer);
+
+	Escribe_Socket(sck, &t_send, sizeof(struct t_send));
+
+	return sck;
 }
