@@ -80,7 +80,7 @@ t_param_plan leer_archivo_plan_config(char *nivel) {
 t_param_nivel leer_nivel_config(char *nivel) {
 	t_config* config;
 	t_param_nivel param;
-	t_recusos *list_recursos;//declaro el tipo nodo
+	//t_recusos *list_recursos;//declaro el tipo nodo
 	char **aux;
 	char *aux_char;
 
@@ -88,27 +88,31 @@ t_param_nivel leer_nivel_config(char *nivel) {
 			"comienzo lectura archivo de configuracion del nivel en el %s ",
 			PATH_CONFIG);
 
-	param.recusos = list_create(); //creo lista de hilos
+	//param.recusos = list_create(); //creo lista de hilos
 	config = config_create(PATH_CONFIG);
 
-	aux_char = config_get_string_value(config, "ORQUESTADOR");
+	param.nom_nivel = nivel;//copio el nombre del nivel que pase por parametro en el main
+
+	aux_char = config_get_string_value(config, "PLATAFORMA");
 
 	aux = string_split(aux_char, ":");
 	param.IP = aux[0];
-	param.PUERTO = atoi(aux[1]);
+	param.PUERTO_PLATAFORMA = atoi(aux[1]);
+
+	param.PUERTO =config_get_int_value(config,"PUERTO");
 
 	aux = config_get_array_value(config, "Caja1");
 
-	list_recursos = malloc(t_recusos);//creo el nodo
-
-	int i = 0;
-	while (aux[i] != '\0') {
-		log_in_disk_niv(LOG_LEVEL_TRACE, "Niveles de planificador %s ", aux[i]);
-		list_recursos.NOMBRE = aux[i++];
-		list_recursos.SIMBOLO = aux[i++];
-
-	}
-	list_add(param.recusos, list_recursos);//agrego el nuevo nodo
+//	list_recursos = malloc(t_recusos);//creo el nodo
+//
+//	int i = 0;
+//	while (aux[i] != '\0') {
+//		log_in_disk_niv(LOG_LEVEL_TRACE, "Niveles de planificador %s ", aux[i]);
+//		list_recursos.NOMBRE = aux[i++];
+//		list_recursos.SIMBOLO = aux[i++];
+//
+//	}
+	//list_add(param.recusos, list_recursos);//agrego el nuevo nodo
 
 
 	return param;
