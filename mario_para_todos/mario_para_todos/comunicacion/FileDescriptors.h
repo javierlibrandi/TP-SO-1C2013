@@ -18,6 +18,8 @@
 #define NOMBRE_PERSONAJE 4
 #define SALUDO_NIVEL 5
 #define N_TO_O_SALUDO 6
+#define	P_TO_O_PROX_NIVEL 7
+
 
 /* JAZ
  *
@@ -79,4 +81,9 @@ typedef struct t_send{
 	char mensaje[20];
 } t_send;
 
+typedef struct t_send2{
+	int8_t header_mensaje;
+	int16_t payLoadLength;
+	char mensaje[30];
+} t_send2;
 #endif /* FILEDESCRIPTORS_H_*/
