@@ -11,8 +11,6 @@
 #include <commons/collections/list.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 
-//Falta definir estructura de personaje implementando listas.
-
  typedef struct{
 	char* nombre;
 	t_list recursosRestantes;
@@ -24,13 +22,12 @@
 	t_list nivelesRestantes;
 	int vidas;
 	char *ip_orquestador;
+	int puerto_orquestador;
  }Personaje;
 
  typedef struct{
 	 char* ip_nivel;
 	 int puerto_nivel;
-	 char* ip_planif;
-	 int puerto_planif;
  }InfoProxNivel;
 
  typedef struct{
@@ -40,15 +37,17 @@
 
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/
- void nuevoPersonaje(char* nombrePersonaje, Personaje* personaje);
+ Personaje* nuevoPersonaje(char* nombrePersonaje);
+
+ //Se conecta y realiza el handshake con el orquestador. Devuelve el descriptor.
+ int conectarOrquestador(Personaje* personaje);
 
 /*El personaje determina el próx nivel a completar.
- * Se conecta al orquestador y le solicita ubicación (ip-puerto) del nivel e hilo planificador asociado*/
-t_msj consultarProximoNivel(Personaje* personaje);
-
+ *y le solicita ubicación (ip-puerto) del nivel al orquestador*/
+ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje);
 
 /* El personaje se conecta al nivel y planificador y espera su turno para jugar*/
-void iniciarNivel(Personaje* personaje, InfoProxNivel* infoNivel);
+void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel);
 
 /* Ciclo de juego: conectarse y desconectarse del orquestador, niveles y planificadores mientras no se complete el plan de niveles*/
 //jugar();
