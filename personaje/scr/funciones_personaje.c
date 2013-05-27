@@ -14,22 +14,23 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h> //para funcione de cadena como strcpy
+#include <unistd.h> //para el close
 #include <sys/socket.h>
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket.h>
-#define PUERTO_ORQ 5000
-#define MAXLEN 2000
 
-//Por ahora logean en consola. Implementar logs.
+#define IP "192.168.1.1"
+#define PUERTO 6000
 
 //Por ahora se inicializa el personaje harcodeado. Falta hacer funcionar la lectura del arch de configuración y el uso de listas.
-void nuevoPersonaje(char* nombrePersonaje, Personaje* personaje)
+/*Personaje* nuevoPersonaje(char* nombrePersonaje)
 {
-printf("Voy a crear a %s", nombrePersonaje);
-//puts("Voy a crear al personaje que esté en el path de resources xD");
+Personaje personaje;
 
-/*t_param_pers archConf;
+log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear a %s", nombrePersonaje);
+
+//Esperar imple de pato  para levantar arch conf
 
 archConf=leer_archivo_personaje_config();
 
@@ -38,105 +39,192 @@ personaje->simbolo = archConf.simbolo;
 personaje->vidas = archConf.vidas;
 personaje->ipOrquestador = archconf.ipOrquestador;
 //Niveles y objetivos???
-*/
 
-//Prueba de logs
-//log_in_disk_pers(LOG_LEVEL_TRACE, "Harcodeando valores en personaje %s");
 
-personaje->nombre = nombrePersonaje;
-personaje->simbolo = '@';
-personaje->vidas = 3;
-personaje->ip_orquestador = "192.168.0.100:5000";
+//Por ahora harcodeo
+personaje.nombre = nombrePersonaje;
+personaje.simbolo = '@';
+personaje.vidas = 3;
+personaje.ip_orquestador = "192.168.0.100";
+personaje.puerto_orquestador = 5000;
 //personaje->nivelesRestantes= null;
 
+//log_in_disk_per(LOG_LEVEL_INFO, "EL personaje creado es %s", personaje->nombre);
+return  personaje;
+}
+*/
 
-printf("EL personaje creado es %s", personaje->nombre);
+int conectarOrquestador(Personaje* personaje){
 
+	int descriptor, tipo;
+	struct t_send mensaje;
+	int bytes_enviados;
+	void *buffer = NULL;
 
-};
+	// Establezco conexión con el orquestador
+	log_in_disk_per(LOG_LEVEL_INFO, "%s", "Conectándose a IP: ", personaje->ip_orquestador  );
+	log_in_disk_per(LOG_LEVEL_INFO, "%s", "Conectándose a PUERTO: ", personaje->puerto_orquestador  );
+
+	descriptor=Abre_Conexion_Inet(personaje->ip_orquestador, personaje->puerto_orquestador);
+
+	if(descriptor==-1){
+		log_in_disk_per(LOG_LEVEL_ERROR, "%s", "Hubo un error al conectarse al orquestador");
+
+	}else{
+		log_in_disk_per(LOG_LEVEL_INFO, "%s", "Conexión exitosa con el orquestador");
+		}
+
+		// Envía SALUDO_PERSONAJE.
+		memset(mensaje.mensaje, '\0', 20);
+		strcpy(mensaje.mensaje, "Hola soy un personaje");
+
+		mensaje.header_mensaje= P_TO_P_SALUDO;
+		mensaje.payLoadLength = sizeof(mensaje.mensaje);
+
+		bytes_enviados= Escribe_Socket(descriptor, &mensaje, sizeof(mensaje));
+
+		if(bytes_enviados == -1)
+			log_in_disk_per(LOG_LEVEL_ERROR, "%s", "Hubo un error al enviar el mensaje SALUDO_PERSONAJE");
+			//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
+
+		//Recibo OK del orquestador
+
+		buffer = recv_variable(descriptor, &tipo);
+			if (tipo == ERROR) {
+				log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) buffer);
+				exit(EXIT_FAILURE);}
+
+			if (tipo == OK)
+				log_in_disk_per(LOG_LEVEL_INFO, "%s", "Se recibió OK del orquestador.");
+
+return descriptor;
+}
 
 //Ver como crear la estructura InfoProxNivel en esta función con la respuesta del orquestador.
-t_msj consultarProximoNivel(Personaje* personaje){
-	int descriptor;
-	int bytes_enviados, bytes_enviados2, bytes_recibidos;
-	t_header header;
-	t_msj mensaje, respuesta;
-	//int proxNivel;
+InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje){
 
-	//Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar
+	struct t_send mensaje;
+	int tipo, bytes_enviados;
+	InfoProxNivel info;
+	void *buffer = NULL;
+
+	//Creo estructura PersonajeNivel para enviársela al Orquestador en P_TO_O_PROX_NIVEL
+	//Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
+
+	//Ver como enviar estructura PersonajeNivel en mensaje
+	//pers_nivel.nombrePersonaje=personaje->nombre;
 	//void *list_get(t_list *, int index);
+	//nivel= list_get(personaje->nivelesRestantes, 1);
+	//harcodeo
+	//pers_nivel.proxNivel="Nivel1";
+
+		//por ahora harcodeo separando por ";"
+		memset(mensaje.mensaje, '\0', 20);
+		strcpy(mensaje.mensaje, "Mario;Nivel1");
+
+		mensaje.header_mensaje= P_TO_O_PROX_NIVEL;
+		mensaje.payLoadLength = sizeof(mensaje.mensaje);
+
+		bytes_enviados= Escribe_Socket(descriptor, &mensaje, sizeof(mensaje));
+
+		if(bytes_enviados == -1){
+			log_in_disk_per(LOG_LEVEL_ERROR, "%s", "Hubo un error al enviar el mensaje P_TO_O_PROX_NIVEL");
+		}
+
+		//Recibo ip/puerto del nivel 0_TO_P_UBIC_NIVEL del tipo InfoProxNivel. Ver con Mati.
+		buffer = recv_variable(descriptor, &tipo);
+				if (tipo == ERROR) {
+					log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) buffer);
+					exit(EXIT_FAILURE);}
+
+				if (tipo == O_TO_P_UBIC_NIVEL)
+					log_in_disk_per(LOG_LEVEL_INFO, "%s", "Se recibió información del orquestador.");
+
+	//ver como extraer ip y puerto del mensaje recibido en buffer
 	//Por ahora harcodeo
-	//proxNivel=2;
+	info.ip_nivel=IP;
+	info.puerto_nivel=PUERTO;
 
-	//Se conecta al orquestador. Por ahora defino PUERTO_ORQ. Ver como separar ip de puerto
-	descriptor=Abre_Conexion_Inet(personaje->ip_orquestador, PUERTO_ORQ);
-	if(descriptor==-1){
-			puts("Hubo un error al conectarse al orquestador");
-		}else{
-			puts("Conexión exitosa");}
+	log_in_disk_per(LOG_LEVEL_ERROR, "%s", "EL personaje se desconecta del orquestador.");
+	close(descriptor);
 
-	//Crear mensaje de solicitud al orquestador. Fatan definir estructuras de los distintos tipo de mensajes, por ahora un string.
-	//mensaje.payLoad=proxNivel;
-	mensaje.payLoad="Necesito ubicación del Nivel/PLanificador 2";
+	return info;
 
-	//Crear header de mensaje
-	header.payLoadLength= sizeof(mensaje.payLoad);
-	// Tipo 0 :P_TO_O_PROX_NIVEL
-	header.header_mensaje=0;
-
-	//Envía header y mensaje del tipo <P_TO_O_PROX_NIVEL> a orquestador
-	bytes_enviados= Escribe_Socket(descriptor, (void*)&header, sizeof(header));
-	bytes_enviados2= Escribe_Socket(descriptor, (void*)&mensaje, sizeof(mensaje));
-
-	if(bytes_enviados == -1 || bytes_enviados2 == -1 ){
-						puts("Hubo un error al enviar la solicitud de ubicación del proximo nivel");
-					}
-
-	//Recibe respuesta del tipo <O_TO_P_UBIC_NIVEL> del orquestador. Del tipo InfoProNivel
-	bytes_recibidos= Lee_Socket(descriptor, &respuesta, MAXLEN);
-
-			if(bytes_recibidos == 0)
-				puts("El orquestador cerró la conexión");
-			if(bytes_recibidos == -1)
-				puts("Falló la respuesta");
-			else
-				return respuesta;
 };
 
-//Con la respuesta de ConsultarProximoNivel llenar la estructura InfoProxnivel
-void iniciarNivel(Personaje* personaje, InfoProxNivel* infoNivel){
-	int descriptorNiv, descriptorPlan;
+void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel){
+	int descriptorNiv, descriptorPlan, tipoN, tipoP;
 	int bytes_enviados_niv, bytes_enviados_pl;
-	//t_header P_TO_N_INICIAR_NIVEL, P_TO_PL_INICIAR_NIVEL;
+	struct t_send mensaje1, mensaje2;
+	void* bufferNiv = NULL;
+	void* bufferPla = NULL;
 
-	//Por ahora envío un string. Falta definir estructura con header y payLoad.
-	char* P_TO_N_INICIAR_NIVEL, P_TO_PL_INICIAR_NIVEL;
-	P_TO_N_INICIAR_NIVEL="Hola Nivel. Quiero jugar en tu mapa.";
-	P_TO_N_INICIAR_NIVEL="Hola Planificador. Quiero jugar en tu nivel.";
 
-	descriptorNiv=Abre_Conexion_Inet(infoNivel->ip_nivel, infoNivel->puerto_nivel);
+	descriptorNiv=Abre_Conexion_Inet(infoNivel.ip_nivel, infoNivel.puerto_nivel);
 
-	if(descriptorNiv==-1){
-		puts("Hubo un error al conectarse al Nivel");
-	}else{
-		puts("Conexión exitosa con Nivel");}
+		if(descriptorNiv==-1){
+			log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error al conectarse al Nivel");
+		}else{
+			log_in_disk_per(LOG_LEVEL_INFO, "Conexión exitosa con Nivel");}
 
-	descriptorPlan=Abre_Conexion_Inet(infoNivel->ip_planif, infoNivel->puerto_planif);
+	descriptorPlan=Abre_Conexion_Inet(personaje->ip_orquestador, personaje->puerto_orquestador);
 
-	if(descriptorPlan==-1){
-		puts("Hubo un error al conectarse al planificador del nivel");
-	}else{
-		puts("Conexión exitosa con planificador del nivel");}
+		if(descriptorPlan==-1){
+			log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error al conectarse al planificador del nivel");
+		}else{
+			log_in_disk_per(LOG_LEVEL_INFO, "Conexión exitosa con planificador del nivel");}
 
-	//Por ahora hago un solo send con el mensaje completo. Después definir si hay que hacer dos sends por cada
-	// conexión. Uno por header y otro por payLoad.
-	bytes_enviados_niv= Escribe_Socket(descriptorNiv, P_TO_N_INICIAR_NIVEL, sizeof(P_TO_N_INICIAR_NIVEL));
-	bytes_enviados_pl= Escribe_Socket(descriptorPlan, P_TO_PL_INICIAR_NIVEL, sizeof(P_TO_PL_INICIAR_NIVEL));
 
-	if(bytes_enviados_niv == -1 || bytes_enviados_pl == -1 ){
-		puts("No se avisó al nivel o al planificador del arribo.");
-						}
-};
+	// Envía a Nivel P_TO_N_INICIAR_NIVEL
+	memset(mensaje1.mensaje, '\0', 20);
+	//Ver con Maxi que necesita que le envíe y como me responde.
+	strcpy(mensaje1.mensaje, "Hola Nivel. Quiero jugar en tu mapa");
+
+	mensaje1.header_mensaje= P_TO_N_INICIAR_NIVEL;
+	mensaje1.payLoadLength = sizeof(mensaje1.mensaje);
+
+	bytes_enviados_niv= Escribe_Socket(descriptorNiv, &mensaje1, sizeof(mensaje1));
+
+		if(bytes_enviados_niv == -1)
+			log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error al enviar el mensaje P_TO_N_INICIAR_NIVEL");
+			//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
+
+	// Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel
+	memset(mensaje2.mensaje, '\0', 20);
+	//Ver con Javi que necesita que le envíe y como me responde.
+	strcpy(mensaje2.mensaje, "Hola Plataforma. Quiero jugar en Nivel X");
+
+	mensaje2.header_mensaje= P_TO_PL_INICIAR_NIVEL;
+	mensaje2.payLoadLength = sizeof(mensaje2.mensaje);
+
+	bytes_enviados_pl= Escribe_Socket(descriptorPlan, &mensaje2, sizeof(mensaje2));
+
+		if(bytes_enviados_pl == -1)
+			log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error al enviar el mensaje P_TO_PL_INICIAR_NIVEL");
+			//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
+
+	//Recibe OK de nivel y plataforma
+
+	bufferNiv = recv_variable(descriptorNiv, &tipoN);
+		if (tipoN == ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) bufferNiv);
+			exit(EXIT_FAILURE);}
+
+		if (tipoN == OK)
+			//(LOG_LEVEL_INFO, "Se recibió OK del nivel.");
+
+	bufferPla = recv_variable(descriptorNiv, &tipoP);
+		if (tipoP == ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) bufferPla);
+			exit(EXIT_FAILURE);}
+
+		if (tipoP == OK)
+			//(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
+			puts("Se recibió OK del planificador.");
+
+	//VER SI HAY QUE VOLVER A MANDAR MENSAJES CON MÁS INFO
+
+}
 
 
 
