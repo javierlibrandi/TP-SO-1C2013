@@ -36,7 +36,7 @@ void *orequestador_thr(void* p) {
 
 		for (i = 0; i <= *(t_h_orq->sock); i++) {
 			if (FD_ISSET(i, t_h_orq->readfds)) {
-				recv_variable(*(t_h_orq->sock),buffer , &tipo);
+				buffer = recv_variable(*(t_h_orq->sock) , &tipo);
 
 
 				free(buffer);
