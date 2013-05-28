@@ -9,6 +9,7 @@
 #define FUNCIONES_PERSONAJE_H_
 
 #include <commons/collections/list.h>
+//#include select.h
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 
  typedef struct{
@@ -35,6 +36,12 @@
 	 char* proxNivel;
  }PersonajeNivel;
 
+ typedef struct {
+ 	int *descriptor;
+ 	fd_set *readfds;
+ } t_listenerPersonaje;
+
+
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/
  Personaje* nuevoPersonaje(char* nombrePersonaje);
@@ -48,6 +55,9 @@
 
 /* El personaje se conecta al nivel y planificador y espera su turno para jugar*/
 void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel);
+
+// Esta función va a escuchar al planificador y al nivel
+int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 
 /* Ciclo de juego: conectarse y desconectarse del orquestador, niveles y planificadores mientras no se complete el plan de niveles*/
 //jugar();

@@ -23,7 +23,7 @@ void *orequestador_thr(void* p) {
 	void *buffer = NULL;
 	int i;
 	int tipo;
-	char* personaje;
+	//char* personaje;
 
 
 	for (;;) {
@@ -36,10 +36,7 @@ void *orequestador_thr(void* p) {
 
 		for (i = 0; i <= *(t_h_orq->sock); i++) {
 			if (FD_ISSET(i, t_h_orq->readfds)) {
-				buffer = recv_variable(i,&tipo);// *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
-				personaje = (char*) buffer;
-				printf("personaje:\%s",personaje);
-
+				buffer = recv_variable(i,&tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
 				free(buffer);
 
 
@@ -48,8 +45,5 @@ void *orequestador_thr(void* p) {
 
 
 	}
-//
 	pthread_exit(EXIT_SUCCESS);
-
-
 }

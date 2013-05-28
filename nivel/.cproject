@@ -60,6 +60,11 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.425354044.1857804752" name="personaje_thr.c" rcbsApplicability="disable" resourcePath="scr/escuchar_personaje/personaje_thr.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1768974193.880555316">
+						<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1768974193.880555316" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1768974193">
+							<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.987395965" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.425354044.683418585" name="nivel.c" rcbsApplicability="disable" resourcePath="scr/nivel.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1768974193.1850186586">
 						<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1768974193.1850186586" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1768974193">
 							<option id="gnu.c.compiler.option.include.paths.1587147138" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">

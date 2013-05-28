@@ -39,11 +39,12 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 int main(void) {
 
 	t_param_plat param_plataforma;
-	pthread_t orquestador_thr = NULL;
+
+	pthread_t orquestador_thr = 0;
+
 	t_list *list_plataforma = list_create(); //creo lista de hilos
 	t_estados lista_estados;
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
-	fd_set readfds;
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_plataforma = leer_archivo_plataforma_config();
@@ -89,9 +90,11 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 		switch (tipo) {
 		case P_TO_P_SALUDO:
-			if (*(orquestador_thr) == NULL ) {
-				//h_orquestador = creo_personaje_lista('N', new_sck, buffer);
+
+			if (orquestador_thr == 0) {
+				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
 				creo_personaje_lista('N', new_sck, buffer, h_orquestador);
+
 				/**
 				 * creo el hilo orquetador
 				 */
@@ -243,12 +246,11 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
 t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador) {
 
-
 	char* des_personaje = buffer;
 
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", des_personaje);
 	if (crear_orquesador == 'N') {
-		//FD_ZERO(&readfds);
+
 		FD_ZERO(h_orquestador->readfds);
 		*(h_orquestador->sock) = 0;
 
