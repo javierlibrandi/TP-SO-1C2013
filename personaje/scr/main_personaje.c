@@ -31,7 +31,7 @@ int main(void){
 	puts("Elija el nombre para su personaje:");
 	printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
-	//personaje = nuevoPersonaje(nombre_per);
+	personaje = nuevoPersonaje(nombre_per);
 	
 	descriptor = conectarOrquestador(personaje);
 	

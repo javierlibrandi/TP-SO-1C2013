@@ -24,14 +24,14 @@
 #define PUERTO 6000
 
 //Por ahora se inicializa el personaje harcodeado. Falta hacer funcionar la lectura del arch de configuración y el uso de listas.
-/*Personaje* nuevoPersonaje(char* nombrePersonaje)
+Personaje* nuevoPersonaje(char* nombrePersonaje)
 {
-Personaje personaje;
+Personaje* personaje = NULL;
 
 log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear a %s", nombrePersonaje);
 
 //Esperar imple de pato  para levantar arch conf
-
+/*
 archConf=leer_archivo_personaje_config();
 
 personaje->nombre = archConf.nombre;
@@ -39,20 +39,20 @@ personaje->simbolo = archConf.simbolo;
 personaje->vidas = archConf.vidas;
 personaje->ipOrquestador = archconf.ipOrquestador;
 //Niveles y objetivos???
-
+*/
 
 //Por ahora harcodeo
-personaje.nombre = nombrePersonaje;
-personaje.simbolo = '@';
-personaje.vidas = 3;
-personaje.ip_orquestador = "192.168.0.100";
-personaje.puerto_orquestador = 5000;
+personaje->nombre = nombrePersonaje;
+personaje->simbolo = '@';
+personaje->vidas = 3;
+personaje->ip_orquestador = "192.168.0.100";
+personaje->puerto_orquestador = 5000;
 //personaje->nivelesRestantes= null;
 
-//log_in_disk_per(LOG_LEVEL_INFO, "EL personaje creado es %s", personaje->nombre);
+log_in_disk_per(LOG_LEVEL_INFO, "EL personaje creado es %s", personaje->nombre);
+
 return  personaje;
 }
-*/
 
 int conectarOrquestador(Personaje* personaje){
 
@@ -97,6 +97,7 @@ int conectarOrquestador(Personaje* personaje){
 			if (tipo == OK)
 				log_in_disk_per(LOG_LEVEL_INFO, "%s", "Se recibió OK del orquestador.");
 
+free(buffer);
 return descriptor;
 }
 
@@ -147,7 +148,7 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje){
 
 	log_in_disk_per(LOG_LEVEL_ERROR, "%s", "EL personaje se desconecta del orquestador.");
 	close(descriptor);
-
+	free(buffer);
 	return info;
 
 };
@@ -224,6 +225,61 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel){
 
 	//VER SI HAY QUE VOLVER A MANDAR MENSAJES CON MÁS INFO
 
+		free(bufferNiv);
+		free(bufferPla);
+}
+
+//¿crear función con select que escuche al planif y al nivel?
+int listenerPersonaje (int descriptorNiv, int descriptorPlan){
+
+	int N=1;
+	int descriptores[N], tipo, result, j, i;
+	int maxDescriptor=0;
+	fd_set readset;
+	void *buffer=NULL;
+
+	//Limpio lista de sockets
+	FD_ZERO(&readset);
+
+	//Inicializo vector de sockets
+	descriptores[0]=descriptorNiv;
+	descriptores[1]=descriptorPlan;
+
+	//Agrego los dos sockets de Nivel y Planif a la lista y busco máximo valor
+	for (j=0; j<N; j++) {
+	   FD_SET(descriptores[j], &readset);
+	   maxDescriptor = (maxDescriptor>descriptores[j])?maxDescriptor:descriptores[j];
+	}
+
+	// Me fijo si en alguno llegaron mensajes
+	result = select(maxDescriptor+1, &readset, NULL, NULL, NULL);
+
+	if (result == -1) {
+		perror("select");
+		exit(EXIT_FAILURE);	}
+	else {
+	   for (i=0; i<N; i++) {
+	      if (FD_ISSET(descriptores[i], &readset)) {
+	         buffer = recv_variable(descriptores[i], &tipo);
+
+	         switch (tipo){
+	         case ERROR:
+	        	log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) buffer);
+	        	exit(EXIT_FAILURE);
+	        	break;
+	         case PL_TO_P_TURNO:
+	        	 break;
+	         // ...
+	         default:
+	        	 break;
+
+	         }
+
+			free(buffer);
+	      }
+	   }
+	}
+return EXIT_SUCCESS;
 }
 
 
