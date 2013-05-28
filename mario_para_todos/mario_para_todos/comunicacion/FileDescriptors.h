@@ -52,7 +52,7 @@ typedef struct {
 } t_header;
 
 typedef struct {
-	void *payLoad;
+	char mensaje[30];
 } t_msj;
 
 /**
@@ -62,12 +62,17 @@ typedef struct {
 typedef struct t_send{
 	int8_t header_mensaje;
 	int16_t payLoadLength;
-	char mensaje[20];
+	//char mensaje[20]Escribe_Socket(scks, &mensaje, sizeof(mensaje));;
+	char* mensaje;
 } t_send;
+typedef struct {
+	t_header header;
+	char* mensaje;
+} t_send3;
 
 typedef struct t_send2{
 	int8_t header_mensaje;
 	int16_t payLoadLength;
-	char mensaje[30];
+	t_msj mensaje;
 } t_send2;
 #endif /* FILEDESCRIPTORS_H_*/

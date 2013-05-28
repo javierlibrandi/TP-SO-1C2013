@@ -37,7 +37,7 @@ void* planificador_nivel_thr(void *p) {
 
 		for (i = 0; i <= *(h_planificador->sock); i++) {
 			if (FD_ISSET(i, h_planificador->readfds)) {
-				recv_variable(*(h_planificador->sock),buffer, &tipo);
+				buffer = recv_variable(*(h_planificador->sock), &tipo);
 				log_in_disk_plan(LOG_LEVEL_TRACE,
 						"salida del segundo llamado %s nivel %s \n", (char*) buffer,h_planificador->desc_nivel);
 

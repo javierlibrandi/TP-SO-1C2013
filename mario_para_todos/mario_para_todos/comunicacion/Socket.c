@@ -108,7 +108,7 @@ void *recv_variable(int socketReceptor, int *tipo) {
 // Tercero: Recibir el payload.
 
 	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
-		perror("error al Lee_Socket receptor");
+			perror("error al Lee_Socket receptor");
 		exit(-1);
 	}
 
