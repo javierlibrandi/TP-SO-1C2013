@@ -17,6 +17,7 @@ typedef struct {
 	char *desc_nivel; //nombre del nivel al que reprecenta el hilo
 	int *sock; //socket por el cual se comunica, es creado por la plataforma y pasado al planificador
 	fd_set *readfds; // puntero al fd_set para agregarlo en el select() dentro del hilo
+	fd_set *exceptfds;
 } t_h_planificador;
 
 typedef struct t_h_parlante{
