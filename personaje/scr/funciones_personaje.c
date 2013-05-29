@@ -297,7 +297,7 @@ Posicion solicitarUbicacionRecurso(Personaje* personaje){
 
 /* Realizará los movimientos necesarios y evaluará su posición hasta llegar al recurso. */
 void llegarARecurso(Posicion posRecurso, Posicion posActual){
-	int i, j, xFinal, yFinal, xActual, yActual;
+	int xFinal, yFinal, xActual, yActual;
 
 	xFinal=posRecurso.x;
 	yFinal=posRecurso.y;
@@ -328,18 +328,21 @@ void llegarARecurso(Posicion posRecurso, Posicion posActual){
 
 int evaluarPosicion(Posicion posicionActual, Posicion posicionRecurso){
 
-	if(posicionActual==posicionRecurso){
+	if(posicionActual.x==posicionRecurso.x && posicionActual.y==posicionRecurso.y){
 		log_in_disk_per(LOG_LEVEL_INFO, "Se llegó a la posición del recurso que se necesita.");
 		//solicitarRecurso();
 		return 1;
 	}else{
+		log_in_disk_per(LOG_LEVEL_INFO, "No se llegó aún a la posición del recurso que se necesita.");
+	}
 		return 0;
 	}
-}
 
-/* Se moverá una posición en un eje para acercarse al próximo recurso. */
+
+
+/* Se moverá una posición en un eje para acercarse al próximo recurso.
 void realizarMovimiento(Posicion posicion){
 
 }
-
+*/
 

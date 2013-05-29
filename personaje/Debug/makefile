@@ -26,14 +26,14 @@ endif
 all: personaje
 
 dependents:
-	-cd /home/utnso/Dropbox/tp-20131c-gaturro/commons/Debug && $(MAKE) clean all
-	-cd /home/utnso/Dropbox/tp-20131c-gaturro/mario_para_todos/Debug && $(MAKE) clean all
+	-cd /home/utnso/git/tp-20131c-gaturro/commons/Debug && $(MAKE) all
+	-cd /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug && $(MAKE) all
 
 # Tool invocations
-personaje: $(OBJS) $(USER_OBJS) /home/utnso/Dropbox/tp-20131c-gaturro/commons/Debug/libcommons.so /home/utnso/Dropbox/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so
+personaje: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/Dropbox/tp-20131c-gaturro/mario_para_todos/Debug" -L"/home/utnso/Dropbox/tp-20131c-gaturro/commons/Debug" -o "personaje" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug" -L"/home/utnso/git/tp-20131c-gaturro/commons/Debug" -o "personaje" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -44,7 +44,7 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/Dropbox/tp-20131c-gaturro/commons/Debug/libcommons.so:
-/home/utnso/Dropbox/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so:
+/home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so:
+/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so:
 
 -include ../makefile.targets

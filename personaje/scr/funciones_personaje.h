@@ -70,7 +70,7 @@ int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 Posicion solicitarUbicacionRecurso(Personaje* personaje);
 
 /* Realizará los movimientos necesarios y evaluará su posición hasta llegar al recurso. */
-void llegarARecurso(Posicion posicion);
+void llegarARecurso(Posicion posicionRecurso, Posicion posicionActual);
 
 /* El personaje determina si debe seguir moviéndose para conseguir el recurso o si llegó a destino y debe solicitar una instancia al Nivel*/
 int evaluarPosicion();

@@ -27,7 +27,7 @@ int main(void){
 	Personaje *personaje=NULL;
 	int descriptor;
 	InfoProxNivel infoNivel;
-	Posicion posicionRecurso;
+	Posicion posicionRecurso, posActual;
 
 	puts("Elija el nombre para su personaje:");
 	printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
@@ -42,7 +42,10 @@ int main(void){
 	
 	posicionRecurso = solicitarUbicacionRecurso(personaje);
 
-	llegarARecurso(posicionRecurso);
+	//harcodeo por ahora
+	posActual.x=0;
+	posActual.y=0;
+	llegarARecurso(posicionRecurso, posActual);
 
    return EXIT_SUCCESS;
 }
