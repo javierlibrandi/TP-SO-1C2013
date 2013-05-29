@@ -282,5 +282,64 @@ int listenerPersonaje (int descriptorNiv, int descriptorPlan){
 return EXIT_SUCCESS;
 }
 
+//el personaje se fija cuál es el próximo recurso a conseguir. Le solicita al Nivel las coordenadas x-y del mismo. */
+Posicion solicitarUbicacionRecurso(Personaje* personaje){
+	Posicion posicion;
+
+
+
+	posicion.x=0;
+	posicion.y=0;
+
+	return posicion;
+
+}
+
+/* Realizará los movimientos necesarios y evaluará su posición hasta llegar al recurso. */
+void llegarARecurso(Posicion posRecurso, Posicion posActual){
+	int i, j, xFinal, yFinal, xActual, yActual;
+
+	xFinal=posRecurso.x;
+	yFinal=posRecurso.y;
+	xActual=posActual.x;
+	yActual=posActual.y;
+
+	//evaluamosx
+	if(xFinal > xActual){
+		//xActual se va a incrementar hasta llegar a xFinal
+	}else{
+		//xActual se va a decrementar hasta llegar a xFinal
+	}
+
+	//evaluamosy
+	if(yFinal > yActual){
+			//yActual se va a incrementar hasta llegar a yFinal
+		}else{
+			//yActual se va a decrementar hasta llegar a yFinal
+		}
+
+	while(evaluarPosicion(posActual, posRecurso) != 1){
+
+		//realizarMovimiento();
+
+	}
+
+}
+
+int evaluarPosicion(Posicion posicionActual, Posicion posicionRecurso){
+
+	if(posicionActual==posicionRecurso){
+		log_in_disk_per(LOG_LEVEL_INFO, "Se llegó a la posición del recurso que se necesita.");
+		//solicitarRecurso();
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+/* Se moverá una posición en un eje para acercarse al próximo recurso. */
+void realizarMovimiento(Posicion posicion){
+
+}
 
 

@@ -41,6 +41,10 @@
  	fd_set *readfds;
  } t_listenerPersonaje;
 
+ typedef struct{
+	 int x;
+	 int y;
+ } Posicion;
 
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/
@@ -63,16 +67,16 @@ int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 //jugar();
 
 /* El personaje se fija cuál es el próximo recurso a conseguir. Le solicita al Nivel las coordenadas x-y del mismo. */
-//solicitarUbicacionRecurso();
-
-/* El personaje determina si debe seguir moviéndose para conseguir el recurso o si llegó a destino y debe solicitar una instancia al Nivel*/
-//evaluarPosicion();
-
-/* Se moverá una posición en un eje para acercarse al próximo recurso. */
-//realizarMovimiento();
+Posicion solicitarUbicacionRecurso(Personaje* personaje);
 
 /* Realizará los movimientos necesarios y evaluará su posición hasta llegar al recurso. */
-//llegarADestino();
+void llegarARecurso(Posicion posicion);
+
+/* El personaje determina si debe seguir moviéndose para conseguir el recurso o si llegó a destino y debe solicitar una instancia al Nivel*/
+int evaluarPosicion();
+
+/* Se moverá una posición en un eje para acercarse al próximo recurso. */
+void realizarMovimiento(Posicion posicion);
 
 /* El personaje espera el mensaje del planificador para poder moverse. */
 //esperarTurno();
