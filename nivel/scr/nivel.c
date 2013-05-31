@@ -20,8 +20,9 @@
 #include "escuchar_personaje/personaje_thr.h"
 #include <mario_para_todos/grabar.h>
 #include <mario_para_todos/comunicacion/Socket.h>
+#include "manjo_pantalla/pantalla.h"
 
-void libero_memoria(t_h_personaje *t_personaje);
+void libero_memoria(t_h_personaje *t_personaje,t_param_nivel *param_nivel);
 
 int main(int argc, char *argv[], char *env[]) {
 	t_param_nivel param_nivel;
@@ -37,6 +38,8 @@ int main(int argc, char *argv[], char *env[]) {
 	t_personaje = malloc(sizeof(t_h_personaje));
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
+
+	recusos_pantalla(param_nivel.recusos);
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
@@ -65,6 +68,7 @@ int main(int argc, char *argv[], char *env[]) {
 				log_in_disk_niv(LOG_LEVEL_ERROR,
 										"Error en el sockect.... lo saco de la lista  ");
 				FD_CLR(i, t_personaje->exceptfds);
+				close(i);
 
 				continue;
 			}
@@ -80,15 +84,18 @@ int main(int argc, char *argv[], char *env[]) {
 
 	pthread_join(escucho_personaje_th, NULL );
 
-	libero_memoria(t_personaje);
+	libero_memoria(t_personaje, &param_nivel);
 
 	return EXIT_SUCCESS;
 
 }
 
-void libero_memoria(t_h_personaje *t_personaje) {
+void libero_memoria(t_h_personaje *t_personaje,t_param_nivel *param_nivel) {
+	libero_recursos_pantalla(param_nivel->recusos);
+
 	free(t_personaje->nomb_nivel);
 	free(t_personaje->readfds);
 	free(t_personaje->sck_personaje);
 	free(t_personaje);
+
 }
