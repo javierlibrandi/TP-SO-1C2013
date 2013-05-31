@@ -24,30 +24,33 @@ void* planificador_nivel_thr(void *p) {
 	void *buffer = NULL;
 	int tipo;
 	int i;
+	char *hostname;
+	int size;
 
 	log_in_disk_plan(LOG_LEVEL_DEBUG, "Creo el panificador del nivel %s ",
 			h_planificador->desc_nivel);
 
-	h_planificador->exceptfds = h_planificador->readfds;
+	//h_planificador->exceptfds = h_planificador->readfds;
 
 	for (;;) {
-		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
-				h_planificador->exceptfds, NULL ) == -1) {
+		if (select(*(h_planificador->sock) + 1,h_planificador->readfds, NULL,
+				NULL, NULL ) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
 
 		for (i = 0; i <= *(h_planificador->sock); i++) {
 
-			if (FD_ISSET(i, h_planificador->exceptfds)) {
-				log_in_disk_plan(LOG_LEVEL_ERROR,
-						"Error en el sockect.... lo saco de la lista  ");
-				FD_CLR(i, h_planificador->exceptfds);
-				continue;
-			}
+//			if (FD_ISSET(i, h_planificador->exceptfds)) {
+//				log_in_disk_plan(LOG_LEVEL_ERROR,
+//						"Error en el sockect.... lo saco de la lista  ");
+//				FD_CLR(i, h_planificador->exceptfds);
+//				close(i);
+//				continue;
+//			}
 
 			if (FD_ISSET(i, h_planificador->readfds)) {
-				buffer = recv_variable(*(h_planificador->sock), &tipo);
+				buffer = recv_variable(i, &tipo);
 				log_in_disk_plan(LOG_LEVEL_TRACE,
 						"salida del segundo llamado %s nivel %s \n",
 						(char*) buffer, h_planificador->desc_nivel);
