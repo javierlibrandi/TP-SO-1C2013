@@ -108,7 +108,8 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
-				fd_mensaje(new_sck, OK, "Planificador creado\0");
+
+				fd_mensaje(new_sck, OK, "Planificador creado");
 				buffer = recv_variable(new_sck, &tipo);
 				creo_hilos_planificador(buffer, list_plataforma, new_sck);
 			} else {
@@ -218,7 +219,7 @@ void join_orquestador(t_list *list_plataforma) {
 
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "existe_nivel nivel: \t", desc_nivel);
+	log_in_disk_plat(LOG_LEVEL_TRACE, "existe_nivel nivel: %s \t", desc_nivel);
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;
