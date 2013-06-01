@@ -53,6 +53,9 @@ int Lee_Socket(int fd, void *Datos, int Longitud) {
 				case EINTR:
 				case EAGAIN:
 					usleep(100);
+					if (Lee_Socket(fd,Datos,Longitud)==-1){
+						break;
+					}
 					break;
 				default:
 					return -1;
@@ -90,7 +93,7 @@ int Escribe_Socket(int fd, void *Datos, int Longitud) {
 	return Escrito;
 }
 
-void *recv_variable(int socketReceptor, int *tipo) {
+void *recv_variable(const int socketReceptor, int *tipo) {
 
 	t_header header;
 	void *buffer;
@@ -119,10 +122,11 @@ void *recv_variable(int socketReceptor, int *tipo) {
 void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
 	t_send t_send;
 
+	memset(t_send.mensaje,'\0',max_len);
 	strcpy(t_send.mensaje, msj);
 	t_send.header_mensaje = header_mensaje;
-	t_send.payLoadLength = sizeof(t_send.mensaje);
+	t_send.payLoadLength = strlen(t_send.mensaje)+1;
 
-	Escribe_Socket(socket, &t_send, sizeof(t_send));
+	Escribe_Socket(socket, &t_send, sizeof(t_header)+t_send.payLoadLength);
 
 }

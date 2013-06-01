@@ -14,6 +14,7 @@ EXECUTABLES :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 scr \
+scr/manjo_pantalla \
 scr/escuchar_personaje \
 scr/conect_plataforma \
 

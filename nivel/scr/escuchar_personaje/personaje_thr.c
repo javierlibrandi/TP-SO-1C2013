@@ -18,6 +18,7 @@ void *escucho_personaje(void *p) {
 	int sck, new_sck, tipo;
 	void *buffer = NULL;
 	t_h_personaje *t_personaje = (t_h_personaje*) p;
+	char ip_cliente[]="170.000.000.000";
 
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"Ecucho conexiones de los personajes en el puerto %d \t soy el nivel %s ",
@@ -26,7 +27,7 @@ void *escucho_personaje(void *p) {
 	sck = Abre_Socket_Inet(t_personaje->pueto);
 
 	for (;;) {
-		new_sck = Acepta_Conexion_Cliente(sck);
+		new_sck = Acepta_Conexion_Cliente(sck,ip_cliente);
 		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
 		if(new_sck > t_personaje->sck_personaje ){
 			t_personaje->sck_personaje = new_sck;

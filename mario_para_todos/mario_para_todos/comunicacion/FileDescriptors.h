@@ -11,6 +11,8 @@
 #define FILEDESCRIPTORS_H_
 
 #include <netinet/in.h>
+#define max_len 200
+
 #define	P_TO_P_SALUDO  1//personaje saluda a la plataforma
 #define	P_TO_O_PROX_NIVEL 16
 #define	O_TO_P_UBIC_NIVEL 2//del tipo InfoProxNivel
@@ -57,9 +59,9 @@ typedef struct {
 typedef struct t_send{
 	int8_t header_mensaje;
 	int16_t payLoadLength;
-	//char mensaje[20]Escribe_Socket(scks, &mensaje, sizeof(mensaje));;
-	char* mensaje;
+	char mensaje[max_len];
 } t_send;
+
 typedef struct {
 	t_header header;
 	char* mensaje;

@@ -23,8 +23,11 @@ typedef struct t_param_plan{
 
 
 typedef struct{
-	char *NOMBRE;
-	char *SIMBOLO;
+	char NOMBRE[20];
+	char SIMBOLO;
+	char cantidad; //considero que no tengo mas 255 de un recurso
+	char posX;
+	char posY;
 }t_recusos;
 
 typedef struct{
@@ -32,7 +35,7 @@ typedef struct{
 	int PUERTO_PLATAFORMA;
 	int PUERTO;
 	char *nom_nivel;
-	//t_list recusos;
+	t_list *recusos;
 }t_param_nivel;
 
 //struct t_param_orq leer_archivo_orquestador_config();

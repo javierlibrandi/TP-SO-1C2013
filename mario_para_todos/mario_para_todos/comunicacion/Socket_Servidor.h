@@ -19,7 +19,7 @@ int Abre_Socket_Inet (int puerto);
  * Acepta un cliente para un socket INET.
  * Devuelve el descriptor de la conexi�n con el cliente o -1 si ha habido error.
  */
-int Acepta_Conexion_Cliente (int sck_server);
+int Acepta_Conexion_Cliente (int sck_server,char *ip_cliente);
 
 
 #endif

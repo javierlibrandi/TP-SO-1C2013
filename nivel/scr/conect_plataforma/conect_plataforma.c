@@ -20,15 +20,8 @@ int con_pla_nival(char *ip, int puerto, char *nombre_nivel) {
 	log_in_disk_niv(LOG_LEVEL_TRACE, "con_pla_nival del planificador %s ",
 			nombre_nivel);
 
-	memset(t_send.mensaje, '\0', 20);
-	strcpy(t_send.mensaje, nombre_nivel);
-
-	t_send.header_mensaje = N_TO_O_SALUDO;
-	t_send.payLoadLength = sizeof(t_send.mensaje);
-
 	sck = Abre_Conexion_Inet(ip, puerto);
-
-	Escribe_Socket(sck, &t_send, sizeof(struct t_send));
+	fd_mensaje(sck,N_TO_O_SALUDO,nombre_nivel);
 
 	buffer = recv_variable(sck, &tipo);
 	if (tipo == ERROR) {
@@ -38,7 +31,9 @@ int con_pla_nival(char *ip, int puerto, char *nombre_nivel) {
 	}
 	log_in_disk_niv(LOG_LEVEL_INFO, "%s", (char*) buffer);
 
-	Escribe_Socket(sck, &t_send, sizeof(struct t_send));
+	fd_mensaje(sck,N_TO_O_SALUDO,nombre_nivel);
+	fd_mensaje(sck,N_TO_O_SALUDO,nombre_nivel);
+
 
 	return sck;
 }
