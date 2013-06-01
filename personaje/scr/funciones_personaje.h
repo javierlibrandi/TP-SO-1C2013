@@ -24,6 +24,8 @@
 	int vidas;
 	char *ip_orquestador;
 	int puerto_orquestador;
+	int sockNivel;
+	int sockPlanif;
  }Personaje;
 
  typedef struct{

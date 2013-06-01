@@ -82,7 +82,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 	int tipo;
 	sck = Abre_Socket_Inet(puerto);
 	char ip_cliente[16];
-
+	int byteEnviados;
 	log_in_disk_plat(LOG_LEVEL_TRACE, "escucho conexiones en el puerto %d",
 			puerto);
 
@@ -115,7 +115,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 			if (!existe_nivel(buffer, list_plataforma)) {
 				free(buffer);
 
-				fd_mensaje(new_sck, OK, "Planificador creado");
+				fd_mensaje(new_sck, OK, "Planificador creado", &byteEnviados);
 
 				buffer = recv_variable(new_sck, &tipo);
 				creo_hilos_planificador(buffer, list_plataforma, new_sck,
@@ -123,7 +123,8 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 			} else {
 				fd_mensaje(new_sck, ERROR,
-						"Ya hay un nivel con ese nombre dado de alta");
+						"Ya hay un nivel con ese nombre dado de alta",
+						&byteEnviados);
 			}
 
 			break;
@@ -143,12 +144,11 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 ////////////////////////////////////////////////////////////////////
 
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
-	char ip_cliente[]) {
+		char ip_cliente[]) {
 	pthread_t planificador_pthread;
 	t_h_planificador *h_planificador;
 	fd_set readfds;
 	char **aux_msj;
-
 
 	aux_msj = string_split(msj, ";");
 
@@ -164,15 +164,16 @@ void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
 	 */
 	h_planificador->desc_nivel = malloc(strlen(aux_msj[0]));
 	strcpy(h_planificador->desc_nivel, aux_msj[0]); //agrego la des del nivel
-	h_planificador->sock =malloc(sizeof(int));
-	memcpy(h_planificador->sock,&sock,sizeof(int));
+	h_planificador->sock = malloc(sizeof(int));
+	memcpy(h_planificador->sock, &sock, sizeof(int));
 	h_planificador->readfds = malloc(sizeof(fd_set));
 	memcpy(h_planificador->readfds, &readfds, sizeof(fd_set));
 	strcpy(h_planificador->ip, ip_cliente);
 	strcpy(h_planificador->puerto, aux_msj[1]);
 	free(aux_msj);
 	///////fin configuro el select() que despues voy a usar en el hilo////////
-	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", h_planificador->desc_nivel);
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s",
+			h_planificador->desc_nivel);
 	//creo los hilos planificador
 	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
@@ -259,6 +260,11 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador) {
 
 	char* des_personaje = buffer;
+	//char* des_personaje = buffer;
+	t_personaje* nuevo_personaje;
+	char **mensaje;
+	char *aux_char = (char *) buffer;
+	int byteEnviados;
 
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", des_personaje);
 	if (crear_orquesador == 'N') {
@@ -272,7 +278,15 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	if (sock > *(h_orquestador->sock)) {
 		*(h_orquestador->sock) = sock;
 	}
-
+	//Creo el personaje
+	mensaje = string_split(aux_char, ";");
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", mensaje[0]);
+	nuevo_personaje = malloc(sizeof(t_personaje));
+	nuevo_personaje->nombre = malloc(strlen(mensaje[0] + 1));
+	nuevo_personaje->nivel = malloc(strlen(mensaje[1] + 1));
+	strcpy(nuevo_personaje->nombre, mensaje[0]);
+	strcpy(nuevo_personaje->nivel, mensaje[1]);
+	fd_mensaje(sock, OK, "ok,personaje listo", &byteEnviados);
 	return h_orquestador;
 
 }
