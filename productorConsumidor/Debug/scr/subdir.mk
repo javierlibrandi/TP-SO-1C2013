@@ -17,7 +17,7 @@ C_DEPS += \
 scr/productorConsumidor.o: ../scr/productorConsumidor.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	gcc -I"/home/utnso/git/tp-20131c-gaturro/commons" -O0 -g3 -Wall -c -fmessage-length=0 -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"scr/productorConsumidor.d" -o "$@" "$<"
+	gcc -I"/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons" -O0 -g3 -Wall -c -fmessage-length=0 -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"scr/productorConsumidor.d" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

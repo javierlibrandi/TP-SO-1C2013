@@ -11,7 +11,7 @@
 #define FILEDESCRIPTORS_H_
 
 #include <netinet/in.h>
-#define max_len 200
+#define max_len 1024
 
 #define	P_TO_P_SALUDO  1//personaje saluda a la plataforma
 #define	P_TO_O_PROX_NIVEL 16
@@ -48,10 +48,6 @@ typedef struct {
 	int16_t payLoadLength;
 } t_header;
 
-typedef struct {
-	char mensaje[30];
-} t_msj;
-
 /**
  * el cambio en los tipos lo saco del ejemplo
  * https://github.com/sisoputnfrba/so-test-sockets/blob/master/recv_variable/recv_variable.c
@@ -63,9 +59,4 @@ typedef struct t_send{
 } t_send;
 
 
-typedef struct t_send2{
-	int8_t header_mensaje;
-	int16_t payLoadLength;
-	t_msj mensaje;
-} t_send2;
 #endif /* FILEDESCRIPTORS_H_*/

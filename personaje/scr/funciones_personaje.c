@@ -45,7 +45,7 @@ personaje->ipOrquestador = archconf.ipOrquestador;
 personaje->nombre = nombrePersonaje;
 personaje->simbolo = '@';
 personaje->vidas = 3;
-personaje->ip_orquestador = "192.168.0.100";
+personaje->ip_orquestador = "localhost";
 personaje->puerto_orquestador = 5000;
 //personaje->nivelesRestantes= null;
 
