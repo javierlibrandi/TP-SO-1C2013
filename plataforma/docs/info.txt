@@ -17,4 +17,7 @@
 static int contador = 0;
 static pthread_mutex_t candado = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_lock(&candado);
-pthread_mutex_unlock(&candado);		
+pthread_mutex_unlock(&candado);	
+
+#Pagina con muchas coas interesantes, sockets, semaforos, etc.
+http://www.chuidiang.com/	

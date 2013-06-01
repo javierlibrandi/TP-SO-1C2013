@@ -62,10 +62,6 @@ typedef struct t_send{
 	char mensaje[max_len];
 } t_send;
 
-typedef struct {
-	t_header header;
-	char* mensaje;
-} t_send3;
 
 typedef struct t_send2{
 	int8_t header_mensaje;

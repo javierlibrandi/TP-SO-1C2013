@@ -24,10 +24,11 @@
 #include "plataforma.h"
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/comunicacion/Socket.h>
+#include <commons/string.h>
 
 void libero_memoria(t_list *list_plataforma);
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
-		int sock);
+void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
+		char ip_cliente[]);
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr);
@@ -87,9 +88,16 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck, ip_cliente);
+<<<<<<< HEAD
 		buffer = recv_variable(new_sck, &tipo);
 		log_in_disk_plat(LOG_LEVEL_INFO,
 				"Se me conecto el cliente con la ip %s", ip_cliente);
+=======
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				"Se me conecto el cliente con la ip %s", ip_cliente);
+
+		buffer = recv_variable(new_sck, &tipo);
+>>>>>>> e77410baa29a9d38b90263705bdea661106cfc3c
 
 		switch (tipo) {
 		case P_TO_P_SALUDO:
@@ -112,20 +120,25 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case N_TO_O_SALUDO: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
 				free(buffer);
+<<<<<<< HEAD
+=======
+
+>>>>>>> e77410baa29a9d38b90263705bdea661106cfc3c
 				fd_mensaje(new_sck, OK, "Planificador creado");
+
 				buffer = recv_variable(new_sck, &tipo);
-				creo_hilos_planificador(buffer, list_plataforma, new_sck);
+				creo_hilos_planificador(buffer, list_plataforma, new_sck,
+						ip_cliente);
+
 			} else {
 				fd_mensaje(new_sck, ERROR,
-						"Ya hay un nivel con ese nombre dado de alta\0");
+						"Ya hay un nivel con ese nombre dado de alta");
 			}
-
-			creo_hilos_planificador(buffer, list_plataforma, new_sck);
 
 			break;
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
-					"opcion en el switch no implementada", puerto);
+					"opcion en el switch no implementada", tipo);
 			exit(1);
 		}
 
@@ -138,19 +151,17 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 ///					creo_hilos_planificador						////
 ////////////////////////////////////////////////////////////////////
 
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
-		int sock) {
-
+void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
+	char ip_cliente[]) {
 	pthread_t planificador_pthread;
 	t_h_planificador *h_planificador;
 	fd_set readfds;
+	char **aux_msj;
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", desc_nivel);
+
+	aux_msj = string_split(msj, ";");
 
 	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
-
-	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
-	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
 
 	///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
@@ -160,12 +171,17 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 	 TAMBIEN HAGO UNA COPIA DE MEMORIA PARA NO PERDER EL VALOR.
 	 NO OLVIDARCE DE HACER UN FREE EN libero_memoria
 	 */
-	h_planificador->sock = malloc(sizeof(int));
-	memcpy(h_planificador->sock, &sock, sizeof(int));
+	h_planificador->desc_nivel = malloc(strlen(aux_msj[0]));
+	strcpy(h_planificador->desc_nivel, aux_msj[0]); //agrego la des del nivel
+	h_planificador->sock =malloc(sizeof(int));
+	memcpy(h_planificador->sock,&sock,sizeof(int));
 	h_planificador->readfds = malloc(sizeof(fd_set));
 	memcpy(h_planificador->readfds, &readfds, sizeof(fd_set));
+	strcpy(h_planificador->ip, ip_cliente);
+	strcpy(h_planificador->puerto, aux_msj[1]);
+	free(aux_msj);
 	///////fin configuro el select() que despues voy a usar en el hilo////////
-
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", h_planificador->desc_nivel);
 	//creo los hilos planificador
 	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
