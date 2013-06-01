@@ -43,7 +43,7 @@ int main(int argc, char *argv[], char *env[]) {
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
-			param_nivel.nom_nivel);
+			param_nivel.nom_nivel,param_nivel.PUERTO);
 
 	FD_ZERO(&readfds);
 	FD_SET(sck_plat, &readfds);
