@@ -88,16 +88,11 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck, ip_cliente);
-<<<<<<< HEAD
+
 		buffer = recv_variable(new_sck, &tipo);
-		log_in_disk_plat(LOG_LEVEL_INFO,
-				"Se me conecto el cliente con la ip %s", ip_cliente);
-=======
 		log_in_disk_plat(LOG_LEVEL_INFO,
 				"Se me conecto el cliente con la ip %s", ip_cliente);
 
-		buffer = recv_variable(new_sck, &tipo);
->>>>>>> e77410baa29a9d38b90263705bdea661106cfc3c
 
 		switch (tipo) {
 		case P_TO_P_SALUDO:
@@ -120,10 +115,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case N_TO_O_SALUDO: //creo el planificador del nivel
 			if (!existe_nivel(buffer, list_plataforma)) {
 				free(buffer);
-<<<<<<< HEAD
-=======
 
->>>>>>> e77410baa29a9d38b90263705bdea661106cfc3c
 				fd_mensaje(new_sck, OK, "Planificador creado");
 
 				buffer = recv_variable(new_sck, &tipo);
