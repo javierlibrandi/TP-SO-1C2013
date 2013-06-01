@@ -14,9 +14,4 @@ typedef struct{
 	t_list *prj_bloquedo;
 }t_estados;
 
-typedef struct{
-	char * nombre;
-	char * nivel;
-}t_personaje;
-
 #endif /* PLATAFORMA_H_ */

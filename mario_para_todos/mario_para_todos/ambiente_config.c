@@ -82,10 +82,8 @@ t_param_nivel leer_nivel_config(char *nivel) {
 	t_config* config;
 	t_param_nivel param;
 	t_recusos *list_recursos; //declaro el tipo nodo
-	char filename[20];
+	char aux_str[20];
 	int i,j;
-
-
 	char **aux;
 	char *aux_char;
 
@@ -96,7 +94,7 @@ t_param_nivel leer_nivel_config(char *nivel) {
 	param.recusos = list_create(); //creo lista de hilos
 	config = config_create(PATH_CONFIG);
 
-	param.nom_nivel = nivel; //copio el nombre del nivel que pase por parametro en el main
+	//param.nom_nivel = nivel; //copio el nombre del nivel que pase por parametro en el main
 
 	aux_char = config_get_string_value(config, "PLATAFORMA");
 
@@ -105,13 +103,13 @@ t_param_nivel leer_nivel_config(char *nivel) {
 	param.PUERTO_PLATAFORMA = atoi(aux[1]);
 
 	param.PUERTO = config_get_int_value(config, "PUERTO");
-
+	param.nom_nivel = config_get_string_value(config, "NOMBRE");
 
 	for (i = 1; i < 255; i++) {
 
-		sprintf(filename, "%s%d", "Caja", i);
+		sprintf(aux_str, "%s%d", "CAJA", i);
 
-		aux = config_get_array_value(config, filename);
+		aux = config_get_array_value(config, aux_str);
 
 		list_recursos = malloc(sizeof(t_recusos)); //creo el nodo
 		j=0;
@@ -127,7 +125,7 @@ t_param_nivel leer_nivel_config(char *nivel) {
 
 		log_in_disk_niv(LOG_LEVEL_TRACE,
 				"Cargo a la lista la caja %s que contiene el recurso %s con el simbolo %c y la candidad %d en la poscion [x,y] [%d][%d] ",
-				filename,list_recursos->NOMBRE, list_recursos->SIMBOLO,
+				aux_str,list_recursos->NOMBRE, list_recursos->SIMBOLO,
 				list_recursos->cantidad, list_recursos->posX,
 				list_recursos->posY);
 
