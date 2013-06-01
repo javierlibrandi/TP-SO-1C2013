@@ -80,15 +80,16 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 	int puerto = param_plataforma.PUERTO;
 	int tipo;
 	sck = Abre_Socket_Inet(puerto);
-	char ip_cliente[]="000.000.000.000";
+	char ip_cliente[] = "000.000.000.000";
 
 	log_in_disk_plat(LOG_LEVEL_TRACE, "escucho conexiones en el puerto %d",
 			puerto);
 
 	for (;;) {
-		new_sck = Acepta_Conexion_Cliente(sck,ip_cliente);
+		new_sck = Acepta_Conexion_Cliente(sck, ip_cliente);
 		buffer = recv_variable(new_sck, &tipo);
-		log_in_disk_plat(LOG_LEVEL_INFO, "Se me conecto el cliente con la ip %s", ip_cliente);
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				"Se me conecto el cliente con la ip %s", ip_cliente);
 
 		switch (tipo) {
 		case P_TO_P_SALUDO:
@@ -249,9 +250,11 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
 t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador) {
 
-	char* des_personaje = buffer;
+	//char* des_personaje = buffer;
+	t_personaje* nuevo_personaje;
+	char **mensaje;
+	char *aux_char = (char *) buffer;
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", des_personaje);
 	if (crear_orquesador == 'N') {
 
 		FD_ZERO(h_orquestador->readfds);
@@ -261,10 +264,22 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 
 	FD_SET(sock, h_orquestador->readfds);
 	if (sock > *(h_orquestador->sock)) {
-		*(h_orquestador->sock) = sock;
+		*(h_orquestador->sock) = sock; //[]
 	}
+	//Creo el personaje
+	mensaje = string_split(aux_char, ";");
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", mensaje[0]);
+	nuevo_personaje = malloc(sizeof(t_personaje));
+	nuevo_personaje->nombre = malloc(strlen(mensaje[0] + 1));
+	nuevo_personaje->nivel = malloc(strlen(mensaje[1] + 1));
+	strcpy(nuevo_personaje->nombre, mensaje[0]);
+	strcpy(nuevo_personaje->nivel, mensaje[1]);
 
-	return h_orquestador;
+	//PONGO EL PERSONAJE EN LA COLA DE LISTOS
+
+	list_add(h_orquestador->lista_estados->prj_listo, nuevo_personaje);
+
+return h_orquestador;
 
 }
 
