@@ -5,10 +5,6 @@
 
 #define  val_pos_recurso(x,y) ((x<=80 && y<=80) ? 1 : 0)
 
-//typedef struct t_param_orq{
-//	char* IP;
-//	int PUERTO;
-//}t_param_orq;
 
 typedef struct t_param_plat {
 	char** planificador_nivel;

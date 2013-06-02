@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * ambiente_config.c
 
