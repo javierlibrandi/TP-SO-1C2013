@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 #define max_len 1024
 
-#define	P_TO_P_SALUDO  1//personaje saluda a la plataforma
+#define	P_TO_P_SALUDO  1//personaje saluda a la plataforma //(NombrePersonaje;nivelnro)
 #define	P_TO_O_PROX_NIVEL 16
 #define	O_TO_P_UBIC_NIVEL 2//del tipo InfoProxNivel
 #define P_TO_N_INICIAR_NIVEL 3

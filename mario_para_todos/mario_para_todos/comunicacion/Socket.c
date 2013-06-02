@@ -31,35 +31,35 @@ int Lee_Socket(int fd, void *Datos, int Longitud) {
 	 * Comprobacion de que los parametros de entrada son correctos
 	 */
 	if ((fd == -1) || (Datos == NULL )|| (Longitud < 1)){
-		fprintf(stderr,"error en validacion (fd == -1) %d || (Datos == NULL ) || (Longitud < 1) %d \n",fd,Longitud);
+	fprintf(stderr,"error en validacion (fd == -1) %d || (Datos == NULL ) || (Longitud < 1) %d \n",fd,Longitud);
 		return -1;
 	}
 
-	if((Leido = recv(fd, Datos, Longitud, MSG_WAITALL))==-1){
+	if ((Leido = recv(fd, Datos, Longitud, MSG_WAITALL)) == -1) {
 		/*
-				 * En caso de error, la variable errno nos indica el tipo
-				 * de error.
-				 * El error EINTR se produce si ha habido alguna
-				 * interrupcion del sistema antes de leer ningun dato. No
-				 * es un error realmente.
-				 * El error EGAIN significa que el socket no esta disponible
-				 * de momento, que lo intentemos dentro de un rato.
-				 * Ambos errores se tratan con una espera de 100 microsegundos
-				 * y se vuelve a intentar.
-				 * El resto de los posibles errores provocan que salgamos de
-				 * la funcion con error.
-				 */
-				switch (errno) {
-				case EINTR:
-				case EAGAIN:
-					usleep(100);
-					if (Lee_Socket(fd,Datos,Longitud)==-1){
-						break;
-					}
-					break;
-				default:
-					return -1;
-				}
+		 * En caso de error, la variable errno nos indica el tipo
+		 * de error.
+		 * El error EINTR se produce si ha habido alguna
+		 * interrupcion del sistema antes de leer ningun dato. No
+		 * es un error realmente.
+		 * El error EGAIN significa que el socket no esta disponible
+		 * de momento, que lo intentemos dentro de un rato.
+		 * Ambos errores se tratan con una espera de 100 microsegundos
+		 * y se vuelve a intentar.
+		 * El resto de los posibles errores provocan que salgamos de
+		 * la funcion con error.
+		 */
+		switch (errno) {
+		case EINTR:
+		case EAGAIN:
+			usleep(100);
+			if (Lee_Socket(fd, Datos, Longitud) == -1) {
+				break;
+			}
+			break;
+		default:
+			return -1;
+		}
 	}
 
 	/*
@@ -85,7 +85,7 @@ int Escribe_Socket(int fd, void *Datos, int Longitud) {
 	 * indicado.
 	 */
 
-		Escrito = send(fd, Datos, Longitud, 0);
+	Escrito = send(fd, Datos, Longitud, 0);
 
 	/*
 	 * Devolvemos el total de caracteres leidos
@@ -111,7 +111,7 @@ void *recv_variable(const int socketReceptor, int *tipo) {
 // Tercero: Recibir el payload.
 
 	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
-			perror("error al Lee_Socket receptor");
+		perror("error al Lee_Socket receptor");
 		exit(-1);
 	}
 
@@ -119,14 +119,15 @@ void *recv_variable(const int socketReceptor, int *tipo) {
 }
 
 //informa si acepto o rechazo la conexion
-void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
+void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
+		int *env) {
 	t_send t_send;
 
-	memset(t_send.mensaje,'\0',max_len);
+	memset(t_send.mensaje, '\0', max_len);
 	strcpy(t_send.mensaje, msj);
 	t_send.header_mensaje = header_mensaje;
-	t_send.payLoadLength = strlen(t_send.mensaje)+1;
+	t_send.payLoadLength = strlen(t_send.mensaje) + 1;
 
-	Escribe_Socket(socket, &t_send, sizeof(t_header)+t_send.payLoadLength);
+	*env = Escribe_Socket(socket, &t_send, sizeof(t_header) + t_send.payLoadLength);
 
 }

@@ -29,14 +29,14 @@ endif
 all: nivel
 
 dependents:
-	-cd /home/utnso/git/tp-20131c-gaturro/commons/Debug && $(MAKE) clean all
-	-cd /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug && $(MAKE) clean all
+	-cd /home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug && $(MAKE) all
+	-cd /home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/mario_para_todos/Debug && $(MAKE) all
 
 # Tool invocations
-nivel: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so
+nivel: $(OBJS) $(USER_OBJS) /home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug/libcommons.so /home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug" -L"/home/utnso/git/tp-20131c-gaturro/commons/Debug" -o "nivel" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/mario_para_todos/Debug" -L"/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug" -o "nivel" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -47,7 +47,7 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so:
-/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so:
+/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug/libcommons.so:
+/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/mario_para_todos/Debug/libmario_para_todos.so:
 
 -include ../makefile.targets

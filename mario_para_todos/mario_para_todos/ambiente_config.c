@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ambiente_config.c
 
@@ -130,5 +131,3 @@ t_param_nivel leer_nivel_config(char *nivel) {
 	return param;
 
 }
-
-
