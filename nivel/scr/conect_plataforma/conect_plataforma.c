@@ -24,9 +24,9 @@ int con_pla_nival(char *ip, int puerto_orq, char *nombre_nivel, int puerto) {
 			nombre_nivel);
 
 	sck = Abre_Conexion_Inet(ip, puerto_orq);
+	int byteRecibidos;
 
-
-	fd_mensaje(sck,N_TO_O_SALUDO,nombre_nivel);
+	fd_mensaje(sck,N_TO_O_SALUDO,nombre_nivel,&byteRecibidos);
 	buffer = recv_variable(sck, &tipo);
 
 	if (tipo == ERROR) {
@@ -38,7 +38,7 @@ int con_pla_nival(char *ip, int puerto_orq, char *nombre_nivel, int puerto) {
 
 	sprintf(aux_str, "%s;%d", nombre_nivel, puerto);
 
-	fd_mensaje(sck,N_TO_O_SALUDO,aux_str);
+	fd_mensaje(sck,N_TO_O_SALUDO,aux_str,&byteRecibidos);
 
 
 

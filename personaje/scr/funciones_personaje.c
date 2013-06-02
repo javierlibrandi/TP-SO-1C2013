@@ -26,7 +26,7 @@
 //Por ahora se inicializa el personaje harcodeado. Falta hacer funcionar la lectura del arch de configuración y el uso de listas.
 Personaje* nuevoPersonaje(char* nombrePersonaje)
 {
-Personaje* personaje = NULL;
+Personaje* personaje = malloc(sizeof(Personaje));
 
 log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear a %s", nombrePersonaje);
 
@@ -45,7 +45,7 @@ personaje->ipOrquestador = archconf.ipOrquestador;
 personaje->nombre = nombrePersonaje;
 personaje->simbolo = '@';
 personaje->vidas = 3;
-personaje->ip_orquestador = "192.168.0.100";
+personaje->ip_orquestador = "localhost";
 personaje->puerto_orquestador = 5000;
 //personaje->nivelesRestantes= null;
 
@@ -59,11 +59,11 @@ int conectarOrquestador(Personaje* personaje){
 	int descriptor, tipo;
 	struct t_send mensaje;
 	int bytes_enviados;
-	void *buffer = NULL;
+	char *buffer;
 
 	// Establezco conexión con el orquestador
-	log_in_disk_per(LOG_LEVEL_INFO, "%s", "Conectándose a IP: ", personaje->ip_orquestador  );
-	log_in_disk_per(LOG_LEVEL_INFO, "%s", "Conectándose a PUERTO: ", personaje->puerto_orquestador  );
+	log_in_disk_per(LOG_LEVEL_INFO, "Conectándose a IP: %s", personaje->ip_orquestador  );
+	log_in_disk_per(LOG_LEVEL_INFO, "Conectándose a PUERTO: %d", personaje->puerto_orquestador  );
 
 	descriptor=Abre_Conexion_Inet(personaje->ip_orquestador, personaje->puerto_orquestador);
 
@@ -74,14 +74,8 @@ int conectarOrquestador(Personaje* personaje){
 		log_in_disk_per(LOG_LEVEL_INFO, "%s", "Conexión exitosa con el orquestador");
 		}
 
-		// Envía SALUDO_PERSONAJE.
-		memset(mensaje.mensaje, '\0', 20);
-		strcpy(mensaje.mensaje, "Hola soy un personaje");
+		fd_mensaje(descriptor,P_TO_P_SALUDO,"luis;nivel2",&bytes_enviados);
 
-		mensaje.header_mensaje= P_TO_P_SALUDO;
-		mensaje.payLoadLength = sizeof(mensaje.mensaje);
-
-		bytes_enviados= Escribe_Socket(descriptor, &mensaje, sizeof(mensaje));
 
 		if(bytes_enviados == -1)
 			log_in_disk_per(LOG_LEVEL_ERROR, "%s", "Hubo un error al enviar el mensaje SALUDO_PERSONAJE");
@@ -90,12 +84,14 @@ int conectarOrquestador(Personaje* personaje){
 		//Recibo OK del orquestador
 
 		buffer = recv_variable(descriptor, &tipo);
+
+
 			if (tipo == ERROR) {
-				log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) buffer);
+				log_in_disk_per(LOG_LEVEL_ERROR, "%s", buffer);
 				exit(EXIT_FAILURE);}
 
 			if (tipo == OK)
-				log_in_disk_per(LOG_LEVEL_INFO, "%s", "Se recibió OK del orquestador.");
+				log_in_disk_per(LOG_LEVEL_INFO, "%s", buffer);
 
 free(buffer);
 return descriptor;
