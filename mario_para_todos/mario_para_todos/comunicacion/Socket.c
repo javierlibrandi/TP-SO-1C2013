@@ -18,7 +18,7 @@
 #include "FileDescriptors.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include "../entorno.h"
 /*
  * Lee datos del socket. Supone que se le pasa un buffer con hueco
  *	suficiente para los datos. Devuelve el numero de bytes leidos o
@@ -97,24 +97,30 @@ void *recv_variable(const int socketReceptor, int *tipo) {
 
 	t_header header;
 	void *buffer;
-
+	int Leido;
 // Primero: Recibir el header para saber cuando ocupa el payload.
-	if (Lee_Socket(socketReceptor, &header, sizeof(header)) == -1) {
+	Leido = Lee_Socket(socketReceptor, &header, sizeof(header));
+
+	if (Leido == -1) {
 		perror("error al Lee_Socket recibe  header");
 		exit(-1);
 	}
 
-	*tipo = (int) header.header_mensaje;
+	if (Leido < 1) {
+		buffer = malloc(strlen(Leido_error) + 1);
+		strcpy(buffer, Leido_error);
+	} else {
+		*tipo = (int) header.header_mensaje;
 // Segundo: Alocar memoria suficiente para el payload.
-	buffer = malloc(header.payLoadLength);
+		buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
 
-	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
-		perror("error al Lee_Socket receptor");
-		exit(-1);
+		if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
+			perror("error al Lee_Socket receptor");
+			exit(-1);
+		}
 	}
-
 	return buffer;
 }
 
@@ -128,6 +134,15 @@ void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
 	t_send.header_mensaje = header_mensaje;
 	t_send.payLoadLength = strlen(t_send.mensaje) + 1;
 
-	*env = Escribe_Socket(socket, &t_send, sizeof(t_header) + t_send.payLoadLength);
+	*env = Escribe_Socket(socket, &t_send,
+			sizeof(t_header) + t_send.payLoadLength);
 
+}
+
+/**
+ * si me cierran la conexion elimino el socket de la lista
+ */
+void elimino_sck_lista(int sck, fd_set *readfds) {
+	FD_CLR(sck, readfds);
+	close(sck);
 }

@@ -25,6 +25,10 @@ int Escribe_Socket (int fd, void *Datos, int Longitud);
  * Devolviendo solo el mensaje en el puntero a void buffer
  * quien lo llama debe castiar el puntero al tipo de dato esperado
  */
+void *recv_variable(const int socketReceptor, int *tipo);
+
 void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
 		int *env);
+
+void elimino_sck_lista(int sck, fd_set *readfds);
 #endif

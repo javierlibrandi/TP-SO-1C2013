@@ -27,13 +27,13 @@ endif
 all: libmario_para_todos.so
 
 dependents:
-	-cd /home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug && $(MAKE) all
+	-cd /home/utnso/git/tp-20131c-gaturro/commons/Debug && $(MAKE) all
 
 # Tool invocations
-libmario_para_todos.so: $(OBJS) $(USER_OBJS) /home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug/libcommons.so
+libmario_para_todos.so: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug" -shared -o "libmario_para_todos.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/git/tp-20131c-gaturro/commons/Debug" -shared -o "libmario_para_todos.so" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -44,6 +44,6 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/Dropbox/git-note-lg/tp-20131c-gaturro/commons/Debug/libcommons.so:
+/home/utnso/git/tp-20131c-gaturro/commons/Debug/libcommons.so:
 
 -include ../makefile.targets

@@ -10,7 +10,9 @@
 #include <commons/collections/list.h>
 
 
+void inicializo_pantalla(void);
 void recusos_pantalla(t_list *recursos);
 void libero_recursos_pantalla(t_list *recursos);
+
 
 #endif /* PANTALLA_H_ */
