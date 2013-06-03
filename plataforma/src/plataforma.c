@@ -25,6 +25,8 @@
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/comunicacion/Socket.h>
 #include <commons/string.h>
+#include <mario_para_todos/entorno.h>
+#include <semaphore.h>
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
@@ -37,13 +39,21 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
 t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador);
 
+/* Declaración del objeto atributo */
+pthread_attr_t attr;
+
+pthread_mutex_t s_lista_plani = PTHREAD_MUTEX_INITIALIZER;
+
 int main(void) {
 
 	t_param_plat param_plataforma;
 
 	pthread_t orquestador_thr = 0;
+	/* Inicialización del objeto atributo */
+	pthread_attr_init(&attr);
 
-	t_list *list_plataforma = list_create(); //creo lista de hilos
+	t_list *list_planificadores = list_create(); //creo lista de hilos
+
 	t_estados lista_estados;
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
 
@@ -57,14 +67,14 @@ int main(void) {
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	h_orquestador->sock = malloc(sizeof(int));
 
-	escucho_conexiones(param_plataforma, list_plataforma, h_orquestador, // ** no seria &h_orquestador?
+	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador, // ** no seria &h_orquestador?
 			&orquestador_thr);
 
 	pthread_join(orquestador_thr, NULL );
-	join_orquestador(list_plataforma);
+	join_orquestador(list_planificadores);
 
-	libero_memoria(list_plataforma);
-	list_destroy(list_plataforma);
+	libero_memoria(list_planificadores);
+	list_destroy(list_planificadores);
 
 	return EXIT_SUCCESS;
 }
@@ -74,7 +84,7 @@ int main(void) {
 ////////////////////////////////////////////////////////////////////
 
 void escucho_conexiones(const t_param_plat param_plataforma,
-		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
+		t_list *list_planificadores, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr) {
 	int sck, new_sck;
 	void * buffer = NULL;
@@ -112,13 +122,13 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 			}
 			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
-			if (!existe_nivel(buffer, list_plataforma)) {
+			if (!existe_nivel(buffer, list_planificadores)) {
 				free(buffer);
 
 				fd_mensaje(new_sck, OK, "Planificador creado", &byteEnviados);
 
 				buffer = recv_variable(new_sck, &tipo);
-				creo_hilos_planificador(buffer, list_plataforma, new_sck,
+				creo_hilos_planificador(buffer, list_planificadores, new_sck,
 						ip_cliente);
 
 			} else {
@@ -143,14 +153,15 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 ///					creo_hilos_planificador						////
 ////////////////////////////////////////////////////////////////////
 
-void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
+void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 		char ip_cliente[]) {
+
 	pthread_t planificador_pthread;
 	t_h_planificador *h_planificador;
 	fd_set readfds;
-	char **aux_msj;
+	char **aux_msj = string_split(msj, ";");
+	int tot_elemntos;
 
-	aux_msj = string_split(msj, ";");
 
 	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
 
@@ -170,19 +181,26 @@ void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
 	memcpy(h_planificador->readfds, &readfds, sizeof(fd_set));
 	strcpy(h_planificador->ip, ip_cliente);
 	strcpy(h_planificador->puerto, aux_msj[1]);
+	h_planificador->s_lista_plani = &s_lista_plani;
 	free(aux_msj);
 	///////fin configuro el select() que despues voy a usar en el hilo////////
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s",
 			h_planificador->desc_nivel);
 	//creo los hilos planificador
-	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
+	pthread_create(&planificador_pthread, &attr, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
 
 	h_planificador->planificador_thr = planificador_pthread;
 
-	//agrego el nuevo hilo a la lista y muestro cuanto elemnetos tengo
-	log_in_disk_plat(LOG_LEVEL_TRACE, "Elementos en la lista plataforma %d",
-			list_add(list_plataforma, h_planificador));
+	pthread_mutex_lock(&s_lista_plani);
+
+	tot_elemntos = list_add(list_planificadores, h_planificador);
+	h_planificador->lista_planificadores = list_planificadores;
+
+	pthread_mutex_unlock(&s_lista_plani);
+
+	log_in_disk_plat(LOG_LEVEL_INFO,
+				"el total planificadores en la lista es de %d", tot_elemntos);
 
 }
 
