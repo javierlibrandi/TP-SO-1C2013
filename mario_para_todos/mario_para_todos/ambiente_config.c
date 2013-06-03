@@ -60,7 +60,7 @@ t_param_plan leer_archivo_plan_config(char *nivel) {
 	return param;
 }
 
-t_param_nivel leer_nivel_config(char *nivel) {
+t_param_nivel leer_nivel_config() {
 	t_config* config;
 	t_param_nivel param;
 	t_recusos *list_recursos; //declaro el tipo nodo
@@ -74,7 +74,7 @@ t_param_nivel leer_nivel_config(char *nivel) {
 			PATH_CONFIG);
 
 	param.recusos = list_create(); //creo lista de hilos
-	config = config_create(PATH_CONFIG);
+	config = config_create(PATH_CONFIG_NIVEL);
 
 	//param.nom_nivel = nivel; //copio el nombre del nivel que pase por parametro en el main
 
