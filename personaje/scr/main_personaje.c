@@ -29,14 +29,20 @@ int main(void){
 	InfoProxNivel infoNivel;
 	Posicion posicionRecurso, posActual;
 
-	puts("Elija el nombre para su personaje:");
-	printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
+	//puts("Elija el nombre para su personaje:");
+	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
+	nombre_per="Jaz";
 	personaje = nuevoPersonaje(nombre_per);
 	
 	descriptor = conectarOrquestador(personaje);
 	
-	infoNivel = consultarProximoNivel(descriptor, personaje);
+	//infoNivel = consultarProximoNivel(descriptor, personaje);
+
+	//harcodeo ip y puerto del nivel para probar esta función
+	infoNivel.nombre_nivel="nivel2";
+	infoNivel.ip_nivel="localhost";
+	infoNivel.puerto_nivel=5002;
 
 	iniciarNivel(personaje, infoNivel); 
 	

@@ -18,6 +18,11 @@
  }Nivel;
 
  typedef struct{
+	 int x;
+	 int y;
+ } Posicion;
+
+ typedef struct{
 	char *nombre;
 	char simbolo;
 	t_list nivelesRestantes;
@@ -26,27 +31,22 @@
 	int puerto_orquestador;
 	int sockNivel;
 	int sockPlanif;
+	//Nivel nivelActual;
+	Posicion posActual;
  }Personaje;
 
  typedef struct{
+	 char* nombre_nivel;
 	 char* ip_nivel;
 	 int puerto_nivel;
  }InfoProxNivel;
-
- typedef struct{
-	 char* nombrePersonaje;
-	 char* proxNivel;
- }PersonajeNivel;
 
  typedef struct {
  	int *descriptor;
  	fd_set *readfds;
  } t_listenerPersonaje;
 
- typedef struct{
-	 int x;
-	 int y;
- } Posicion;
+
 
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/
