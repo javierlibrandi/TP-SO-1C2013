@@ -113,7 +113,7 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 
 	//Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
 	//Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
-	infoNivel.nombre_nivel = "nivel2";
+	infoNivel.nombre_nivel = "nivel5";
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 					"Voy a enviar solicitud de ubicación del %s", infoNivel.nombre_nivel, "al orquestador");

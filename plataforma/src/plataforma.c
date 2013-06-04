@@ -66,6 +66,7 @@ int main(void) {
 	h_orquestador->lista_estados = &lista_estados;
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	h_orquestador->sock = malloc(sizeof(int));
+	h_orquestador->planificadores = list_planificadores;
 
 	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador, // ** no seria &h_orquestador?
 			&orquestador_thr);
