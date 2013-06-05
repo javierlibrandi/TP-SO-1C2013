@@ -60,7 +60,7 @@ t_param_plan leer_archivo_plan_config(char *nivel) {
 	return param;
 }
 
-t_param_nivel leer_nivel_config() {
+t_param_nivel leer_nivel_config(int rows, int cols) {
 	t_config* config;
 	t_param_nivel param;
 	t_recusos *list_recursos; //declaro el tipo nodo
@@ -73,6 +73,10 @@ t_param_nivel leer_nivel_config() {
 			"comienzo lectura archivo de configuracion del nivel en el %s ",
 			PATH_CONFIG);
 
+
+	log_in_disk_niv(LOG_LEVEL_TRACE,
+			"limites de pantalla x = %d ,y = %d",
+			rows, cols);
 	param.recusos = list_create(); //creo lista de hilos
 	config = config_create(PATH_CONFIG_NIVEL);
 
@@ -105,7 +109,7 @@ t_param_nivel leer_nivel_config() {
 		list_recursos->posX = atoi(aux[j++]);
 		list_recursos->posY = atoi(aux[j]);
 
-		if (val_pos_recurso(list_recursos->posX,list_recursos->posY)) {
+		if (val_pos_recurso(rows, cols,list_recursos->posX,list_recursos->posY)) {
 
 			log_in_disk_niv(LOG_LEVEL_TRACE,
 					"Cargo a la lista la caja %s que contiene el recurso %s con el simbolo %c y la candidad %d en la poscion [x,y] [%d][%d] ",
