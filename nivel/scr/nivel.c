@@ -32,17 +32,20 @@ int main(void) {
 	pthread_t escucho_personaje_th;
 	t_h_personaje *t_personaje;
 	fd_set readfds;
-	int i, tipo;
+	int i, tipo,rows, cols;
 	char *buffer;
 
+	inicializo_pantalla();
+	nivel_gui_get_area_nivel(&rows, &cols);
 
-	param_nivel = leer_nivel_config();
+
+	param_nivel = leer_nivel_config(rows, cols);
 
 	t_personaje = malloc(sizeof(t_h_personaje));
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
 
-	inicializo_pantalla();
+
 	recusos_pantalla(param_nivel.recusos);
 
 	//conecxion con el planificador

@@ -4,7 +4,7 @@
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #include <commons/collections/list.h>
 
-#define  val_pos_recurso(x,y) ((x<=80 && y<=80) ? 1 : 0)
+#define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=1 || y!=1)) ? 1 : 0)
 
 
 typedef struct t_param_plat {
@@ -39,6 +39,6 @@ typedef struct {
 t_param_plat leer_archivo_plataforma_config();
 
 
-t_param_nivel leer_nivel_config();
+t_param_nivel leer_nivel_config(int rows, int cols);
 
 #endif /* AMBIENTE_CONFIG_H_ */
