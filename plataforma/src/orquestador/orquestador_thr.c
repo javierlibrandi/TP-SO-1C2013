@@ -30,7 +30,6 @@ void *orequestador_thr(void* p) {
 	//char *aux_char=NULL;
 	int byteEnviados;
 	char respuesta[100];
-	bool _bool;
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 	for (;;) {
@@ -54,10 +53,11 @@ void *orequestador_thr(void* p) {
 				case P_TO_O_PROX_NIVEL:
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
-					_bool = busca_planificador(mensaje[1], t_h_orq->planificadores,
-							respuesta);
-					pthread_mutex_unlock(t_h_orq->s_lista_plani);
-					if (_bool) {
+
+
+					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
+							respuesta)) {
+						pthread_mutex_unlock(t_h_orq->s_lista_plani);
 
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
@@ -98,9 +98,15 @@ bool busca_planificador(const char *desc_nivel, t_list *list_plataforma,
 	bool _list_elements(t_h_planificador *h_planificador) {
 
 		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
-			log_in_disk_plat(LOG_LEVEL_WARNING,
-					"Ya se declaro un nivel con el nombre %s", desc_nivel);
+
+
+
 			sprintf(msj, "%s;%s", h_planificador->ip, h_planificador->puerto);
+
+			log_in_disk_plat(LOG_LEVEL_WARNING,
+								"Los datos del planificador son ip: %s, puerto: %s ",h_planificador->ip, h_planificador->puerto);
+
+
 			return true;
 
 		} else {

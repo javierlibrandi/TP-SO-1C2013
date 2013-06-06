@@ -35,10 +35,27 @@ typedef struct {
 	t_list *recusos;
 } t_param_nivel;
 
+// para el personaje
+
+typedef struct {
+	char *nivel;
+	char **recurso;
+} t_recursos;
+
+
+typedef struct {
+	char *NOMBRE;
+	char SMBOLO;
+	char **PLAN_NIVELES;
+	t_list *RECURSOS;
+} t_param_persoje;
+
 
 t_param_plat leer_archivo_plataforma_config();
 
 
 t_param_nivel leer_nivel_config(int rows, int cols);
+
+t_param_persoje leer_personaje_config();
 
 #endif /* AMBIENTE_CONFIG_H_ */

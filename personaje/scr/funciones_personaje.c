@@ -28,9 +28,9 @@ Personaje* nuevoPersonaje(char* nombrePersonaje) {
 	log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear a %s", nombrePersonaje);
 
 //Esperar imple de pato  para levantar arch conf
-	/*
-	 archConf=leer_archivo_personaje_config();
 
+	// archConf=leer_archivo_personaje_config();
+	 /*
 	 personaje->nombre = archConf.nombre;
 	 personaje->simbolo = archConf.simbolo;
 	 personaje->vidas = archConf.vidas;
@@ -80,13 +80,9 @@ int conectarOrquestador(Personaje* personaje) {
 
 	//Ver con Mati si enviar nivel aca o si no hace falta, ya que tengo que consultar y lo vuelvo a hacer en PROX_NIVEL
 	//Sino agregar un campo a Personaje que guarde nivel actual
-<<<<<<< HEAD
+
 	nivel="nivel5";
 	sprintf(mensaje, "%s;%s", personaje->nombre, nivel );
-=======
-	nivel = "nivel2";
-	sprintf(mensaje, "%s;%s", personaje->nombre, nivel);
->>>>>>> 4ffc388c2edc69226d750a731272594f1265f5d0
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
 	fd_mensaje(descriptor, P_TO_P_SALUDO, mensaje, &bytes_enviados);
