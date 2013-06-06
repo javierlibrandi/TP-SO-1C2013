@@ -42,13 +42,13 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
 
-pthread_mutex_t s_lista_plani = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_lista_plani = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
 
 	t_param_plat param_plataforma;
 
-	pthread_t orquestador_thr = 0;
+	pthread_t orquestador_thr;
 	/* Inicialización del objeto atributo */
 	pthread_attr_init(&attr);
 
@@ -88,12 +88,13 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_planificadores, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr) {
 	int sck, new_sck;
-	void * buffer = NULL;
+	char *buffer = NULL;
 	int puerto = param_plataforma.PUERTO;
 	int tipo;
 	sck = Abre_Socket_Inet(puerto);
 	char ip_cliente[16];
 	int byteEnviados;
+	char solo_personaje = 'N';
 	log_in_disk_plat(LOG_LEVEL_TRACE, "escucho conexiones en el puerto %d",
 			puerto);
 
@@ -107,9 +108,9 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		switch (tipo) {
 		case P_TO_P_SALUDO:
 
-			if (orquestador_thr == 0) {
+			if (solo_personaje == 'N') {
 				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
-				creo_personaje_lista('N', new_sck, buffer, h_orquestador);
+				creo_personaje_lista(solo_personaje, new_sck, buffer, h_orquestador);
 
 				/**
 				 * creo el hilo orquetador
@@ -117,8 +118,10 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 				pthread_create(orquestador_thr, NULL, (void *) orequestador_thr,
 						(void*) h_orquestador);
 
+				solo_personaje = 'S';
+
 			} else {
-				h_orquestador = creo_personaje_lista('S', new_sck, buffer,
+				h_orquestador = creo_personaje_lista(solo_personaje, new_sck, buffer,
 						h_orquestador);
 			}
 			break;

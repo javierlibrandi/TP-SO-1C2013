@@ -27,10 +27,12 @@ void *orequestador_thr(void* p) {
 	int i;
 	int tipo;
 	char **mensaje;
-	char *aux_char;
+	//char *aux_char=NULL;
 	int byteEnviados;
-	char * respuesta;
+	char respuesta[100];
+	bool _bool;
 
+	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 	for (;;) {
 		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
 				== -1) {
@@ -41,21 +43,27 @@ void *orequestador_thr(void* p) {
 		for (i = 0; i <= *(t_h_orq->sock); i++) {
 			if (FD_ISSET(i, t_h_orq->readfds)) {
 
-				char * buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
+				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
 				if (!strcmp(buffer, Leido_error)) {
 
 					elimino_sck_lista(i, t_h_orq->readfds);
 				}
-				mensaje = string_split(aux_char, ";");
+				mensaje = string_split(buffer, ";");
 
 				switch (tipo) {
 				case P_TO_O_PROX_NIVEL:
+
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
-					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
-							respuesta)) {
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+					_bool = busca_planificador(mensaje[1], t_h_orq->planificadores,
+							respuesta);
+					pthread_mutex_unlock(t_h_orq->s_lista_plani);
+					if (_bool) {
+
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
+
+						log_in_disk_orq(LOG_LEVEL_TRACE,
+								"datos del nivel enviados: %s", respuesta);
 
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados); //TODO CAMBIAR ERROR POR MENSAJE DE QUE NO SE ENCONTRO EL PLANIFIC.
