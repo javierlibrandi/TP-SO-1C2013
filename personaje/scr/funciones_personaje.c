@@ -80,9 +80,16 @@ int conectarOrquestador(Personaje* personaje) {
 
 	//Ver con Mati si enviar nivel aca o si no hace falta, ya que tengo que consultar y lo vuelvo a hacer en PROX_NIVEL
 	//Sino agregar un campo a Personaje que guarde nivel actual
+<<<<<<< HEAD
 
 	nivel="nivel5";
 	sprintf(mensaje, "%s;%s", personaje->nombre, nivel );
+=======
+
+	nivel="nivel5";
+	sprintf(mensaje, "%s;%s", personaje->nombre, nivel );
+
+>>>>>>> bd9ceb40e9bc9cd8774fbecb29732b7c5073eb9b
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
 	fd_mensaje(descriptor, P_TO_P_SALUDO, mensaje, &bytes_enviados);
