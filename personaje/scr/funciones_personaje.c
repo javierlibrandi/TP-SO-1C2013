@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket.h>
+#include <mario_para_todos/comunicacion/FileDescriptors.h>
 
 //Por ahora se inicializa el personaje harcodeado. Falta hacer funcionar la lectura del arch de configuración y el uso de listas.
 Personaje* nuevoPersonaje(char* nombrePersonaje) {
@@ -76,7 +77,7 @@ int conectarOrquestador(Personaje* personaje) {
 
 	//Ver con Mati si enviar nivel aca o si no hace falta, ya que tengo que consultar y lo vuelvo a hacer en PROX_NIVEL
 	//Sino agregar un campo a Personaje que guarde nivel actual
-	nivel="nivel2";
+	nivel="nivel5";
 	sprintf(mensaje, "%s;%s", personaje->nombre, nivel );
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");

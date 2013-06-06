@@ -34,9 +34,10 @@ int main(void) {
 	fd_set readfds;
 	int i, tipo,rows, cols;
 	char *buffer;
-
-	inicializo_pantalla();
-	nivel_gui_get_area_nivel(&rows, &cols);
+	rows = 37;
+	cols = 167;
+//	inicializo_pantalla();
+//	nivel_gui_get_area_nivel(&rows, &cols);
 
 
 	param_nivel = leer_nivel_config(rows, cols);
@@ -46,7 +47,7 @@ int main(void) {
 	t_personaje->pueto = param_nivel.PUERTO;
 
 
-	recusos_pantalla(param_nivel.recusos);
+//	recusos_pantalla(param_nivel.recusos);
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
