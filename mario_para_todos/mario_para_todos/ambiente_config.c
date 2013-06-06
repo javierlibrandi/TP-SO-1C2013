@@ -73,10 +73,8 @@ t_param_nivel leer_nivel_config(int rows, int cols) {
 			"comienzo lectura archivo de configuracion del nivel en el %s ",
 			PATH_CONFIG);
 
-
-	log_in_disk_niv(LOG_LEVEL_TRACE,
-			"limites de pantalla x = %d ,y = %d",
-			rows, cols);
+	log_in_disk_niv(LOG_LEVEL_TRACE, "limites de pantalla x = %d ,y = %d", rows,
+			cols);
 	param.recusos = list_create(); //creo lista de hilos
 	config = config_create(PATH_CONFIG_NIVEL);
 
@@ -135,80 +133,61 @@ t_param_nivel leer_nivel_config(int rows, int cols) {
 
 }
 
+t_param_persoje leer_personaje_config() {
+	t_config* config;
+	t_param_persoje param;
+	t_recusos *list_recursos; //declaro el tipo nodo
+	char *aux_char;
+	char aux_str[20];
+	char **aux;
+	int i;
 
+	log_in_disk_per(LOG_LEVEL_TRACE,
+			"comienzo lectura archivo de configuracion del personaje en el %s ",
+			PATH_CONFIG);
 
-//
-//t_param_per leer_personaje_config() {
-//	t_config* config;
-//	t_param_nivel param;
-//	t_recusos *list_recursos; //declaro el tipo nodo
-//	char aux_str[20];
-//	int i, j;
-//	char **aux;
-//	char *aux_char;
-//
-//	log_in_disk_niv(LOG_LEVEL_TRACE,
-//			"comienzo lectura archivo de configuracion del nivel en el %s ",
-//			PATH_CONFIG);
-//
-//
-//	log_in_disk_niv(LOG_LEVEL_TRACE,
-//			"limites de pantalla x = %d ,y = %d",
-//			rows, cols);
-//	param.recusos = list_create(); //creo lista de hilos
-//	config = config_create(PATH_CONFIG_NIVEL);
-//
-//	//param.nom_nivel = nivel; //copio el nombre del nivel que pase por parametro en el main
-//
-//	aux_char = config_get_string_value(config, "PLATAFORMA");
-//
-//	aux = string_split(aux_char, ":");
-//	param.IP = aux[0];
-//	param.PUERTO_PLATAFORMA = atoi(aux[1]);
-//
-//	param.PUERTO = config_get_int_value(config, "PUERTO");
-//	param.nom_nivel = config_get_string_value(config, "NOMBRE");
-//
-//	i = 1;
-//
-//	sprintf(aux_str, "%s%d", "CAJA", i);
-//
-//	while ((aux = config_get_array_value(config, aux_str)) != NULL ) {
-//
-//		list_recursos = malloc(sizeof(t_recusos)); //creo el nodo
-//		j = 0;
-//
-//		strcpy(list_recursos->NOMBRE, aux[j++]);
-//		if (!strcmp(list_recursos->NOMBRE, "Fin")) {
-//			break; //salgo del for cuando encuentro la caja de fin
-//		}
-//		list_recursos->SIMBOLO = aux[j++][0];
-//		list_recursos->cantidad = atoi(aux[j++]);
-//		list_recursos->posX = atoi(aux[j++]);
-//		list_recursos->posY = atoi(aux[j]);
-//
-//		if (val_pos_recurso(rows, cols,list_recursos->posX,list_recursos->posY)) {
-//
-//			log_in_disk_niv(LOG_LEVEL_TRACE,
-//					"Cargo a la lista la caja %s que contiene el recurso %s con el simbolo %c y la candidad %d en la poscion [x,y] [%d][%d] ",
-//					aux_str, list_recursos->NOMBRE, list_recursos->SIMBOLO,
-//					list_recursos->cantidad, list_recursos->posX,
-//					list_recursos->posY);
-//
-//			list_add(param.recusos, list_recursos); //agrego el nuevo nodo
-//
-//		} else {
-//			log_in_disk_niv(LOG_LEVEL_ERROR,
-//					"Cargo a la lista la caja %s que contiene el recurso %s con el simbolo %c y la candidad %d en la poscion [x,y] [%d][%d] ES INVELIDA!!",
-//					aux_str, list_recursos->NOMBRE, list_recursos->SIMBOLO,
-//					list_recursos->cantidad, list_recursos->posX,
-//					list_recursos->posY);
-//
-//		}
-//
-//		sprintf(aux_str, "%s%d", "CAJA", ++i);
-//	}
-//
-//	return param;
-//
-//}
+	param.RECURSOS = list_create(); //creo lista de recursos
+	config = config_create(PATH_CONFIG);
+
+	//param.nom_nivel = nivel; //copio el nombre del nivel que pase por parametro en el main
+	param.NOMBRE = config_get_string_value(config, "NOMBRE");
+
+	aux_char = config_get_string_value(config, "SIMBOLO");
+
+	param.SMBOLO = aux_char[0];
+
+	param.PLAN_NIVELES = config_get_array_value(config, "PLANDENIVELES");
+
+	param.VIDAS = config_get_int_value(config, "VIDAS");
+
+	aux_char = config_get_string_value(config, "PLATAFORMA");
+
+	aux = string_split(aux_char, ":");
+	param.IP = aux[0];
+	param.PUERTO_PLATAFORMA = atoi(aux[1]);
+
+	i = 0;
+	while (param.PLAN_NIVELES[i] != '\0') {
+		memset(aux_str,'\0',20);
+
+		list_recursos = malloc(sizeof(t_recusos));
+		sprintf(aux_str, "OBJ[%s]", param.PLAN_NIVELES[i]);
+
+		log_in_disk_per(LOG_LEVEL_TRACE,
+						"Niveles de planificador %s ",
+						param.PLAN_NIVELES[i]);
+
+		list_recursos->RECURSOS = config_get_array_value(config, aux_str);
+		strcpy(list_recursos->NOMBRE, param.PLAN_NIVELES[i]);
+		list_add(param.RECURSOS, list_recursos); //agrego el nuevo nodo
+
+		log_in_disk_per(LOG_LEVEL_TRACE,
+				"Niveles de planificador %s con los recursos %s",
+				param.PLAN_NIVELES[i],
+				config_get_string_value(config, aux_str));
+		i++;
+	}
+
+	return param;
+
+}

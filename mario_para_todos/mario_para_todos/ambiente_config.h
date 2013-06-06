@@ -25,6 +25,7 @@ typedef struct {
 	char cantidad; //considero que no tengo mas 255 de un recurso
 	char posX;
 	char posY;
+	char **RECURSOS; //lo usa el personaje no el nivel OJO!!!
 } t_recusos;
 
 typedef struct {
@@ -38,16 +39,13 @@ typedef struct {
 // para el personaje
 
 typedef struct {
-	char *nivel;
-	char **recurso;
-} t_recursos;
-
-
-typedef struct {
 	char *NOMBRE;
 	char SMBOLO;
 	char **PLAN_NIVELES;
 	t_list *RECURSOS;
+	int VIDAS;
+	char *IP;
+	int PUERTO_PLATAFORMA;
 } t_param_persoje;
 
 

@@ -28,6 +28,7 @@ int main(void) {
 	InfoProxNivel infoNivel;
 	char *buffer, mensajeFinJuego[max_len];
 
+	t_param_persoje param = leer_personaje_config();
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
