@@ -33,7 +33,7 @@ int main(void) {
 	pthread_t escucho_personaje_th;
 	t_h_personaje *t_personaje;
 	fd_set readfds;
-	int i, tipo,rows, cols;
+	int i, tipo, rows, cols;
 	char *buffer;
 	rows = 37;
 	cols = 167;
@@ -42,13 +42,11 @@ int main(void) {
 	//inicializo_pantalla();
 	//nivel_gui_get_area_nivel(&rows, &cols);
 
-
 	param_nivel = leer_nivel_config(rows, cols);
 
 	t_personaje = malloc(sizeof(t_h_personaje));
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
-
 
 	//recusos_pantalla(param_nivel.recusos);
 
@@ -75,36 +73,31 @@ int main(void) {
 		for (i = 0; i <= *(t_personaje->sck_personaje); i++) {
 			if (FD_ISSET(i, t_personaje->readfds)) {
 
-							buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
-							if (!strcmp(buffer, Leido_error)) {
+				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
+				if (!strcmp(buffer, Leido_error)) {
 
-								elimino_sck_lista(i, t_personaje->readfds);
-							}
-							mensaje = string_split(buffer, ";");
-
-							switch (tipo) {
-							case P_TO_N_INICIAR_NIVEL:
-								//concatena
-								sprintf(buffer,"%s;%d","hola",5);
-								//func p mandar mensajes... (i ->puerto, "mensaje ; mensaje")
-								fd_mensaje(i,"sdsd;sds");
-
-
-
-
-							default:
-								;
-							}
-							free(buffer);
-
-						}
-					}
-
+					elimino_sck_lista(i, t_personaje->readfds);
 				}
+				mensaje = string_split(buffer, ";");
 
+//							switch (tipo) {
+//							case P_TO_N_INICIAR_NIVEL:
+//								//concatena
+//								sprintf(buffer,"%s;%d","hola",5);
+//								//func p mandar mensajes... (i ->puerto, "mensaje ; mensaje")
+//								fd_mensaje(i,"sdsd;sds");
+//
+//
+//
+//
+//							default:
+//								;
+//							}
+				free(buffer);
 
 			}
 		}
+
 	}
 
 	pthread_join(escucho_personaje_th, NULL );

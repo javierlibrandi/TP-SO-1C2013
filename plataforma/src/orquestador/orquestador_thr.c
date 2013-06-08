@@ -54,7 +54,6 @@ void *orequestador_thr(void* p) {
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
 
-
 					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
 							respuesta)) {
 						pthread_mutex_unlock(t_h_orq->s_lista_plani);
@@ -99,18 +98,16 @@ bool busca_planificador(const char *desc_nivel, t_list *list_plataforma,
 
 		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
 
-
-
 			sprintf(msj, "%s;%s", h_planificador->ip, h_planificador->puerto);
 
 			log_in_disk_orq(LOG_LEVEL_TRACE,
-								"Los datos del planificador son ip: %s, puerto: %s ",h_planificador->ip, h_planificador->puerto);
-
+					"Los datos del planificador son ip: %s, puerto: %s ",
+					h_planificador->ip, h_planificador->puerto);
 
 			return true;
 
 		} else {
-			msj = "ERROR: Planificador no encontrado" ;
+			msj = "ERROR: Planificador no encontrado";
 			return false;
 		}
 	}

@@ -38,7 +38,7 @@ void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orqu
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
 t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador);
-bool existe_personaje(const char *nombre_personaje, char * simbolo,
+bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);
 
 /* Declaración del objeto atributo */
@@ -161,7 +161,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
 					"opcion en el switch no implementada", tipo);
-			exit(1);
+			//exit(1);
 		}
 
 		free(buffer);
@@ -324,9 +324,9 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	pthread_mutex_lock(h_orquestador->s_listos);
 	pthread_mutex_lock(h_orquestador->s_bloquedos);
 
-	aux_existe_persosaje_listo = existe_personaje(mensaje[0], mensaje[1],
+	aux_existe_persosaje_listo = existe_personaje(mensaje[0], mensaje[1][0],
 			h_orquestador->l_listos);
-	aux_existe_persojaje_bloquedo = existe_personaje(mensaje[0], mensaje[1],
+	aux_existe_persojaje_bloquedo = existe_personaje(mensaje[0], mensaje[1][0],
 			h_orquestador->l_bloquedos);
 
 	pthread_mutex_unlock(h_orquestador->s_bloquedos);
@@ -335,8 +335,8 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	if (aux_existe_persosaje_listo || aux_existe_persojaje_bloquedo) {
 
 		log_in_disk_orq(LOG_LEVEL_TRACE,
-				"Ya existe un personaje con este nombre o simbolo. nombre: %s, Simbolo: %s ",
-				mensaje[0], mensaje[1]);
+				"Ya existe un personaje con este nombre o simbolo. nombre: %s, Simbolo: %c ",
+				mensaje[0], mensaje[1][0]);
 
 		fd_mensaje(sock, ERROR,
 				"Ya existe un personaje con ese nombre o simbolo",
@@ -348,8 +348,6 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		if (sock > *(h_orquestador->sock)) {
 			*(h_orquestador->sock) = sock;
 		}
-		log_in_disk_plat(LOG_LEVEL_TRACE, "La secuencia para el personaje es %d",
-				sec_personaje);
 		pthread_mutex_lock(h_orquestador->s_listos);
 		//Creo el personaje
 		nuevo_personaje = malloc(sizeof(t_personaje));
@@ -361,10 +359,8 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		list_add(h_orquestador->l_listos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
 		pthread_mutex_unlock(h_orquestador->s_listos);
 
-		log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s de simbolo: %s",
-				mensaje[0], mensaje[1]);
-
-
+		log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s de simbolo: %c y su nro de sec es: %d",
+				nuevo_personaje->nombre, nuevo_personaje->simbolo, nuevo_personaje->sec_entrada);
 
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
@@ -372,7 +368,7 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	}
 }
 
-bool existe_personaje(const char *nombre_personaje, char * simbolo,
+bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el personaje: %s \t",
@@ -385,15 +381,18 @@ bool existe_personaje(const char *nombre_personaje, char * simbolo,
 	bool _list_elements(t_personaje *h_personaje) {
 
 		if ((!strcmp(h_personaje->nombre, nombre_personaje))
-				|| (!strcmp(h_personaje->simbolo, simbolo))) {
+				|| (h_personaje->simbolo == simbolo)) {
 
 			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"El siguiente personaje o simbolo ya existen personaje: %s, Simbolo: %s ",
+					"El siguiente personaje o simbolo ya existen personaje: %s, Simbolo: %c ",
 					h_personaje->nombre, h_personaje->simbolo);
 
 			return true;
 
 		} else {
+			log_in_disk_orq(LOG_LEVEL_TRACE,
+					"El personaje :%s, con simbolo: %c sera creado ",
+					h_personaje->nombre, h_personaje->simbolo);
 
 			return false;
 		}

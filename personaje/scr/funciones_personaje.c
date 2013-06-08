@@ -73,7 +73,7 @@ int conectarOrquestador(Personaje* personaje) {
 	//Sino agregar un campo a Personaje que guarde nivel actual
 
 	nivel="nivel5";
-	sprintf(mensaje, "%s;%s", personaje->nombre, nivel );
+	sprintf(mensaje, "%s;%c;%s", personaje->nombre,'h', nivel );
 
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
