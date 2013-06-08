@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 #define max_len 1024
 
-#define	P_TO_P_SALUDO  1// personaje saluda a la plataforma
+#define	P_TO_P_SALUDO  1// personaje saluda a la plataforma ESTRUCTURA MENSAJE: "nombre_personaje;Simbolo;nivelNro"
 #define	P_TO_O_PROX_NIVEL 2 //personaje solicita ip/puerto de su proximo nivel al orquestador "nombrePersonaje;nivelNro" Ej. "Mario;nivel2"
 #define	O_TO_P_UBIC_NIVEL 3//plataforma le brinda datos sobre nivel "ipNivel;puertoNivel"
 #define P_TO_N_INICIAR_NIVEL 4 //personaje se conecta a nivel para que lo ubique en mapa "nombrePersonaje;simbolo" Ej. "Mario;#"
