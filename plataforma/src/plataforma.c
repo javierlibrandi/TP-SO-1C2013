@@ -30,7 +30,7 @@
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
-		char ip_cliente[]);
+		char ip_cliente[], t_h_orquestadro *h_orquestador);
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr);
@@ -43,6 +43,9 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 pthread_attr_t attr;
 
 static pthread_mutex_t s_lista_plani = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_listos = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_bloqueados = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_errores = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
 
@@ -67,7 +70,15 @@ int main(void) {
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	h_orquestador->sock = malloc(sizeof(int));
 	h_orquestador->planificadores = list_planificadores;
+	//punteros a semaforos
 	h_orquestador->s_lista_plani = &s_lista_plani;
+	h_orquestador->s_listos = &s_listos;
+	h_orquestador->s_bloquedos = &s_bloqueados;
+	h_orquestador->s_errores = &s_errores;
+	//listas
+	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
+	h_orquestador->l_listos = list_create(); //lista de personajes listos
+	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
 
 	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador, // ** no seria &h_orquestador?
 			&orquestador_thr);
@@ -88,6 +99,7 @@ int main(void) {
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_planificadores, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr) {
+
 	int sck, new_sck;
 	char *buffer = NULL;
 	int puerto = param_plataforma.PUERTO;
@@ -111,7 +123,8 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 			if (solo_personaje == 'N') {
 				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
-				creo_personaje_lista(solo_personaje, new_sck, buffer, h_orquestador);
+				creo_personaje_lista(solo_personaje, new_sck, buffer,
+						h_orquestador);
 
 				/**
 				 * creo el hilo orquetador
@@ -122,8 +135,8 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 				solo_personaje = 'S';
 
 			} else {
-				h_orquestador = creo_personaje_lista(solo_personaje, new_sck, buffer,
-						h_orquestador);
+				h_orquestador = creo_personaje_lista(solo_personaje, new_sck,
+						buffer, h_orquestador);
 			}
 			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
@@ -134,7 +147,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 				buffer = recv_variable(new_sck, &tipo);
 				creo_hilos_planificador(buffer, list_planificadores, new_sck,
-						ip_cliente);
+						ip_cliente, h_orquestador);
 
 			} else {
 				fd_mensaje(new_sck, ERROR,
@@ -159,13 +172,21 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 ////////////////////////////////////////////////////////////////////
 
 void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
-		char ip_cliente[]) {
+		char ip_cliente[], t_h_orquestadro *h_orquestador) {
 
 	pthread_t planificador_pthread;
-	t_h_planificador *h_planificador;
+	t_h_planificador *h_planificador=malloc(sizeof(t_h_planificador));
 	fd_set readfds;
 	char **aux_msj = string_split(msj, ";");
 	int tot_elemntos;
+
+	//punteros para pasar informacion por referencia entre orquestador y planificador
+	h_planificador->l_listos = h_orquestador->l_listos;
+	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
+	h_planificador->l_errores = h_orquestador->l_errores;
+	h_planificador->s_listos = h_orquestador->s_listos;
+	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
+	h_planificador->s_errores = h_orquestador->s_errores;
 
 
 	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
@@ -205,7 +226,7 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	pthread_mutex_unlock(&s_lista_plani);
 
 	log_in_disk_plat(LOG_LEVEL_INFO,
-				"el total planificadores en la lista es de %d", tot_elemntos);
+			"el total planificadores en la lista es de %d", tot_elemntos);
 
 }
 
