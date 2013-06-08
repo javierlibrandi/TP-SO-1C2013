@@ -22,14 +22,12 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-
-
 /*
  * Se le pasa un socket de servidor y acepta en el una conexion de cliente.
  * devuelve el descriptor del socket del cliente o -1 si hay problemas.
  * Esta funcion vale para socket AF_INET o AF_UNIX.
  */
-int Acepta_Conexion_Cliente(int sck_server) {
+int Acepta_Conexion_Cliente(int sck_server, char *ip_cliente) {
 	int new_fd; // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd
 	struct sockaddr_in their_addr; // información sobre la dirección delcliente
 	int sin_size;
@@ -43,6 +41,10 @@ int Acepta_Conexion_Cliente(int sck_server) {
 	 */
 	sin_size = sizeof(struct sockaddr_in);
 	new_fd = accept(sck_server, (struct sockaddr *) &their_addr, &sin_size);
+
+	strcpy(ip_cliente,inet_ntoa(their_addr.sin_addr)); //devuelvo la ip del cliente que se me conecta
+
+
 	return new_fd;
 
 }
@@ -96,6 +98,4 @@ int Abre_Socket_Inet(int puerto) {
 	 */
 	return sockfd;
 }
-
-
 

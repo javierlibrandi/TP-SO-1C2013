@@ -13,7 +13,6 @@ typedef struct{
 	int pueto;
 	int *sck_personaje;
 	fd_set *readfds;
-	fd_set *exceptfds;
 } t_h_personaje;
 
 void *escucho_personaje(void *p);

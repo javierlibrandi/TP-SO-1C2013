@@ -12,25 +12,23 @@
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/grabar.h>
-int con_pla_nival(char *ip, int puerto, char *nombre_nivel) {
+int con_pla_nival(char *ip, int puerto_orq, char *nombre_nivel, int puerto) {
 	int sck, tipo;
 	struct t_send t_send;
 	void *buffer = NULL;
+	char aux_str[max_len];
+
+	memset(aux_str,'\0',max_len);
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "con_pla_nival del planificador %s ",
 			nombre_nivel);
 
-	memset(t_send.mensaje, '\0', 20);
-	strcpy(t_send.mensaje, nombre_nivel);
+	sck = Abre_Conexion_Inet(ip, puerto_orq);
+	int byteRecibidos;
 
-	t_send.header_mensaje = N_TO_O_SALUDO;
-	t_send.payLoadLength = sizeof(t_send.mensaje);
-
-	sck = Abre_Conexion_Inet(ip, puerto);
-
-	Escribe_Socket(sck, &t_send, sizeof(struct t_send));
-
+	fd_mensaje(sck,N_TO_O_SALUDO,nombre_nivel,&byteRecibidos);
 	buffer = recv_variable(sck, &tipo);
+
 	if (tipo == ERROR) {
 		log_in_disk_niv(LOG_LEVEL_ERROR, "%s", (char*) buffer);
 		exit(EXIT_FAILURE);
@@ -38,7 +36,11 @@ int con_pla_nival(char *ip, int puerto, char *nombre_nivel) {
 	}
 	log_in_disk_niv(LOG_LEVEL_INFO, "%s", (char*) buffer);
 
-	Escribe_Socket(sck, &t_send, sizeof(struct t_send));
+	sprintf(aux_str, "%s;%d", nombre_nivel, puerto);
+
+	fd_mensaje(sck,N_TO_O_SALUDO,aux_str,&byteRecibidos);
+
+
 
 	return sck;
 }

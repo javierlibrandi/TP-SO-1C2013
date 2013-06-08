@@ -137,16 +137,23 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="personaje.cdt.managedbuild.target.gnu.exe.634578377" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/personaje"/>
+		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/personaje"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1482706666;cdt.managedbuild.config.gnu.exe.release.1482706666.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1144317432;cdt.managedbuild.tool.gnu.c.compiler.input.351781826">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.395881079;cdt.managedbuild.config.gnu.exe.debug.395881079.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.863618587;cdt.managedbuild.tool.gnu.c.compiler.input.1277586526">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1482706666;cdt.managedbuild.config.gnu.exe.release.1482706666.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1144317432;cdt.managedbuild.tool.gnu.c.compiler.input.351781826">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

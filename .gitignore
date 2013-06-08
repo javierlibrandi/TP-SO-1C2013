@@ -15,4 +15,5 @@
 *.exe
 *.out
 *.app
-/mario_para_todos
+
+Debug

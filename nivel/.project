@@ -5,6 +5,7 @@
 	<projects>
 		<project>commons</project>
 		<project>mario_para_todos</project>
+		<project>nivel-gui</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

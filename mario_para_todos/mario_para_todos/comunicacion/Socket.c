@@ -18,7 +18,7 @@
 #include "FileDescriptors.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include "../entorno.h"
 /*
  * Lee datos del socket. Supone que se le pasa un buffer con hueco
  *	suficiente para los datos. Devuelve el numero de bytes leidos o
@@ -31,32 +31,35 @@ int Lee_Socket(int fd, void *Datos, int Longitud) {
 	 * Comprobacion de que los parametros de entrada son correctos
 	 */
 	if ((fd == -1) || (Datos == NULL )|| (Longitud < 1)){
-		fprintf(stderr,"error en validacion (fd == -1) %d || (Datos == NULL ) || (Longitud < 1) %d \n",fd,Longitud);
+	fprintf(stderr,"error en validacion (fd == -1) %d || (Datos == NULL ) || (Longitud < 1) %d \n",fd,Longitud);
 		return -1;
 	}
 
-	if((Leido = recv(fd, Datos, Longitud, MSG_WAITALL))==-1){
+	if ((Leido = recv(fd, Datos, Longitud, MSG_WAITALL)) == -1) {
 		/*
-				 * En caso de error, la variable errno nos indica el tipo
-				 * de error.
-				 * El error EINTR se produce si ha habido alguna
-				 * interrupcion del sistema antes de leer ningun dato. No
-				 * es un error realmente.
-				 * El error EGAIN significa que el socket no esta disponible
-				 * de momento, que lo intentemos dentro de un rato.
-				 * Ambos errores se tratan con una espera de 100 microsegundos
-				 * y se vuelve a intentar.
-				 * El resto de los posibles errores provocan que salgamos de
-				 * la funcion con error.
-				 */
-				switch (errno) {
-				case EINTR:
-				case EAGAIN:
-					usleep(100);
-					break;
-				default:
-					return -1;
-				}
+		 * En caso de error, la variable errno nos indica el tipo
+		 * de error.
+		 * El error EINTR se produce si ha habido alguna
+		 * interrupcion del sistema antes de leer ningun dato. No
+		 * es un error realmente.
+		 * El error EGAIN significa que el socket no esta disponible
+		 * de momento, que lo intentemos dentro de un rato.
+		 * Ambos errores se tratan con una espera de 100 microsegundos
+		 * y se vuelve a intentar.
+		 * El resto de los posibles errores provocan que salgamos de
+		 * la funcion con error.
+		 */
+		switch (errno) {
+		case EINTR:
+		case EAGAIN:
+			usleep(100);
+			if (Lee_Socket(fd, Datos, Longitud) == -1) {
+				break;
+			}
+			break;
+		default:
+			return -1;
+		}
 	}
 
 	/*
@@ -82,7 +85,7 @@ int Escribe_Socket(int fd, void *Datos, int Longitud) {
 	 * indicado.
 	 */
 
-		Escrito = send(fd, Datos, Longitud, 0);
+	Escrito = send(fd, Datos, Longitud, 0);
 
 	/*
 	 * Devolvemos el total de caracteres leidos
@@ -90,39 +93,56 @@ int Escribe_Socket(int fd, void *Datos, int Longitud) {
 	return Escrito;
 }
 
-void *recv_variable(int socketReceptor, int *tipo) {
+void *recv_variable(const int socketReceptor, int *tipo) {
 
 	t_header header;
 	void *buffer;
-
+	int Leido;
 // Primero: Recibir el header para saber cuando ocupa el payload.
-	if (Lee_Socket(socketReceptor, &header, sizeof(header)) == -1) {
+	Leido = Lee_Socket(socketReceptor, &header, sizeof(header));
+
+	if (Leido == -1) {
 		perror("error al Lee_Socket recibe  header");
 		exit(-1);
 	}
 
-	*tipo = (int) header.header_mensaje;
+	if (Leido < 1) {
+		buffer = malloc(strlen(Leido_error) + 1);
+		strcpy(buffer, Leido_error);
+	} else {
+		*tipo = (int) header.header_mensaje;
 // Segundo: Alocar memoria suficiente para el payload.
-	buffer = malloc(header.payLoadLength);
+		buffer = malloc(header.payLoadLength);
 
 // Tercero: Recibir el payload.
 
-	if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
+		if (Lee_Socket(socketReceptor, buffer, header.payLoadLength) == -1) {
 			perror("error al Lee_Socket receptor");
-		exit(-1);
+			exit(-1);
+		}
 	}
-
 	return buffer;
 }
 
 //informa si acepto o rechazo la conexion
-void fd_mensaje(const int socket, const int header_mensaje, const char *msj) {
+void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
+		int *env) {
 	t_send t_send;
 
+	memset(t_send.mensaje, '\0', max_len);
 	strcpy(t_send.mensaje, msj);
 	t_send.header_mensaje = header_mensaje;
-	t_send.payLoadLength = sizeof(t_send.mensaje);
+	t_send.payLoadLength = strlen(t_send.mensaje) + 1;
 
-	Escribe_Socket(socket, &t_send, sizeof(t_send));
+	*env = Escribe_Socket(socket, &t_send,
+			sizeof(t_header) + t_send.payLoadLength);
 
+}
+
+/**
+ * si me cierran la conexion elimino el socket de la lista
+ */
+void elimino_sck_lista(int sck, fd_set *readfds) {
+	FD_CLR(sck, readfds);
+	close(sck);
 }

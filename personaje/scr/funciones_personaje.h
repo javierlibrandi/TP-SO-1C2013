@@ -18,33 +18,37 @@
  }Nivel;
 
  typedef struct{
+	 int x;
+	 int y;
+ } Posicion;
+
+ typedef struct{
 	char *nombre;
 	char simbolo;
-	t_list nivelesRestantes;
+	t_list *nivelesRestantes;
 	int vidas;
 	char *ip_orquestador;
 	int puerto_orquestador;
+	int sockNivel;
+	int sockPlanif;
+	Nivel nivelActual;
+	Posicion posProxRecurso;
+	Posicion posActual;
+	char recursoActual;
  }Personaje;
 
  typedef struct{
+	 char* nombre_nivel;
 	 char* ip_nivel;
 	 int puerto_nivel;
  }InfoProxNivel;
-
- typedef struct{
-	 char* nombrePersonaje;
-	 char* proxNivel;
- }PersonajeNivel;
 
  typedef struct {
  	int *descriptor;
  	fd_set *readfds;
  } t_listenerPersonaje;
 
- typedef struct{
-	 int x;
-	 int y;
- } Posicion;
+
 
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/
@@ -63,26 +67,39 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel);
 // Esta función va a escuchar al planificador y al nivel
 int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 
-/* Ciclo de juego: conectarse y desconectarse del orquestador, niveles y planificadores mientras no se complete el plan de niveles*/
-//jugar();
+//el personaje actúa ante una notificación de movimiento permitido por parte del planificador del nivel
+void ejecutarTurno(Personaje *personaje);
 
 /* El personaje se fija cuál es el próximo recurso a conseguir. Le solicita al Nivel las coordenadas x-y del mismo. */
-Posicion solicitarUbicacionRecurso(Personaje* personaje);
+void solicitarUbicacionRecurso(Personaje* personaje);
 
 /* Realizará los movimientos necesarios y evaluará su posición hasta llegar al recurso. */
-void llegarARecurso(Posicion posicionRecurso, Posicion posicionActual);
+//void llegarARecurso(Posicion posicionRecurso, Posicion posicionActual);
 
 /* El personaje determina si debe seguir moviéndose para conseguir el recurso o si llegó a destino y debe solicitar una instancia al Nivel*/
-int evaluarPosicion();
+int evaluarPosicion(Posicion posActual, Posicion posRecurso);
 
 /* Se moverá una posición en un eje para acercarse al próximo recurso. */
-void realizarMovimiento(Posicion posicion);
+void moverse(Personaje* personaje);
 
 /* El personaje espera el mensaje del planificador para poder moverse. */
 //esperarTurno();
 
-/* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.*/
-//solicitarInstanciaRecurso();
+/* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.
+ * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
+int solicitarInstanciaRecurso();
+
+int objetivoNivelCumplido(Personaje* personaje);
+
+int planDeNivelesCumplido(Personaje* personaje);
+
+void salirDelNivel(int sockNivel, int sockPlanif);
+
+void reiniciarNivel();
+
+void reiniciarPlanDeNiveles();
+
+int conocePosicionRecurso();
 
 /* En caso que no exisitiera un recurso disponible al momento de solicitar una instancia a Nivel, el personaje deberá notificar su bloqueo y esperar
  *  a que el mismo se libere. */
