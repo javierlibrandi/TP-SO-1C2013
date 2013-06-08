@@ -24,10 +24,13 @@
 #include "plataforma.h"
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/comunicacion/Socket.h>
+#include <commons/string.h>
+#include <mario_para_todos/entorno.h>
+#include <semaphore.h>
 
 void libero_memoria(t_list *list_plataforma);
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
-		int sock);
+void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
+		char ip_cliente[], t_h_orquestadro *h_orquestador);
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr);
@@ -36,13 +39,24 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
 t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador);
 
+/* Declaración del objeto atributo */
+pthread_attr_t attr;
+
+static pthread_mutex_t s_lista_plani = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_listos = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_bloqueados = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_errores = PTHREAD_MUTEX_INITIALIZER;
+
 int main(void) {
 
 	t_param_plat param_plataforma;
 
-	pthread_t orquestador_thr = 0;
+	pthread_t orquestador_thr;
+	/* Inicialización del objeto atributo */
+	pthread_attr_init(&attr);
 
-	t_list *list_plataforma = list_create(); //creo lista de hilos
+	t_list *list_planificadores = list_create(); //creo lista de hilos
+
 	t_estados lista_estados;
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
 
@@ -55,15 +69,25 @@ int main(void) {
 	h_orquestador->lista_estados = &lista_estados;
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	h_orquestador->sock = malloc(sizeof(int));
+	h_orquestador->planificadores = list_planificadores;
+	//punteros a semaforos
+	h_orquestador->s_lista_plani = &s_lista_plani;
+	h_orquestador->s_listos = &s_listos;
+	h_orquestador->s_bloquedos = &s_bloqueados;
+	h_orquestador->s_errores = &s_errores;
+	//listas
+	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
+	h_orquestador->l_listos = list_create(); //lista de personajes listos
+	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
 
-	escucho_conexiones(param_plataforma, list_plataforma, h_orquestador, // ** no seria &h_orquestador?
+	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador, // ** no seria &h_orquestador?
 			&orquestador_thr);
 
 	pthread_join(orquestador_thr, NULL );
-	join_orquestador(list_plataforma);
+	join_orquestador(list_planificadores);
 
-	libero_memoria(list_plataforma);
-	list_destroy(list_plataforma);
+	libero_memoria(list_planificadores);
+	list_destroy(list_planificadores);
 
 	return EXIT_SUCCESS;
 }
@@ -73,27 +97,34 @@ int main(void) {
 ////////////////////////////////////////////////////////////////////
 
 void escucho_conexiones(const t_param_plat param_plataforma,
-		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
+		t_list *list_planificadores, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr) {
+
 	int sck, new_sck;
-	void * buffer = NULL;
+	char *buffer = NULL;
 	int puerto = param_plataforma.PUERTO;
 	int tipo;
 	sck = Abre_Socket_Inet(puerto);
-
+	char ip_cliente[16];
+	int byteEnviados;
+	char solo_personaje = 'N';
 	log_in_disk_plat(LOG_LEVEL_TRACE, "escucho conexiones en el puerto %d",
 			puerto);
 
 	for (;;) {
-		new_sck = Acepta_Conexion_Cliente(sck);
+		new_sck = Acepta_Conexion_Cliente(sck, ip_cliente);
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				"Se me conecto el cliente con la ip %s", ip_cliente);
+
 		buffer = recv_variable(new_sck, &tipo);
 
 		switch (tipo) {
 		case P_TO_P_SALUDO:
 
-			if (orquestador_thr == 0) {
+			if (solo_personaje == 'N') {
 				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
-				creo_personaje_lista('N', new_sck, buffer, h_orquestador);
+				creo_personaje_lista(solo_personaje, new_sck, buffer,
+						h_orquestador);
 
 				/**
 				 * creo el hilo orquetador
@@ -101,27 +132,33 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 				pthread_create(orquestador_thr, NULL, (void *) orequestador_thr,
 						(void*) h_orquestador);
 
+				solo_personaje = 'S';
+
 			} else {
-				h_orquestador = creo_personaje_lista('S', new_sck, buffer,
-						h_orquestador);
+				h_orquestador = creo_personaje_lista(solo_personaje, new_sck,
+						buffer, h_orquestador);
 			}
 			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
-			if (!existe_nivel(buffer, list_plataforma)) {
-				fd_mensaje(new_sck, OK, "Planificador creado\0");
+			if (!existe_nivel(buffer, list_planificadores)) {
+				free(buffer);
+
+				fd_mensaje(new_sck, OK, "Planificador creado", &byteEnviados);
+
 				buffer = recv_variable(new_sck, &tipo);
-				creo_hilos_planificador(buffer, list_plataforma, new_sck);
+				creo_hilos_planificador(buffer, list_planificadores, new_sck,
+						ip_cliente, h_orquestador);
+
 			} else {
 				fd_mensaje(new_sck, ERROR,
-						"Ya hay un nivel con ese nombre dado de alta\0");
+						"Ya hay un nivel con ese nombre dado de alta",
+						&byteEnviados);
 			}
-
-			creo_hilos_planificador(buffer, list_plataforma, new_sck);
 
 			break;
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
-					"opcion en el switch no implementada", puerto);
+					"opcion en el switch no implementada", tipo);
 			exit(1);
 		}
 
@@ -134,19 +171,25 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 ///					creo_hilos_planificador						////
 ////////////////////////////////////////////////////////////////////
 
-void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
-		int sock) {
+void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
+		char ip_cliente[], t_h_orquestadro *h_orquestador) {
 
 	pthread_t planificador_pthread;
-	t_h_planificador *h_planificador;
+	t_h_planificador *h_planificador=malloc(sizeof(t_h_planificador));
 	fd_set readfds;
+	char **aux_msj = string_split(msj, ";");
+	int tot_elemntos;
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s", desc_nivel);
+	//punteros para pasar informacion por referencia entre orquestador y planificador
+	h_planificador->l_listos = h_orquestador->l_listos;
+	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
+	h_planificador->l_errores = h_orquestador->l_errores;
+	h_planificador->s_listos = h_orquestador->s_listos;
+	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
+	h_planificador->s_errores = h_orquestador->s_errores;
+
 
 	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
-
-	h_planificador->desc_nivel = malloc(strlen(desc_nivel));
-	strcpy(h_planificador->desc_nivel, desc_nivel); //agrego la des del nivel
 
 	///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
@@ -156,21 +199,34 @@ void creo_hilos_planificador(char *desc_nivel, t_list *list_plataforma,
 	 TAMBIEN HAGO UNA COPIA DE MEMORIA PARA NO PERDER EL VALOR.
 	 NO OLVIDARCE DE HACER UN FREE EN libero_memoria
 	 */
+	h_planificador->desc_nivel = malloc(strlen(aux_msj[0]));
+	strcpy(h_planificador->desc_nivel, aux_msj[0]); //agrego la des del nivel
 	h_planificador->sock = malloc(sizeof(int));
 	memcpy(h_planificador->sock, &sock, sizeof(int));
 	h_planificador->readfds = malloc(sizeof(fd_set));
 	memcpy(h_planificador->readfds, &readfds, sizeof(fd_set));
+	strcpy(h_planificador->ip, ip_cliente);
+	strcpy(h_planificador->puerto, aux_msj[1]);
+	h_planificador->s_lista_plani = &s_lista_plani;
+	free(aux_msj);
 	///////fin configuro el select() que despues voy a usar en el hilo////////
-
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s",
+			h_planificador->desc_nivel);
 	//creo los hilos planificador
-	pthread_create(&planificador_pthread, NULL, (void*) planificador_nivel_thr,
+	pthread_create(&planificador_pthread, &attr, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
 
 	h_planificador->planificador_thr = planificador_pthread;
 
-	//agrego el nuevo hilo a la lista y muestro cuanto elemnetos tengo
-	log_in_disk_plat(LOG_LEVEL_TRACE, "Elementos en la lista plataforma %d",
-			list_add(list_plataforma, h_planificador));
+	pthread_mutex_lock(&s_lista_plani);
+
+	tot_elemntos = list_add(list_planificadores, h_planificador);
+	h_planificador->lista_planificadores = list_planificadores;
+
+	pthread_mutex_unlock(&s_lista_plani);
+
+	log_in_disk_plat(LOG_LEVEL_INFO,
+			"el total planificadores en la lista es de %d", tot_elemntos);
 
 }
 
@@ -186,6 +242,7 @@ void libero_memoria(t_list *list_plataforma) {
 		free(h_planificador->desc_nivel);
 		free(h_planificador->readfds);
 		free(h_planificador->sock);
+		free(h_planificador);
 		index++;
 	}
 
@@ -218,7 +275,7 @@ void join_orquestador(t_list *list_plataforma) {
 
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "existe_nivel nivel: \t", desc_nivel);
+	log_in_disk_plat(LOG_LEVEL_TRACE, "existe_nivel nivel: %s \t", desc_nivel);
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;
@@ -247,6 +304,11 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador) {
 
 	char* des_personaje = buffer;
+	//char* des_personaje = buffer;
+	t_personaje* nuevo_personaje;
+	char **mensaje;
+	char *aux_char = (char *) buffer;
+	int byteEnviados;
 
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", des_personaje);
 	if (crear_orquesador == 'N') {
@@ -260,7 +322,15 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	if (sock > *(h_orquestador->sock)) {
 		*(h_orquestador->sock) = sock;
 	}
-
+	//Creo el personaje
+	mensaje = string_split(aux_char, ";");
+	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s", mensaje[0]);
+	nuevo_personaje = malloc(sizeof(t_personaje));
+	nuevo_personaje->nombre = malloc(strlen(mensaje[0] + 1));
+	nuevo_personaje->nivel = malloc(strlen(mensaje[1] + 1));
+	strcpy(nuevo_personaje->nombre, mensaje[0]);
+	strcpy(nuevo_personaje->nivel, mensaje[1]);
+	fd_mensaje(sock, OK, "ok,personaje listo", &byteEnviados);
 	return h_orquestador;
 
 }
