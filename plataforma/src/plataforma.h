@@ -19,6 +19,7 @@ typedef struct{
 typedef struct{
 	char * nombre;
 	char * nivel;
+	char * simbolo;
 }t_personaje; // re subido
 
 

@@ -66,7 +66,7 @@ void *orequestador_thr(void* p) {
 								"datos del nivel enviados: %s", respuesta);
 
 					} else {
-						fd_mensaje(i, ERROR, respuesta, &byteEnviados); //TODO CAMBIAR ERROR POR MENSAJE DE QUE NO SE ENCONTRO EL PLANIFIC.
+						fd_mensaje(i, ERROR, respuesta, &byteEnviados);
 					}
 
 					break;
@@ -103,14 +103,14 @@ bool busca_planificador(const char *desc_nivel, t_list *list_plataforma,
 
 			sprintf(msj, "%s;%s", h_planificador->ip, h_planificador->puerto);
 
-			log_in_disk_plat(LOG_LEVEL_WARNING,
+			log_in_disk_orq(LOG_LEVEL_TRACE,
 								"Los datos del planificador son ip: %s, puerto: %s ",h_planificador->ip, h_planificador->puerto);
 
 
 			return true;
 
 		} else {
-			msj = ERROR; //TODO cambiar mensaje de error por una cadena.
+			msj = "ERROR: Planificador no encontrado" ;
 			return false;
 		}
 	}
