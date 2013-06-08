@@ -308,6 +308,9 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	char **mensaje;
 	char *aux_char = (char *) buffer;
 	int byteEnviados;
+	bool aux_existe_persosaje_listo;
+	bool aux_existe_persojaje_bloquedo;
+	static unsigned long int sec_personaje = 0;
 
 	if (crear_orquesador == 'N') {
 
@@ -321,12 +324,15 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	pthread_mutex_lock(h_orquestador->s_listos);
 	pthread_mutex_lock(h_orquestador->s_bloquedos);
 
-	if ((existe_personaje(mensaje[0], mensaje[1], h_orquestador->l_listos))
-			|| (existe_personaje(mensaje[0], mensaje[1],
-					h_orquestador->l_bloquedos))) {
+	aux_existe_persosaje_listo = existe_personaje(mensaje[0], mensaje[1],
+			h_orquestador->l_listos);
+	aux_existe_persojaje_bloquedo = existe_personaje(mensaje[0], mensaje[1],
+			h_orquestador->l_bloquedos);
 
-		pthread_mutex_unlock(h_orquestador->s_bloquedos);
-		pthread_mutex_unlock(h_orquestador->s_listos);
+	pthread_mutex_unlock(h_orquestador->s_bloquedos);
+	pthread_mutex_unlock(h_orquestador->s_listos);
+
+	if (aux_existe_persosaje_listo || aux_existe_persojaje_bloquedo) {
 
 		log_in_disk_orq(LOG_LEVEL_TRACE,
 				"Ya existe un personaje con este nombre o simbolo. nombre: %s, Simbolo: %s ",
@@ -342,21 +348,23 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		if (sock > *(h_orquestador->sock)) {
 			*(h_orquestador->sock) = sock;
 		}
+		log_in_disk_plat(LOG_LEVEL_TRACE, "La secuencia para el personaje es %d",
+				sec_personaje);
+		pthread_mutex_lock(h_orquestador->s_listos);
 		//Creo el personaje
 		nuevo_personaje = malloc(sizeof(t_personaje));
-		nuevo_personaje->nombre = malloc(strlen(mensaje[0] + 1));
-		nuevo_personaje->simbolo = malloc(strlen(mensaje[1] + 1));
-		nuevo_personaje->nivel = malloc(strlen(mensaje[2] + 1));
-		strcpy(nuevo_personaje->nombre, mensaje[0]);
-		strcpy(nuevo_personaje->simbolo, mensaje[1]);
-		strcpy(nuevo_personaje->nivel, mensaje[2]);
+		nuevo_personaje->simbolo = mensaje[1][0];
+		nuevo_personaje->nombre = mensaje[0];
+		nuevo_personaje->nivel = mensaje[2];
 
-		pthread_mutex_lock(h_orquestador->s_listos);
-		list_add(h_orquestador->l_listos, nuevo_personaje);		//Agrego el nuevo personaje a la cola de listos
+		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar
+		list_add(h_orquestador->l_listos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
 		pthread_mutex_unlock(h_orquestador->s_listos);
 
 		log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s de simbolo: %s",
 				mensaje[0], mensaje[1]);
+
+
 
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 

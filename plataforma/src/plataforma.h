@@ -19,7 +19,8 @@ typedef struct{
 typedef struct{
 	char * nombre;
 	char * nivel;
-	char * simbolo;
+	char simbolo;
+	unsigned long int sec_entrada;
 }t_personaje; // re subido
 
 

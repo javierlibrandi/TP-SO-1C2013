@@ -22,6 +22,7 @@
 #include <mario_para_todos/comunicacion/Socket.h>
 #include "manjo_pantalla/pantalla.h"
 #include <signal.h>
+#include <mario_para_todos/entorno.h>
 
 void libero_memoria(t_h_personaje *t_personaje, t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -36,9 +37,10 @@ int main(void) {
 	char *buffer;
 	rows = 37;
 	cols = 167;
+	char **mensaje;
 
-	inicializo_pantalla();
-	nivel_gui_get_area_nivel(&rows, &cols);
+	//inicializo_pantalla();
+	//nivel_gui_get_area_nivel(&rows, &cols);
 
 
 	param_nivel = leer_nivel_config(rows, cols);
@@ -48,7 +50,7 @@ int main(void) {
 	t_personaje->pueto = param_nivel.PUERTO;
 
 
-	recusos_pantalla(param_nivel.recusos);
+	//recusos_pantalla(param_nivel.recusos);
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
@@ -71,11 +73,35 @@ int main(void) {
 		}
 
 		for (i = 0; i <= *(t_personaje->sck_personaje); i++) {
-
 			if (FD_ISSET(i, t_personaje->readfds)) {
-				buffer = recv_variable(*(t_personaje->sck_personaje), &tipo);
 
-				free(buffer);
+							buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
+							if (!strcmp(buffer, Leido_error)) {
+
+								elimino_sck_lista(i, t_personaje->readfds);
+							}
+							mensaje = string_split(buffer, ";");
+
+							switch (tipo) {
+							case P_TO_N_INICIAR_NIVEL:
+								//concatena
+								sprintf(buffer,"%s;%d","hola",5);
+								//func p mandar mensajes... (i ->puerto, "mensaje ; mensaje")
+								fd_mensaje(i,"sdsd;sds");
+
+
+
+
+							default:
+								;
+							}
+							free(buffer);
+
+						}
+					}
+
+				}
+
 
 			}
 		}

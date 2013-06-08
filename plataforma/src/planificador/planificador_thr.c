@@ -45,7 +45,9 @@ void* planificador_nivel_thr(void *p) {
 		for (sck = 0; sck <= *(h_planificador->sock); sck++) {
 
 			if (FD_ISSET(sck, h_planificador->readfds)) {
+
 				buffer = recv_variable(sck, &tipo);
+
 				if (!strcmp(buffer, Leido_error)) {
 
 					elimino_sck_lista(sck, h_planificador->readfds);
@@ -64,6 +66,15 @@ void* planificador_nivel_thr(void *p) {
 					log_in_disk_plan(LOG_LEVEL_TRACE,
 							"salida del segundo llamado %s nivel %s \n",
 							 buffer, h_planificador->desc_nivel);
+					switch (tipo) {
+						case P_TO_N_BLOQUEO:
+
+							break;
+						default:
+							log_in_disk_plan(LOG_LEVEL_INFO, "busco personaje listo para moverce");
+
+							break;
+					}
 
 				}
 				free(buffer);
