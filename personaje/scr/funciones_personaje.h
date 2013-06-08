@@ -25,7 +25,7 @@
  typedef struct{
 	char *nombre;
 	char simbolo;
-	t_list nivelesRestantes;
+	t_list *nivelesRestantes;
 	int vidas;
 	char *ip_orquestador;
 	int puerto_orquestador;

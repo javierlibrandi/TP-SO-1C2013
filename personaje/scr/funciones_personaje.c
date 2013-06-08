@@ -27,27 +27,18 @@ Personaje* nuevoPersonaje(char* nombrePersonaje) {
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear a %s", nombrePersonaje);
 
-//Esperar imple de pato  para levantar arch conf
+	t_param_persoje param = leer_personaje_config();
 
-	// archConf=leer_archivo_personaje_config();
-	 /*
-	 personaje->nombre = archConf.nombre;
-	 personaje->simbolo = archConf.simbolo;
-	 personaje->vidas = archConf.vidas;
-	 personaje->ipOrquestador = archconf.ipOrquestador;
-	 //Niveles y objetivos???
-	 */
+	personaje->nombre = param.NOMBRE;
+	personaje->simbolo = param.SMBOLO;
+	personaje->vidas = param.VIDAS;
+	personaje->ip_orquestador = param.IP;
+	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 
-//Por ahora harcodeo
-	personaje->nombre = nombrePersonaje;
-	personaje->simbolo = '@';
-	personaje->vidas = 3;
-	personaje->ip_orquestador = "localhost";
-	personaje->puerto_orquestador = 5000;
-//personaje->nivelesRestantes= null;
+	personaje->nivelesRestantes= param.RECURSOS;
 
-	log_in_disk_per(LOG_LEVEL_INFO, "EL personaje creado es %s",
-			personaje->nombre);
+	log_in_disk_per(LOG_LEVEL_INFO, "El personaje creado es %s, identificado con el caracter %c, y con %d vidas.",
+			personaje->nombre, personaje->simbolo, personaje->vidas);
 
 	return personaje;
 }
