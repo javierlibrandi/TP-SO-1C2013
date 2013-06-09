@@ -40,6 +40,9 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		void *buffer, t_h_orquestadro* h_orquestador);
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);
+void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
+		char *msj);
+t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
@@ -122,7 +125,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 		switch (tipo) {
 		case P_TO_P_SALUDO:
-
+			log_in_disk_orq(LOG_LEVEL_TRACE, "Mensaje tip P_TO_P_SALUDO");
 			if (solo_personaje == 'N') {
 				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
@@ -142,6 +145,7 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 			}
 			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
+			log_in_disk_orq(LOG_LEVEL_TRACE, "Mensaje tip N_TO_O_SALUDO");
 			if (!existe_nivel(buffer, list_planificadores)) {
 				free(buffer);
 
@@ -158,6 +162,13 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 			}
 
 			break;
+		case P_TO_PL_INICIAR_NIVEL: //personaje se conecta a plataforma y solicita jugar en un determinado nivel "nombrePersonaje, nivelNro" Ej. "Mario;nivel2"
+			log_in_disk_orq(LOG_LEVEL_TRACE,
+					"Mensaje tip P_TO_PL_INICIAR_NIVEL");
+
+			agregar_personaje_planificador(new_sck, h_orquestador, buffer);
+			break;
+
 		default:
 			log_in_disk_plat(LOG_LEVEL_ERROR,
 					"opcion en el switch no implementada", tipo);
@@ -182,7 +193,7 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	char **aux_msj = string_split(msj, ";");
 	int tot_elemntos;
 
-	//punteros para pasar informacion por referencia entre orquestador y planificador
+//punteros para pasar informacion por referencia entre orquestador y planificador
 	h_planificador->l_listos = h_orquestador->l_listos;
 	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
 	h_planificador->l_errores = h_orquestador->l_errores;
@@ -192,7 +203,7 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 
 	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
 
-	///////configuro el select() que despues voy a usar en el hilo////////
+///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
 	FD_SET(sock, &readfds);
 	/*	IMPORTANTE QUE SEA UN PUNTERO ASI LO VEO EN EL SELECT() DEL HILO
@@ -210,10 +221,10 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	strcpy(h_planificador->puerto, aux_msj[1]);
 	h_planificador->s_lista_plani = &s_lista_plani;
 	free(aux_msj);
-	///////fin configuro el select() que despues voy a usar en el hilo////////
+///////fin configuro el select() que despues voy a usar en el hilo////////
 	log_in_disk_plat(LOG_LEVEL_TRACE, "creo el planificador %s",
 			h_planificador->desc_nivel);
-	//creo los hilos planificador
+//creo los hilos planificador
 	pthread_create(&planificador_pthread, &attr, (void*) planificador_nivel_thr,
 			(void*) h_planificador);
 
@@ -276,7 +287,8 @@ void join_orquestador(t_list *list_plataforma) {
 
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
 
-	log_in_disk_plat(LOG_LEVEL_TRACE, "existe_nivel nivel: %s \t", desc_nivel);
+	log_in_disk_plat(LOG_LEVEL_TRACE,
+			"dentro de la funcion existe_nivel nivel: %s \t", desc_nivel);
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;
@@ -286,9 +298,12 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
 
 		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
 			log_in_disk_plat(LOG_LEVEL_WARNING,
-					"Ya se declaro un nivel con el nombre %s", desc_nivel);
+					"El nivel  %s  se encuentra en la lista", desc_nivel);
 			return true;
 		}
+		log_in_disk_plat(LOG_LEVEL_WARNING,
+				"No se declaro un nivel con el nombre %s", desc_nivel);
+
 		return false;
 
 	}
@@ -359,8 +374,10 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		list_add(h_orquestador->l_listos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
 		pthread_mutex_unlock(h_orquestador->s_listos);
 
-		log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s de simbolo: %c y su nro de sec es: %d",
-				nuevo_personaje->nombre, nuevo_personaje->simbolo, nuevo_personaje->sec_entrada);
+		log_in_disk_plat(LOG_LEVEL_TRACE,
+				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
+				nuevo_personaje->nombre, nuevo_personaje->simbolo,
+				nuevo_personaje->sec_entrada);
 
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
@@ -401,3 +418,55 @@ bool existe_personaje(const char *nombre_personaje, char simbolo,
 	return (bool*) list_find(list_personaje, (void*) _list_elements);
 }
 
+void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
+		char *msj) {
+
+	char **aux_mjs = string_split(msj, ";");
+	char *nom_personaje = aux_mjs[0];
+	char *nom_nivel = aux_mjs[1];
+	t_h_planificador *h_planificador = NULL;
+
+	log_in_disk_plat(LOG_LEVEL_TRACE,
+			"agregar_personaje_planificador personaje: %s \t nivel: %s",
+			nom_personaje, nom_nivel);
+
+	h_planificador = optener_nivel(nom_nivel, h_orquestador->planificadores);
+
+	if (h_planificador == NULL ) {
+		log_in_disk_plat(LOG_LEVEL_ERROR,
+				"Error al optener la estrucutra del planificador");
+		exit(EXIT_FAILURE);
+	}
+
+	FD_SET(sck, h_planificador->readfds);
+	if (sck > *(h_planificador->sock)) {
+		*(h_planificador->sock) = sck;
+	}
+
+}
+
+t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores) {
+
+	log_in_disk_orq(LOG_LEVEL_TRACE,
+			"finc optener_nivel \t busco el nivel: %s \t", desc_nivel);
+
+	bool _list_elements(t_h_planificador *h_planificador) {
+
+		log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
+				h_planificador->desc_nivel, desc_nivel);
+
+		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
+
+			log_in_disk_plan(LOG_LEVEL_TRACE, "devuelvo el planificadore");
+
+			return true;
+
+		} else {
+			return false;
+		}
+	}
+
+	return (t_h_planificador*) list_find(list_planificadores,
+			(void*) _list_elements);
+
+}

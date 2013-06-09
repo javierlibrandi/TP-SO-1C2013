@@ -64,6 +64,14 @@ void *orequestador_thr(void* p) {
 						log_in_disk_orq(LOG_LEVEL_TRACE,
 								"datos del nivel enviados: %s", respuesta);
 
+						fd_mensaje(i, O_TO_P_DESCONEXTAR_OREQUESTADOR, respuesta,
+														&byteEnviados);
+
+
+						log_in_disk_plat(LOG_LEVEL_ERROR,
+													"cierro la conexion con el personaje");
+						//elimino_sck_lista(i, t_h_orq->readfds);
+
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);
 					}
@@ -73,7 +81,7 @@ void *orequestador_thr(void* p) {
 				default:
 					log_in_disk_plat(LOG_LEVEL_ERROR,
 							"opcion en el switch no implementada", tipo);
-					exit(1);
+					//exit(1);
 				}
 				free(buffer);
 
