@@ -70,7 +70,7 @@ void *orequestador_thr(void* p) {
 
 						log_in_disk_plat(LOG_LEVEL_ERROR,
 													"cierro la conexion con el personaje");
-						//elimino_sck_lista(i, t_h_orq->readfds);
+						elimino_sck_lista(i, t_h_orq->readfds);
 
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);

@@ -57,6 +57,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1536459225" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.568251795" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/nivel-gui}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.535701039" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
