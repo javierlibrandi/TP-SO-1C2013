@@ -124,7 +124,6 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 		case P_TO_P_SALUDO:
 
 			if (solo_personaje == 'N') {
-				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
 						h_orquestador);
 
@@ -359,8 +358,10 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		list_add(h_orquestador->l_listos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
 		pthread_mutex_unlock(h_orquestador->s_listos);
 
-		log_in_disk_plat(LOG_LEVEL_TRACE, "creo el personaje %s de simbolo: %c y su nro de sec es: %d",
-				nuevo_personaje->nombre, nuevo_personaje->simbolo, nuevo_personaje->sec_entrada);
+		log_in_disk_plat(LOG_LEVEL_TRACE,
+				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
+				nuevo_personaje->nombre, nuevo_personaje->simbolo,
+				nuevo_personaje->sec_entrada);
 
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
@@ -391,7 +392,7 @@ bool existe_personaje(const char *nombre_personaje, char simbolo,
 
 		} else {
 			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"El personaje :%s, con simbolo: %c sera creado ",
+					"El personaje :%s, con simbolo: %c no existe ",
 					h_personaje->nombre, h_personaje->simbolo);
 
 			return false;

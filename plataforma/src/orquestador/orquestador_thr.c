@@ -20,6 +20,7 @@
 #include <commons/string.h>
 #include <mario_para_todos/entorno.h>
 #include "../planificador/planificador_thr.h"
+#include "../plataforma.h"
 
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
