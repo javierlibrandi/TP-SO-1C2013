@@ -16,12 +16,7 @@ typedef struct{
 }t_estados;
 
 
-typedef struct{
-	char * nombre;
-	char * nivel;
-	char simbolo;
-	unsigned long int sec_entrada;
-}t_personaje; // re subido
+
 
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);

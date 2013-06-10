@@ -138,7 +138,7 @@ void* consumidor_thr() {
 			printf("Se trata de sacar un elemento de un lista vacia \n");
 			exit(1);
 		}
-		sleep(1);
+	//	sleep(1);
 	}
 	pthread_exit(EXIT_SUCCESS);
 }

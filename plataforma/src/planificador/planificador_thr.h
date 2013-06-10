@@ -27,6 +27,9 @@ typedef struct {
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
 	pthread_mutex_t *s_errores;
+	int segundos_espera;
+	int *cuantum;
+	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes
 } t_h_planificador;
 
 typedef struct t_h_parlante{

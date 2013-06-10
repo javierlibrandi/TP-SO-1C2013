@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <string.h> //para funcione de cadena como strcpy
 #include <unistd.h> //para el close
+#include <commons/string.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket.h>
@@ -104,7 +105,7 @@ int main(void) {
 
 	libero_memoria(t_personaje, &param_nivel);
 
-	nivel_gui_terminar();
+	//nivel_gui_terminar();
 
 	signal(SIGTERM, sig_handler);
 
@@ -124,7 +125,7 @@ void libero_memoria(t_h_personaje *t_personaje, t_param_nivel *param_nivel) {
 
 void sig_handler(int signo) {
 	log_in_disk_niv(LOG_LEVEL_INFO, "capturando la señal");
-	if (signo == SIGTERM)
-		nivel_gui_terminar();
+	//if (signo == SIGTERM)
+		//nivel_gui_terminar();
 
 }

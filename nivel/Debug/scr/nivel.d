@@ -1,4 +1,5 @@
 scr/nivel.d: ../scr/nivel.c \
+ /home/utnso/git/tp-20131c-gaturro/commons/commons/string.h \
  /home/utnso/git/tp-20131c-gaturro/mario_para_todos/mario_para_todos/comunicacion/FileDescriptors.h \
  /home/utnso/git/tp-20131c-gaturro/mario_para_todos/mario_para_todos/comunicacion/Socket_Cliente.h \
  /home/utnso/git/tp-20131c-gaturro/mario_para_todos/mario_para_todos/comunicacion/Socket.h \
@@ -11,6 +12,8 @@ scr/nivel.d: ../scr/nivel.c \
  /home/utnso/git/tp-20131c-gaturro/commons/commons/log.h \
  ../scr/manjo_pantalla/pantalla.h \
  /home/utnso/git/tp-20131c-gaturro/mario_para_todos/mario_para_todos/entorno.h
+
+/home/utnso/git/tp-20131c-gaturro/commons/commons/string.h:
 
 /home/utnso/git/tp-20131c-gaturro/mario_para_todos/mario_para_todos/comunicacion/FileDescriptors.h:
 
