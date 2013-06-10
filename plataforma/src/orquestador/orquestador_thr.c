@@ -64,13 +64,13 @@ void *orequestador_thr(void* p) {
 						log_in_disk_orq(LOG_LEVEL_TRACE,
 								"datos del nivel enviados: %s", respuesta);
 
-						fd_mensaje(i, O_TO_P_DESCONEXTAR_OREQUESTADOR, respuesta,
-														&byteEnviados);
+//						fd_mensaje(i, O_TO_P_DESCONEXTAR_OREQUESTADOR, respuesta,&byteEnviados); //El personaje cierra la conexion si preguntar, esta perfeto aca tambien lo cierro
 
+						elimino_sck_lista(i, t_h_orq->readfds);
 
 						log_in_disk_plat(LOG_LEVEL_ERROR,
-													"cierro la conexion con el personaje");
-						elimino_sck_lista(i, t_h_orq->readfds);
+								"cierro la conexion con el personaje");
+
 
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);

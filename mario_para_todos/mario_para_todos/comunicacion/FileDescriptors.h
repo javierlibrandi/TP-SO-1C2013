@@ -33,7 +33,7 @@
 #define N_TO_O_SALUDO 18
 #define P_TO_N_MOVIMIENTO 19 //Personaje solicita moverse al nivel "nombrePersonaje;(xActual, yActual);(xNuevo, yNuevo)" Ej. "Mario;(5,30);(6,30)"
 #define PL_TO_P_MUERTE 20
-#define O_TO_P_DESCONEXTAR_OREQUESTADOR 21
+
 #define OK 100
 #define ERROR 101
 
