@@ -22,4 +22,12 @@
 
 #define  Leido_error "Error en la lectura del socket......"
 
+typedef struct{
+	char * nombre;
+	char * nivel;
+	char simbolo;
+	unsigned long int sec_entrada;
+	int sck;
+}t_personaje; // re subido
+
 #endif /* ENTORNO_H_ */

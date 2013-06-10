@@ -10,6 +10,8 @@
 typedef struct t_param_plat {
 	char** planificador_nivel;
 	int PUERTO;
+	int SEGUNDOS_ESPERA;
+	int CUANTUM;
 } t_param_plat;
 
 /**

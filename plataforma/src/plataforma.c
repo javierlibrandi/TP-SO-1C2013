@@ -30,7 +30,8 @@
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
-		char ip_cliente[], t_h_orquestadro *h_orquestador);
+		char ip_cliente[], t_h_orquestadro *h_orquestador, int segundos_espera,
+		int *cuantum);
 void escucho_conexiones(const t_param_plat param_plataforma,
 		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr);
@@ -43,6 +44,7 @@ bool existe_personaje(const char *nombre_personaje, char simbolo,
 void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 		char *msj);
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
+void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
 
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
@@ -153,7 +155,9 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 
 				buffer = recv_variable(new_sck, &tipo);
 				creo_hilos_planificador(buffer, list_planificadores, new_sck,
-						ip_cliente, h_orquestador);
+						ip_cliente, h_orquestador,
+						param_plataforma.SEGUNDOS_ESPERA,
+						&param_plataforma.CUANTUM);
 
 			} else {
 				fd_mensaje(new_sck, ERROR,
@@ -185,7 +189,8 @@ void escucho_conexiones(const t_param_plat param_plataforma,
 ////////////////////////////////////////////////////////////////////
 
 void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
-		char ip_cliente[], t_h_orquestadro *h_orquestador) {
+		char ip_cliente[], t_h_orquestadro *h_orquestador, int segundos_espera,
+		int *cuantum) {
 
 	pthread_t planificador_pthread;
 	t_h_planificador *h_planificador = malloc(sizeof(t_h_planificador));
@@ -193,15 +198,19 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	char **aux_msj = string_split(msj, ";");
 	int tot_elemntos;
 
-//punteros para pasar informacion por referencia entre orquestador y planificador
+	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
+
+	//punteros para pasar informacion por referencia entre orquestador y planificador
 	h_planificador->l_listos = h_orquestador->l_listos;
 	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
 	h_planificador->l_errores = h_orquestador->l_errores;
 	h_planificador->s_listos = h_orquestador->s_listos;
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
 	h_planificador->s_errores = h_orquestador->s_errores;
+	h_planificador->segundos_espera = segundos_espera;
+	h_planificador->cuantum = cuantum;
+	h_planificador->sck_planificador = sock; // guardo el socked del planificador para poder diferencialo de los personajes
 
-	h_planificador = malloc(sizeof(t_h_planificador)); //recervo la memoria para almacenar el nuevo hilo
 
 ///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
@@ -438,6 +447,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 		exit(EXIT_FAILURE);
 	}
 
+	agregar_sck_personaje(sck, nom_personaje, h_orquestador->l_listos);
+
 	FD_SET(sck, h_planificador->readfds);
 	if (sck > *(h_planificador->sock)) {
 		*(h_planificador->sock) = sck;
@@ -468,5 +479,35 @@ t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores) {
 
 	return (t_h_planificador*) list_find(list_planificadores,
 			(void*) _list_elements);
+
+}
+/**
+ * Necesito agregar el socket al personaje para saber como comunicarme para planificarlo
+ */
+void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos) {
+
+	log_in_disk_orq(LOG_LEVEL_TRACE,
+			"agregar_sck_personaje busco el personaje: %s \t",
+			nom_personaje);
+
+	bool _list_elements(t_personaje *personaje) {
+
+		log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
+				personaje->nombre, nom_personaje);
+
+		if (!strcmp(personaje->nombre, nom_personaje)) {
+
+			log_in_disk_plan(LOG_LEVEL_TRACE, "Agrego el descriptor del socket al nivel");
+			personaje->sck = sck;
+
+			return true;
+
+		} else {
+			log_in_disk_plan(LOG_LEVEL_TRACE, "No econtre al personaje para agregar el socket");
+			return false;
+		}
+	}
+
+	list_find(l_listos, (void*) _list_elements);
 
 }

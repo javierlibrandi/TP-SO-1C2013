@@ -26,6 +26,10 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	param.PUERTO = config_get_int_value(config, "PUERTO");
 
+	param.SEGUNDOS_ESPERA =  config_get_int_value(config,"SEGUNDOS_ESPERA");
+
+	param.CUANTUM =  config_get_int_value(config,"CUANTUM");
+
 	//param.planificador_nivel = config_get_array_value(config, "planDeNiveles");
 
 	//solo entro en el loop si el mivel de log es LOG_LEVEL_TRACE
