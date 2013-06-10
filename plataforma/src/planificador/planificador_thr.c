@@ -36,7 +36,6 @@ void* planificador_nivel_thr(void *p) {
 			h_planificador->desc_nivel);
 
 	tv.tv_sec = h_planificador->segundos_espera;
-	tv.tv_usec = 0;
 
 	for (;;) {
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
