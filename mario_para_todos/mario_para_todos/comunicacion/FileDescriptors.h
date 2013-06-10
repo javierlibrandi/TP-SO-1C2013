@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 #define max_len 1024
 
-#define	P_TO_P_SALUDO  1// personaje saluda a la plataforma ESTRUCTURA MENSAJE: "nombre_personaje;Simbolo;nivelNro"
+#define	P_TO_P_SALUDO  1// personaje saluda a la plataforma "nombre_personaje;Simbolo;nivelNro"
 #define	P_TO_O_PROX_NIVEL 2 //personaje solicita ip/puerto de su proximo nivel al orquestador "nombrePersonaje;nivelNro" Ej. "Mario;nivel2"
 #define	O_TO_P_UBIC_NIVEL 3//plataforma le brinda datos sobre nivel "ipNivel;puertoNivel"
 #define P_TO_N_INICIAR_NIVEL 4 //personaje se conecta a nivel para que lo ubique en mapa "nombrePersonaje;simbolo" Ej. "Mario;#"
@@ -22,18 +22,21 @@
 #define	N_TO_P_UBIC_RECURSO 7 //nivel le da las coordenadas del recurso solicitado "recurso, posX, posY" Ej. "F;14,21"
 #define	PL_TO_P_TURNO 8
 #define	P_TO_PL_TURNO_CUMPLIDO 9
-#define	P_TO_N_SOLIC_RECURSO 10
+#define	P_TO_N_SOLIC_RECURSO 10 //personaje solicita instancia de un recurso al nivel "simbolo;recurso" Ej. "mario;F"
 #define	P_TO_N_BLOQUEO 11
 #define	P_TO_N_MUERTE 12
 #define	P_TO_N_OBJ_CUMPLIDO 13
 #define P_TO_PL_OBJ_CUMPLIDO 14
-#define	P_TO_N_REINICIAR_NIVEL 15
-#define	P_TO_O_REINICIAR_JUEGO 16
+#define	P_TO_N_REINICIAR_NIVEL 15 //personaje avisa a nivel para q reiniciar el nivel "simbolo"
+#define	P_TO_O_REINICIAR_JUEGO 16 //personaje avisa a planif/orquestador para q reiniciar el plan de niveles "simbolo"
 #define P_TO_P_JUEGO_GANADO 17
 #define N_TO_O_SALUDO 18
 #define P_TO_N_MOVIMIENTO 19 //Personaje solicita moverse al nivel "nombrePersonaje;(xActual, yActual);(xNuevo, yNuevo)" Ej. "Mario;(5,30);(6,30)"
 #define PL_TO_P_MUERTE 20
 #define O_TO_P_DESCONEXTAR_OREQUESTADOR 21
+#define P_TO_N_SALIR 22
+#define N_TO_P_RECURSO_OK 23
+#define N_TO_P_RECURSO_ERROR 24
 #define OK 100
 #define ERROR 101
 

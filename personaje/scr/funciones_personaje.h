@@ -52,7 +52,7 @@
 
 /*Primera función que llama el main. Informa al usuario el personaje asignado.
 * Inicializa la estructura de un personaje con los datos de un archivo de configuración*/
- Personaje* nuevoPersonaje(char* nombrePersonaje);
+ Personaje* nuevoPersonaje();
 
  //Se conecta y realiza el handshake con el orquestador. Devuelve el descriptor.
  int conectarOrquestador(Personaje* personaje);
@@ -70,7 +70,10 @@ int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 //el personaje actúa ante una notificación de movimiento permitido por parte del planificador del nivel
 void ejecutarTurno(Personaje *personaje);
 
-/* El personaje se fija cuál es el próximo recurso a conseguir. Le solicita al Nivel las coordenadas x-y del mismo. */
+//devuelve el próximo nivel a completar
+char* determinarProxNivel(t_list* nivelesPendientes);
+
+//Le solicita al Nivel las coordenadas x-y del proximo nivel a completar
 void solicitarUbicacionRecurso(Personaje* personaje);
 
 /* Realizará los movimientos necesarios y evaluará su posición hasta llegar al recurso. */
@@ -82,8 +85,7 @@ int evaluarPosicion(Posicion posActual, Posicion posRecurso);
 /* Se moverá una posición en un eje para acercarse al próximo recurso. */
 void moverse(Personaje* personaje);
 
-/* El personaje espera el mensaje del planificador para poder moverse. */
-//esperarTurno();
+char determinarProxRecurso(Personaje* personaje);
 
 /* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.
  * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
@@ -91,15 +93,15 @@ int solicitarInstanciaRecurso();
 
 int objetivoNivelCumplido(Personaje* personaje);
 
-int planDeNivelesCumplido(Personaje* personaje);
+int planDeNivelesCumplido(t_list *nivelesRestantes);
 
 void salirDelNivel(int sockNivel, int sockPlanif);
 
-void reiniciarNivel();
+void reiniciarNivel(Personaje *personaje);
 
-void reiniciarPlanDeNiveles();
+void reiniciarPlanDeNiveles(Personaje *personaje);
 
-int conocePosicionRecurso();
+int conocePosicionRecurso(char recursoActual);
 
 /* En caso que no exisitiera un recurso disponible al momento de solicitar una instancia a Nivel, el personaje deberá notificar su bloqueo y esperar
  *  a que el mismo se libere. */

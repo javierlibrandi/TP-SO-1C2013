@@ -22,33 +22,27 @@
 
 int main(void) {
 
-	char nombre_per[10] = "Jaz";
 	Personaje *personaje = NULL;
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel infoNivel;
 	char *buffer, mensajeFinJuego[max_len];
 
-	//t_param_persoje param = leer_personaje_config();
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
-	personaje = nuevoPersonaje(nombre_per);
+	//ver el criterio para crear personajes.
+	personaje = nuevoPersonaje();
 
-	while (!planDeNivelesCumplido(personaje)) {
+	while (!planDeNivelesCumplido(personaje->nivelesRestantes)) {
 
 		descriptor = conectarOrquestador(personaje);
 
 		infoNivel = consultarProximoNivel(descriptor, personaje);
 
-		//harcodeo ip y puerto del nivel para probar esta función
-		/*infoNivel.nombre_nivel="nivel2";
-		 infoNivel.ip_nivel="localhost";
-		 infoNivel.puerto_nivel=5002;*/
-
 		iniciarNivel(personaje, infoNivel);
 
 		//mientras no se complete el nivel
-		while (!objetivoNivelCumplido(personaje)) {
+		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
 
 			//Espero y recibo notificación de movimiento permitido
 			log_in_disk_per(LOG_LEVEL_INFO,
@@ -77,11 +71,11 @@ int main(void) {
 						personaje->vidas);
 
 				if (personaje->vidas > 0) {
-					reiniciarNivel();
+					reiniciarNivel(personaje);
 					log_in_disk_per(LOG_LEVEL_INFO,
 							"¡El personaje debe reiniciar el nivel!");
 				} else {
-					reiniciarPlanDeNiveles();
+					reiniciarPlanDeNiveles(personaje);
 					log_in_disk_per(LOG_LEVEL_INFO,
 							"¡El personaje debe reiniciar el juego!");
 					//pensar más adelante como implementar esta función
