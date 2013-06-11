@@ -25,6 +25,12 @@
 //Por ahora se inicializa el personaje harcodeado. Falta hacer funcionar la lectura del arch de configuración y el uso de listas.
 Personaje* nuevoPersonaje() {
 	Personaje* personaje = malloc(sizeof(Personaje));
+	//lo pongo para el ejemplo
+	int i,k;
+	t_recusos *recursos;
+	char *aux_nivel;
+
+	// lo pongo para el ejemplo
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear al personaje");
 
@@ -43,6 +49,24 @@ Personaje* nuevoPersonaje() {
 			"El personaje creado es %s, identificado con el caracter %c, y con %d vidas.",
 			personaje->nombre, personaje->simbolo, personaje->vidas);
 
+	for (i = 0; param.PLAN_NIVELES[i] != '\0'; i++) { //recorro todos los niveles
+		log_in_disk_per(LOG_LEVEL_INFO, "Estoy en el nivel %s",
+				param.PLAN_NIVELES[i]);
+
+		aux_nivel = param.PLAN_NIVELES[i];
+
+		recursos = recursos_nivel(param.RECURSOS, aux_nivel);
+
+
+		for (k = 0; recursos->RECURSOS[k] != '\0'; k++) {//recorro todos los recuros del nivel
+
+
+			 log_in_disk_per(LOG_LEVEL_INFO,"Nombre recurso %s ",recursos->RECURSOS[k]);
+
+		}
+
+	}
+
 	return personaje;
 }
 
@@ -54,7 +78,7 @@ int conectarOrquestador(Personaje* personaje) {
 	char mensaje[max_len];
 	char *nivel;
 
-	// Establezco conexión con el orquestador
+// Establezco conexión con el orquestador
 	log_in_disk_per(LOG_LEVEL_INFO, "Me conecto al orquestador");
 	log_in_disk_per(LOG_LEVEL_INFO, "IP: %s", personaje->ip_orquestador);
 	log_in_disk_per(LOG_LEVEL_INFO, "PUERTO: %d",
@@ -72,7 +96,7 @@ int conectarOrquestador(Personaje* personaje) {
 				"Conexión exitosa con el orquestador");
 	}
 
-	//Armo mensaje P_TO_P_SALUDO con "nombrePersonaje;simbolo;nivel"
+//Armo mensaje P_TO_P_SALUDO con "nombrePersonaje;simbolo;nivel"
 
 	nivel = determinarProxNivel(personaje->nivelesRestantes);
 	sprintf(mensaje, "%s;%c;%s", personaje->nombre, personaje->simbolo, nivel);
@@ -83,9 +107,9 @@ int conectarOrquestador(Personaje* personaje) {
 	if (bytes_enviados == -1)
 		log_in_disk_per(LOG_LEVEL_ERROR, "%s",
 				"Hubo un error al enviar el mensaje P_TO_P_SALUDO");
-	//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
+//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
-	//Recibo OK del orquestador
+//Recibo OK del orquestador
 
 	buffer = recv_variable(descriptor, &tipo);
 
@@ -106,8 +130,8 @@ int conectarOrquestador(Personaje* personaje) {
 char* determinarProxNivel(t_list* nivelesPendientes) {
 	char * proxNivel;
 
-	//Se fija el primero de la lista de NivelesPendientes
-	//Por ahora harcodeo
+//Se fija el primero de la lista de NivelesPendientes
+//Por ahora harcodeo
 	proxNivel = "nivel2";
 
 	return proxNivel;
@@ -121,9 +145,9 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 	char **aux_msj;
 	char mensaje[max_len];
 
-	//Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
-	//Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
-	//infoNivel.nombre_nivel = "nivel2";
+//Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
+//Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
+//infoNivel.nombre_nivel = "nivel2";
 	infoNivel.nombre_nivel = determinarProxNivel(personaje->nivelesRestantes);
 
 	log_in_disk_per(LOG_LEVEL_INFO,
@@ -140,7 +164,7 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 		exit(EXIT_FAILURE);
 	}
 
-	//Recibo ip/puerto del nivel en un string separados por ;
+//Recibo ip/puerto del nivel en un string separados por ;
 	log_in_disk_per(LOG_LEVEL_INFO, "Esperando respuesta del orquestador");
 	buffer = recv_variable(descriptor, &tipo);
 	if (tipo == ERROR) {
@@ -152,16 +176,16 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Se recibió información del orquestador:%s", buffer);
 
-	//ver como extraer ip y puerto del mensaje recibido en buffer
-	//Por ahora harcodeo
+//ver como extraer ip y puerto del mensaje recibido en buffer
+//Por ahora harcodeo
 
 	aux_msj = string_split(buffer, ";");
 
 	strcpy(infoNivel.ip_nivel, aux_msj[0]);
 	infoNivel.puerto_nivel = atoi(aux_msj[1]);
 
-	//infoNivel.ip_nivel="localhost";
-	//infoNivel.puerto_nivel = 5002;
+//infoNivel.ip_nivel="localhost";
+//infoNivel.puerto_nivel = 5002;
 
 	log_in_disk_per(LOG_LEVEL_ERROR, "%s",
 			"EL personaje se desconecta del orquestador.");
@@ -177,7 +201,7 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	int descriptorNiv, descriptorPlan, tipoN, tipoP;
 	int bytes_enviados_niv, bytes_enviados_pl;
-	//char **aux_msj1, **aux_msj2;
+//char **aux_msj1, **aux_msj2;
 	char mensaje1[max_len], mensaje2[max_len];
 	char *bufferNiv, *bufferPla;
 
@@ -212,7 +236,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 				infoNivel.nombre_nivel);
 	}
 
-	// Envía a Nivel P_TO_N_INICIAR_NIVEL "nombrePersonaje, símbolo"
+// Envía a Nivel P_TO_N_INICIAR_NIVEL "nombrePersonaje, símbolo"
 	sprintf(mensaje1, "%s;%c", personaje->nombre, personaje->simbolo);
 
 	fd_mensaje(descriptorNiv, P_TO_N_INICIAR_NIVEL, mensaje1,
@@ -221,9 +245,9 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	if (bytes_enviados_niv == -1)
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al enviar el mensaje P_TO_N_INICIAR_NIVEL");
-	//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
+//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
-	// Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"
+// Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"
 	sprintf(mensaje2, "%s;%s", personaje->nombre, infoNivel.nombre_nivel);
 
 	fd_mensaje(descriptorPlan, P_TO_PL_INICIAR_NIVEL, mensaje2,
@@ -232,7 +256,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	if (bytes_enviados_pl == -1)
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al enviar el mensaje P_TO_PL_INICIAR_NIVEL");
-	//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
+//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
 //Recibe OK de nivel y plataforma
 
@@ -276,7 +300,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 				bufferPla);
 		exit(EXIT_FAILURE);
 	}
-	//VER SI HAY QUE VOLVER A MANDAR MENSAJES CON MÁS INFO
+//VER SI HAY QUE VOLVER A MANDAR MENSAJES CON MÁS INFO
 
 	free(bufferNiv);
 	free(bufferPla);
@@ -291,14 +315,14 @@ int listenerPersonaje(int descriptorNiv, int descriptorPlan) {
 	fd_set readset;
 	void *buffer = NULL;
 
-	//Limpio lista de sockets
+//Limpio lista de sockets
 	FD_ZERO(&readset);
 
-	//Inicializo vector de sockets
+//Inicializo vector de sockets
 	descriptores[0] = descriptorNiv;
 	descriptores[1] = descriptorPlan;
 
-	//Agrego los dos sockets de Nivel y Planif a la lista y busco máximo valor
+//Agrego los dos sockets de Nivel y Planif a la lista y busco máximo valor
 	for (j = 0; j < N; j++) {
 		FD_SET(descriptores[j], &readset);
 		maxDescriptor =
@@ -306,7 +330,7 @@ int listenerPersonaje(int descriptorNiv, int descriptorPlan) {
 						maxDescriptor : descriptores[j];
 	}
 
-	// Me fijo si en alguno llegaron mensajes
+// Me fijo si en alguno llegaron mensajes
 	result = select(maxDescriptor + 1, &readset, NULL, NULL, NULL );
 
 	if (result == -1) {
@@ -341,8 +365,8 @@ char determinarProxRecurso(Personaje* personaje) {
 
 	char proxRecurso;
 
-	//Fijarse en la lista de nivelesPendientes, en el nivel correspondiente el primer recurso a conseguir
-	//Por ahora harcodeo
+//Fijarse en la lista de nivelesPendientes, en el nivel correspondiente el primer recurso a conseguir
+//Por ahora harcodeo
 	proxRecurso = 'F';
 	return proxRecurso;
 }
@@ -356,10 +380,10 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 	char **aux_msj;
 	char mensaje[max_len];
 
-	// Envía a Nivel P_TO_N_UBIC_RECURSO para pedir coordenadas del próximo recurso requerido "recurso"
+// Envía a Nivel P_TO_N_UBIC_RECURSO para pedir coordenadas del próximo recurso requerido "recurso"
 
 	recurso = determinarProxRecurso(personaje);
-	//Ver si sirve el campo recursoActual
+//Ver si sirve el campo recursoActual
 	personaje->recursoActual = recurso;
 
 	sprintf(mensaje, "%c", recurso);
@@ -374,7 +398,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al enviar el mensaje P_TO_N_UBIC_RECURSO");
 
-	//Recibe coordenadas del recurso
+//Recibe coordenadas del recurso
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Espero respuesta del Nivel...");
 
@@ -416,21 +440,21 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
  */
 void ejecutarTurno(Personaje *personaje) {
 
-	//int tipo;
+//int tipo;
 	int bytes_enviados, bytes_enviados2, recursoAdjudicado;
-	//char *buffer;
+//char *buffer;
 	char *mensajeFinTurno, *mensajeBloqueo;
 
-	//Armo mensaje de turno cumplido y bloqueo. Ver con Planif. qué info mandar
+//Armo mensaje de turno cumplido y bloqueo. Ver con Planif. qué info mandar
 	mensajeFinTurno = personaje->nombre;
 	mensajeBloqueo = personaje->nombre;
 
-	//Espero y recibo notificación de movimiento permitido
+//Espero y recibo notificación de movimiento permitido
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Se recibió notificación de movimiento permitido");
 
-	//Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
+//Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
 	if (!conocePosicionRecurso(personaje->recursoActual)) {
 
 		log_in_disk_per(LOG_LEVEL_INFO,
@@ -540,8 +564,8 @@ void salirDelNivel(int sockNivel, int sockPlanif) {
 //Devuelve TRUE si la lista de recursos del nivel pendientes es null.
 int objetivoNivelCumplido(Personaje* personaje) {
 
-	//if (personaje->nivelesRestantes.recursosRestantes == NULL )
-	//harcodeo para que por ahora me devuelva siempre 0 :P
+//if (personaje->nivelesRestantes.recursosRestantes == NULL )
+//harcodeo para que por ahora me devuelva siempre 0 :P
 	if (2 > 3)
 		return 1;
 	else {
@@ -552,8 +576,8 @@ int objetivoNivelCumplido(Personaje* personaje) {
 //Devuelve TRUE si la lista de niveles pendientes es null.
 int planDeNivelesCumplido(t_list * nivelesRestantes) {
 
-	//if (nivelesRestantes == NULL )
-		//harcodeo para que por ahora me devuelva siempre 0 :P
+//if (nivelesRestantes == NULL )
+//harcodeo para que por ahora me devuelva siempre 0 :P
 	if (2 > 3)
 		return 1;
 	else {
@@ -568,7 +592,7 @@ void reiniciarNivel(Personaje *personaje) {
 	char mensaje[max_len];
 	int bytes_enviados;
 
-	//Envío mensaje a nivel del tipo P_TO_N_REINICIAR_NIVEL. "simbolo"
+//Envío mensaje a nivel del tipo P_TO_N_REINICIAR_NIVEL. "simbolo"
 	sprintf(mensaje, "%c", personaje->simbolo);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Reiniciando nivel... Aviso al Nivel");
@@ -585,7 +609,7 @@ void reiniciarPlanDeNiveles(Personaje *personaje) {
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Reiniciando plan de niveles...");
 
-	//Envío mensaje a nivel del tipo P_TO_N_SALIR "simbolo"
+//Envío mensaje a nivel del tipo P_TO_N_SALIR "simbolo"
 	sprintf(mensajeNiv, "%c", personaje->simbolo);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Aviso al Nivel y cierro la conexión.");
@@ -593,7 +617,7 @@ void reiniciarPlanDeNiveles(Personaje *personaje) {
 
 	close(personaje->sockNivel);
 
-	//Envío mensaje a orquestador/planficador del tipo P_TO_O_SALIR "simbolo"
+//Envío mensaje a orquestador/planficador del tipo P_TO_O_SALIR "simbolo"
 	sprintf(mensajePl, "%c", personaje->simbolo);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Aviso al Planificador");
@@ -636,9 +660,9 @@ void moverse(Personaje* personaje) {
 	log_in_disk_per(LOG_LEVEL_INFO, "Mi posición actual: (%d, %d)",
 			personaje->posActual.x, personaje->posActual.y);
 
-	//Ver si hay una mejor forma que estos if anidados :P
+//Ver si hay una mejor forma que estos if anidados :P
 
-	//Primero me muevo por los x. Cuando llego a x le doy la condición para moverse a y.
+//Primero me muevo por los x. Cuando llego a x le doy la condición para moverse a y.
 	if (personaje->posActual.x == personaje->posProxRecurso.x) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"El personaje está en la coordenada x del recurso deseado");
@@ -671,7 +695,7 @@ void moverse(Personaje* personaje) {
 			"Mi nueva posición a pedir al nivel: (%d, %d)", nuevaPosicion.x,
 			nuevaPosicion.y);
 
-	//Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;(xActual, yActual);(xNuevo, yNuevo)"
+//Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;(xActual, yActual);(xNuevo, yNuevo)"
 	sprintf(mensajeMovimiento, "%c;(%d,%d);(%d,%d)", personaje->simbolo,
 			personaje->posActual.x, personaje->posActual.y, nuevaPosicion.x,
 			nuevaPosicion.y);
@@ -679,7 +703,7 @@ void moverse(Personaje* personaje) {
 	fd_mensaje(personaje->sockNivel, P_TO_N_MOVIMIENTO, mensajeMovimiento,
 			&bytes_enviados);
 
-	//Espero confirmación del nivel que me movi?
+//Espero confirmación del nivel que me movi?
 
 	personaje->posActual.x = nuevaPosicion.x;
 	personaje->posActual.y = nuevaPosicion.y;
@@ -692,7 +716,7 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 	int bytes_enviados, tipo;
 	char *buffer;
 
-	//Envío mensaje a nivel del tipo P_TO_N_SOLIC_RECURSO. "simbolo;recurso"
+//Envío mensaje a nivel del tipo P_TO_N_SOLIC_RECURSO. "simbolo;recurso"
 	sprintf(mensaje, "%c;%c", personaje->simbolo, personaje->recursoActual);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Solicito una instancia de %s al Nivel",
@@ -701,7 +725,7 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 	fd_mensaje(personaje->sockNivel, P_TO_N_SOLIC_RECURSO, mensaje,
 			&bytes_enviados);
 
-	//Recibe respuesta del Nivel si se adjudicó o no el recurso
+//Recibe respuesta del Nivel si se adjudicó o no el recurso
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Espero respuesta del Nivel...");
 
@@ -729,6 +753,8 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 	 buffer);
 	 exit(EXIT_FAILURE);
 	 }*/
+	//TODO fata este return lo agrege para que no me de un error
+	return 1;
 }
 
 int conocePosicionRecurso(char recursoActual) {
@@ -740,4 +766,28 @@ int conocePosicionRecurso(char recursoActual) {
 	} else {
 		return 1;
 	}
+}
+
+t_recusos *recursos_nivel(t_list *recursos, char *nivel) {
+log_in_disk_per(LOG_LEVEL_TRACE,
+		"func recursos_nivel busco los recursos del nivel: %s", nivel);
+
+bool _list_elements(t_recusos *list_recursos) {
+
+	log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
+			list_recursos->NOMBRE, nivel);
+
+	if (!strcmp(list_recursos->NOMBRE, nivel)) {
+
+		log_in_disk_per(LOG_LEVEL_TRACE, "devuelvo el los recursos del nivel");
+
+		return true;
+
+	} else {
+		return false;
+	}
+}
+
+return (t_recusos*) list_find(recursos, (void*) _list_elements);
+
 }

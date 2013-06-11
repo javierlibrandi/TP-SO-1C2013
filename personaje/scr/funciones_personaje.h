@@ -11,6 +11,7 @@
 #include <commons/collections/list.h>
 //#include select.h
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
+#include <mario_para_todos/ambiente_config.h>
 
  typedef struct{
 	char* nombre;
@@ -102,6 +103,8 @@ void reiniciarNivel(Personaje *personaje);
 void reiniciarPlanDeNiveles(Personaje *personaje);
 
 int conocePosicionRecurso(char recursoActual);
+
+t_recusos  *recursos_nivel(t_list *recursos,char *nivel);
 
 /* En caso que no exisitiera un recurso disponible al momento de solicitar una instancia a Nivel, el personaje deberá notificar su bloqueo y esperar
  *  a que el mismo se libere. */
