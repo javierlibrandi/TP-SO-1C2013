@@ -97,7 +97,7 @@ int main(void) {
 	//Se informa al orquestador que se terminó el plan de niveles
 	 sprintf(mensajeFinJuego, "%s;fin del juego", personaje->nombre);
 
-	fd_mensaje(personaje->sockPlanif, P_TO_P_JUEGO_GANADO,
+	fd_mensaje(personaje->sockPlanif, P_TO_O_JUEGO_GANADO,
 					mensajeFinJuego, &bytes_enviados);
 
 	return EXIT_SUCCESS;

@@ -695,8 +695,8 @@ void moverse(Personaje* personaje) {
 			"Mi nueva posición a pedir al nivel: (%d, %d)", nuevaPosicion.x,
 			nuevaPosicion.y);
 
-//Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;(xActual, yActual);(xNuevo, yNuevo)"
-	sprintf(mensajeMovimiento, "%c;(%d,%d);(%d,%d)", personaje->simbolo,
+//Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;xActual;yActual;xNuevo;yNuevo"
+	sprintf(mensajeMovimiento, "%c;%d;%d;%d;%d", personaje->simbolo,
 			personaje->posActual.x, personaje->posActual.y, nuevaPosicion.x,
 			nuevaPosicion.y);
 
