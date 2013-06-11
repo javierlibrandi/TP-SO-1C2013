@@ -26,7 +26,7 @@
 Personaje* nuevoPersonaje() {
 	Personaje* personaje = malloc(sizeof(Personaje));
 	//lo pongo para el ejemplo
-	int i,k;
+	int i, k;
 	t_recusos *recursos;
 	char *aux_nivel;
 
@@ -57,11 +57,10 @@ Personaje* nuevoPersonaje() {
 
 		recursos = recursos_nivel(param.RECURSOS, aux_nivel);
 
+		for (k = 0; recursos->RECURSOS[k] != '\0'; k++) { //recorro todos los recuros del nivel
 
-		for (k = 0; recursos->RECURSOS[k] != '\0'; k++) {//recorro todos los recuros del nivel
-
-
-			 log_in_disk_per(LOG_LEVEL_INFO,"Nombre recurso %s ",recursos->RECURSOS[k]);
+			log_in_disk_per(LOG_LEVEL_INFO, "Nombre recurso %s ",
+					recursos->RECURSOS[k]);
 
 		}
 
@@ -651,8 +650,9 @@ int evaluarPosicion(Posicion posicionActual, Posicion posicionRecurso) {
 void moverse(Personaje* personaje) {
 
 	char mensajeMovimiento[max_len];
-	int bytes_enviados, flag_y;
+	int bytes_enviados, flag_y, tipo;
 	Posicion nuevaPosicion;
+	char* buffer;
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Me muevo una posición y le aviso al nivel.");
@@ -703,11 +703,28 @@ void moverse(Personaje* personaje) {
 	fd_mensaje(personaje->sockNivel, P_TO_N_MOVIMIENTO, mensajeMovimiento,
 			&bytes_enviados);
 
-//Espero confirmación del nivel que me movi?
+//Espero confirmación del nivel N_TO_P_MOVIDO
 
-	personaje->posActual.x = nuevaPosicion.x;
-	personaje->posActual.y = nuevaPosicion.y;
+	log_in_disk_per(LOG_LEVEL_INFO,
+			"Espero confirmación de movimiento del Nivel...");
 
+	buffer = recv_variable(personaje->sockNivel, &tipo);
+
+	if (tipo == N_TO_P_MOVIDO) {
+		log_in_disk_per(LOG_LEVEL_ERROR, "Se movió a la posición solicitada:%s",
+				buffer);
+		personaje->posActual.x = nuevaPosicion.x;
+		personaje->posActual.y = nuevaPosicion.y;
+		free(buffer);
+	}
+
+	if (tipo == ERROR) {
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"Hubo un error al mover el personaje. Respuesta del Nivel: %s",
+				buffer);
+		//hacer ciclo para volver a mandar solicitud de movimiento si falla
+		free(buffer);
+	}
 }
 
 int solicitarInstanciaRecurso(Personaje *personaje) {
@@ -769,25 +786,26 @@ int conocePosicionRecurso(char recursoActual) {
 }
 
 t_recusos *recursos_nivel(t_list *recursos, char *nivel) {
-log_in_disk_per(LOG_LEVEL_TRACE,
-		"func recursos_nivel busco los recursos del nivel: %s", nivel);
+	log_in_disk_per(LOG_LEVEL_TRACE,
+			"func recursos_nivel busco los recursos del nivel: %s", nivel);
 
-bool _list_elements(t_recusos *list_recursos) {
+	bool _list_elements(t_recusos *list_recursos) {
 
-	log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
-			list_recursos->NOMBRE, nivel);
+		log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
+				list_recursos->NOMBRE, nivel);
 
-	if (!strcmp(list_recursos->NOMBRE, nivel)) {
+		if (!strcmp(list_recursos->NOMBRE, nivel)) {
 
-		log_in_disk_per(LOG_LEVEL_TRACE, "devuelvo el los recursos del nivel");
+			log_in_disk_per(LOG_LEVEL_TRACE,
+					"devuelvo el los recursos del nivel");
 
-		return true;
+			return true;
 
-	} else {
-		return false;
+		} else {
+			return false;
+		}
 	}
-}
 
-return (t_recusos*) list_find(recursos, (void*) _list_elements);
+	return (t_recusos*) list_find(recursos, (void*) _list_elements);
 
 }
