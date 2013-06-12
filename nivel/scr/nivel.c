@@ -80,7 +80,66 @@ int main(void) {
 					elimino_sck_lista(i, t_personaje->readfds);
 				}
 				mensaje = string_split(buffer, ";");
+				int iter = 1;
+				bool seguir = true;
+				switch (tipo) {
+				case P_TO_N_UBIC_RECURSO:
+					while (iter < list_size(param_nivel->recusos) && seguir) {
+						t_recusos *recurso = (t_recusos*) list_get(
+								param_nivel->recusos, iter);
+						if (mensaje[1][0] == recurso->SIMBOLO) {
+							fd_mensaje(i,
+									itoa(recurso->posX) + ";"
+											+ itoa(recurso->posY));
+							seguir = false;
+						}
+						iter++;
+					}
+					break;
+				case P_TO_N_MOVIMIENTO:
+					while (iter < list_size(param_nivel->recusos) && seguir) {
+						t_recusos *recurso = (t_recusos*) list_get(
+								param_nivel->recusos, iter);
 
+						if (mensaje[0][0] == recurso->SIMBOLO) {
+							recurso->posX = atoi(mensaje[3]);
+							recurso->posY = atoi(mensaje[4]);
+
+							fd_mensaje(i,
+									itoa(recurso->posX) + ";"
+											+ itoa(recurso->posY));
+							seguir = false;
+						}
+						iter++;
+					}
+					break;
+				case P_TO_N_SOLIC_RECURSO:
+					char asignado ='n';
+					while (iter < list_size(param_nivel->recusos) && seguir) {
+						t_recusos *recurso = (t_recusos*) list_get(
+								param_nivel->recusos, iter);
+						if (mensaje[3][0] == recurso->SIMBOLO) {
+							if ((recurso->posX = atoi(mensaje[1]))
+									&& (recurso->posY = atoi(mensaje[2]))) {
+								if (recurso->cantidad >= 1) {
+									recurso->cantidad--;
+									fd_mensaje(i,
+											itoa(recurso->posX) + ";"
+													+ itoa(recurso->posY));
+									asignado = 's';
+
+								fd_mensaje(i, "definir mensaje ok");
+								seguir = false;
+								}
+							}
+						}
+						iter++;
+					}
+					if (asignado != 's') {
+						fd_mensaje(i, "error blabla");
+					}
+				}
+					break;
 //							switch (tipo) {
 //							case P_TO_N_INICIAR_NIVEL:
 //								//concatena
@@ -94,38 +153,38 @@ int main(void) {
 //							default:
 //								;
 //							}
-				free(buffer);
+					free(buffer);
 
+				}
 			}
+
 		}
+
+		pthread_join(escucho_personaje_th, NULL );
+
+		libero_memoria(t_personaje, &param_nivel);
+
+		//nivel_gui_terminar();
+
+		signal(SIGTERM, sig_handler);
+
+		return EXIT_SUCCESS;
 
 	}
 
-	pthread_join(escucho_personaje_th, NULL );
+	void libero_memoria(t_h_personaje *t_personaje, t_param_nivel *param_nivel) {
+		libero_recursos_pantalla(param_nivel->recusos);
 
-	libero_memoria(t_personaje, &param_nivel);
+		free(t_personaje->nomb_nivel);
+		free(t_personaje->readfds);
+		free(t_personaje->sck_personaje);
+		free(t_personaje);
 
-	//nivel_gui_terminar();
+	}
 
-	signal(SIGTERM, sig_handler);
-
-	return EXIT_SUCCESS;
-
-}
-
-void libero_memoria(t_h_personaje *t_personaje, t_param_nivel *param_nivel) {
-	libero_recursos_pantalla(param_nivel->recusos);
-
-	free(t_personaje->nomb_nivel);
-	free(t_personaje->readfds);
-	free(t_personaje->sck_personaje);
-	free(t_personaje);
-
-}
-
-void sig_handler(int signo) {
-	log_in_disk_niv(LOG_LEVEL_INFO, "capturando la señal");
-	//if (signo == SIGTERM)
+	void sig_handler(int signo) {
+		log_in_disk_niv(LOG_LEVEL_INFO, "capturando la señal");
+		//if (signo == SIGTERM)
 		//nivel_gui_terminar();
 
-}
+	}
