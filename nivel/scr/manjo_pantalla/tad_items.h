@@ -1,7 +1,7 @@
 #ifndef TAD_ITEMS_H_
 #define TAD_ITEMS_H_
 
-#include <nivel.h>
+#include "nivel_p.h"
 
 void BorrarItem(ITEM_NIVEL** i, char id);
 void restarRecurso(ITEM_NIVEL* i, char id);
