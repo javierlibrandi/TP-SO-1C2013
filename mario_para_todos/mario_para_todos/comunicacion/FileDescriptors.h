@@ -37,6 +37,7 @@
 #define N_TO_P_RECURSO_OK 22
 #define N_TO_P_RECURSO_ERROR 23
 #define N_TO_P_MOVIDO 24
+#define P_TO_O_JUEGO_GANADO 25
 #define OK 100
 #define ERROR 101
 
