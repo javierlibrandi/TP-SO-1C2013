@@ -177,6 +177,9 @@ static void mover_personaje(t_personaje *personaje, int *cuantum, int espera) {
 
 		buffer = recv_variable(personaje->sck, &tipo);
 
+		log_in_disk_plat(LOG_LEVEL_ERROR,
+						"No esta implementado el switch para el mensaje %s que es del tipo %d", buffer, tipo);
+
 //		switch (tipo) {
 //		case P_TO_N_BLOQUEO:
 //
