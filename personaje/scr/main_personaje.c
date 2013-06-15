@@ -24,7 +24,7 @@ int main(void) {
 
 	Personaje *personaje = NULL;
 	int descriptor, tipo, bytes_enviados;
-	InfoProxNivel infoNivel;
+	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
 
 	//puts("Elija el nombre para su personaje:");
@@ -33,13 +33,13 @@ int main(void) {
 	//ver el criterio para crear personajes.
 	personaje = nuevoPersonaje();
 
-	while (!planDeNivelesCumplido(personaje->nivelesRestantes)) {
+	while (!planDeNivelesCumplido(personaje->niveles)) {
 
 		descriptor = conectarOrquestador(personaje);
 
-		infoNivel = consultarProximoNivel(descriptor, personaje);
+		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
 
-		iniciarNivel(personaje, infoNivel);
+		iniciarNivel(personaje, InfoProxNivel);
 
 		//mientras no se complete el nivel
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {

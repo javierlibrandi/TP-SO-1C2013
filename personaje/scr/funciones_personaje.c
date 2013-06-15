@@ -21,6 +21,7 @@
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
 #include <mario_para_todos/comunicacion/Socket.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
+#include <commons/collections/list.h>
 
 //Por ahora se inicializa el personaje harcodeado. Falta hacer funcionar la lectura del arch de configuración y el uso de listas.
 Personaje* nuevoPersonaje() {
@@ -41,9 +42,10 @@ Personaje* nuevoPersonaje() {
 	personaje->vidas = param.VIDAS;
 	personaje->ip_orquestador = param.IP;
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
-	personaje->nivelesRestantes = param.RECURSOS;
+	personaje->niveles = param.RECURSOS;
 
-	personaje->recursoActual = '-';
+	personaje->nivelActual = -1;
+	personaje->recursoActual = -1;
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"El personaje creado es %s, identificado con el caracter %c, y con %d vidas.",
@@ -97,7 +99,7 @@ int conectarOrquestador(Personaje* personaje) {
 
 //Armo mensaje P_TO_P_SALUDO con "nombrePersonaje;simbolo;nivel"
 
-	nivel = determinarProxNivel(personaje->nivelesRestantes);
+	nivel = determinarProxNivel(personaje->niveles, personaje->nivelActual);
 	sprintf(mensaje, "%s;%c;%s", personaje->nombre, personaje->simbolo, nivel);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
@@ -126,12 +128,20 @@ int conectarOrquestador(Personaje* personaje) {
 	return descriptor;
 }
 
-char* determinarProxNivel(t_list* nivelesPendientes) {
+char* determinarProxNivel(t_list* niveles, int nivelActual) {
 	char * proxNivel;
 
 //Se fija el primero de la lista de NivelesPendientes
 //Por ahora harcodeo
-	proxNivel = "nivel2";
+//proxNivel = "nivel2";
+
+	nivelActual++;
+
+	if(list_size(niveles)>nivelActual){
+		proxNivel = list_get(niveles, nivelActual);
+	}else{
+		// Error, porque no hay más niveles para leer
+	}
 
 	return proxNivel;
 }
@@ -147,7 +157,7 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 //Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
 //Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
 //infoNivel.nombre_nivel = "nivel2";
-	infoNivel.nombre_nivel = determinarProxNivel(personaje->nivelesRestantes);
+	infoNivel.nombre_nivel = determinarProxNivel(personaje->niveles, personaje->nivelActual);
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Voy a enviar solicitud de ubicación del %s",
@@ -273,7 +283,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
 				infoNivel.nombre_nivel);
 		personaje->sockNivel = descriptorNiv;
-		personaje->nivelActual.nombre = infoNivel.nombre_nivel;
+		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
 	}
 
 	if (tipoN != OK && tipoN != ERROR) {
@@ -360,13 +370,22 @@ int listenerPersonaje(int descriptorNiv, int descriptorPlan) {
 	return EXIT_SUCCESS;
 }
 
-char determinarProxRecurso(Personaje* personaje) {
+char determinarProxRecurso(Nivel infoNivel, int recursoActual) {
 
 	char proxRecurso;
 
 //Fijarse en la lista de nivelesPendientes, en el nivel correspondiente el primer recurso a conseguir
 //Por ahora harcodeo
-	proxRecurso = 'F';
+//proxRecurso = 'F';
+
+	recursoActual++;
+
+	if(list_size(infoNivel.recursos)>recursoActual){
+		proxRecurso = (char)(list_get(infoNivel.recursos, recursoActual));
+	}else{
+		// Error, porque no hay más niveles para leer
+	}
+
 	return proxRecurso;
 }
 
@@ -381,7 +400,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 // Envía a Nivel P_TO_N_UBIC_RECURSO para pedir coordenadas del próximo recurso requerido "recurso"
 
-	recurso = determinarProxRecurso(personaje);
+	recurso = determinarProxRecurso(personaje->infoNivel, personaje->recursoActual);
 //Ver si sirve el campo recursoActual
 	personaje->recursoActual = recurso;
 
@@ -563,7 +582,7 @@ void salirDelNivel(int sockNivel, int sockPlanif) {
 //Devuelve TRUE si la lista de recursos del nivel pendientes es null.
 int objetivoNivelCumplido(Personaje* personaje) {
 
-//if (personaje->nivelesRestantes.recursosRestantes == NULL )
+//if (personaje->niveles.recursosRestantes == NULL )
 //harcodeo para que por ahora me devuelva siempre 0 :P
 	if (2 > 3)
 		return 1;
@@ -573,9 +592,9 @@ int objetivoNivelCumplido(Personaje* personaje) {
 }
 
 //Devuelve TRUE si la lista de niveles pendientes es null.
-int planDeNivelesCumplido(t_list * nivelesRestantes) {
+int planDeNivelesCumplido(t_list * niveles) {
 
-//if (nivelesRestantes == NULL )
+//if (niveles == NULL )
 //harcodeo para que por ahora me devuelva siempre 0 :P
 	if (2 > 3)
 		return 1;

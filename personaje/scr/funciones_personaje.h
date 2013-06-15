@@ -15,7 +15,7 @@
 
  typedef struct{
 	char* nombre;
-	t_list recursosRestantes;
+	t_list* recursos;
  }Nivel;
 
  typedef struct{
@@ -26,16 +26,17 @@
  typedef struct{
 	char *nombre;
 	char simbolo;
-	t_list *nivelesRestantes;
+	t_list *niveles;
+	int nivelActual;
 	int vidas;
 	char *ip_orquestador;
 	int puerto_orquestador;
 	int sockNivel;
 	int sockPlanif;
-	Nivel nivelActual;
+	Nivel infoNivel;
+	int recursoActual;
 	Posicion posProxRecurso;
 	Posicion posActual;
-	char recursoActual;
  }Personaje;
 
  typedef struct{
@@ -72,7 +73,7 @@ int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 void ejecutarTurno(Personaje *personaje);
 
 //devuelve el próximo nivel a completar
-char* determinarProxNivel(t_list* nivelesPendientes);
+char* determinarProxNivel(t_list* niveles, int nivelActual);
 
 //Le solicita al Nivel las coordenadas x-y del proximo nivel a completar
 void solicitarUbicacionRecurso(Personaje* personaje);
@@ -86,7 +87,7 @@ int evaluarPosicion(Posicion posActual, Posicion posRecurso);
 /* Se moverá una posición en un eje para acercarse al próximo recurso. */
 void moverse(Personaje* personaje);
 
-char determinarProxRecurso(Personaje* personaje);
+char determinarProxRecurso(Nivel infoNivel, int recursoActual);
 
 /* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.
  * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
@@ -94,7 +95,7 @@ int solicitarInstanciaRecurso();
 
 int objetivoNivelCumplido(Personaje* personaje);
 
-int planDeNivelesCumplido(t_list *nivelesRestantes);
+int planDeNivelesCumplido(t_list *niveles);
 
 void salirDelNivel(int sockNivel, int sockPlanif);
 
