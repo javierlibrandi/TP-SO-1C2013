@@ -25,11 +25,11 @@
 #include <signal.h>
 #include <mario_para_todos/entorno.h>
 
-void libero_memoria(t_h_personaje *t_personaje, t_param_nivel *param_nivel);
+void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
 
 int main(void) {
-	t_param_nivel param_nivel;
+	struct t_param_nivel param_nivel;
 	int sck_plat;
 	pthread_t escucho_personaje_th;
 	t_h_personaje *t_personaje;
@@ -41,6 +41,7 @@ int main(void) {
 	char **mensaje;
 	int tot_enviados;
 	char *aux_mensaje;
+	struct t_recusos *recurso;
 
 	//inicializo_pantalla();
 	//nivel_gui_get_area_nivel(&rows, &cols);
@@ -50,6 +51,8 @@ int main(void) {
 	t_personaje = malloc(sizeof(t_h_personaje));
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
+
+	char asignado;
 
 	//recusos_pantalla(param_nivel.recusos);
 
@@ -84,10 +87,11 @@ int main(void) {
 				mensaje = string_split(buffer, ";");
 				int iter = 1;
 				bool seguir = true;
+
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 					while (iter < list_size(param_nivel.recusos) && seguir) {
-						t_recusos *recurso = (t_recusos*) list_get(
+						recurso = (struct t_recusos*) list_get(
 								param_nivel.recusos, iter);
 						if (mensaje[1][0] == recurso->SIMBOLO) {
 
@@ -95,7 +99,7 @@ int main(void) {
 									recurso->posX, recurso->posY);
 
 							//TODO falta el tipo
-							fd_mensaje(i, aux_mensaje, &tot_enviados);
+							fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje, &tot_enviados);
 							free(aux_mensaje);
 							seguir = false;
 						}
@@ -104,7 +108,7 @@ int main(void) {
 					break;
 				case P_TO_N_MOVIMIENTO:
 					while (iter < list_size(param_nivel.recusos) && seguir) {
-						t_recusos *recurso = (t_recusos*) list_get(
+						recurso = (struct t_recusos*) list_get(
 								param_nivel.recusos, iter);
 
 						if (mensaje[0][0] == recurso->SIMBOLO) {
@@ -113,7 +117,7 @@ int main(void) {
 							aux_mensaje = string_from_format("%d;%d",
 									recurso->posX, recurso->posY);
 							//TODO falta el tipo
-							fd_mensaje(i, aux_mensaje, &tot_enviados);
+							fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
 							seguir = false;
 							free(aux_mensaje);
 						}
@@ -121,9 +125,9 @@ int main(void) {
 					}
 					break;
 				case P_TO_N_SOLIC_RECURSO:
-					char asignado = 'n';
+					asignado = 'n';
 					while (iter < list_size(param_nivel.recusos) && seguir) {
-						t_recusos *recurso = (t_recusos*) list_get(
+						recurso = (struct t_recusos*) list_get(
 								param_nivel.recusos, iter);
 						if (mensaje[3][0] == recurso->SIMBOLO) {
 							if ((recurso->posX = atoi(mensaje[1]))
@@ -132,7 +136,7 @@ int main(void) {
 									aux_mensaje = string_from_format("%d;%d",
 											recurso->posX, recurso->posY);
 									//TODO falta el tipo
-									fd_mensaje(i, aux_mensaje, &tot_enviados);
+									fd_mensaje(i, N_TO_P_RECURSO_OK, aux_mensaje, &tot_enviados);
 									free(aux_mensaje);
 									asignado = 's';
 									//TODO esto que es???
@@ -181,7 +185,7 @@ int main(void) {
 
 }
 
-void libero_memoria(t_h_personaje *t_personaje, t_param_nivel *param_nivel) {
+void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel) {
 	libero_recursos_pantalla(param_nivel->recusos);
 
 	free(t_personaje->nomb_nivel);
