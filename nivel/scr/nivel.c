@@ -84,9 +84,9 @@ int main(void) {
 				bool seguir = true;
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
-					while (iter < list_size(param_nivel->recusos) && seguir) {
+					while (iter < list_size(param_nivel.recusos) && seguir) {
 						t_recusos *recurso = (t_recusos*) list_get(
-								param_nivel->recusos, iter);
+								param_nivel.brecusos, iter);
 						if (mensaje[1][0] == recurso->SIMBOLO) {
 							fd_mensaje(i,
 									itoa(recurso->posX) + ";"
@@ -97,9 +97,9 @@ int main(void) {
 					}
 					break;
 				case P_TO_N_MOVIMIENTO:
-					while (iter < list_size(param_nivel->recusos) && seguir) {
+					while (iter < list_size(param_nivel.recusos) && seguir) {
 						t_recusos *recurso = (t_recusos*) list_get(
-								param_nivel->recusos, iter);
+								param_nivel.recusos, iter);
 
 						if (mensaje[0][0] == recurso->SIMBOLO) {
 							recurso->posX = atoi(mensaje[3]);
@@ -115,9 +115,9 @@ int main(void) {
 					break;
 				case P_TO_N_SOLIC_RECURSO:
 					char asignado ='n';
-					while (iter < list_size(param_nivel->recusos) && seguir) {
+					while (iter < list_size(param_nivel.recusos) && seguir) {
 						t_recusos *recurso = (t_recusos*) list_get(
-								param_nivel->recusos, iter);
+								param_nivel.recusos, iter);
 						if (mensaje[3][0] == recurso->SIMBOLO) {
 							if ((recurso->posX = atoi(mensaje[1]))
 									&& (recurso->posY = atoi(mensaje[2]))) {
