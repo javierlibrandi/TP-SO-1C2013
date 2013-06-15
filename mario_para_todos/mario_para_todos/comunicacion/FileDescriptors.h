@@ -29,7 +29,7 @@
 #define P_TO_PL_OBJ_CUMPLIDO 14
 #define	P_TO_N_REINICIAR_NIVEL 15 //personaje avisa a nivel para q reiniciar el nivel "simbolo"
 #define	P_TO_O_REINICIAR_JUEGO 16 //personaje avisa a planif/orquestador para q reiniciar el plan de niveles "simbolo"
-#define P_TO_P_JUEGO_GANADO 17
+#define P_TO_O_JUEGO_GANADO 17
 #define N_TO_O_SALUDO 18
 #define P_TO_N_MOVIMIENTO 19 //Personaje solicita moverse al nivel "nombrePersonaje;(xActual, yActual);(xNuevo, yNuevo)" Ej. "Mario;(5,30);(6,30)"
 #define PL_TO_P_MUERTE 20
@@ -37,11 +37,10 @@
 #define N_TO_P_RECURSO_OK 22
 #define N_TO_P_RECURSO_ERROR 23
 #define N_TO_P_MOVIDO 24
-#define P_TO_O_JUEGO_GANADO 25
-#define N_TO_O_PERSONAJE_TERMINO_NIVEL 26 // el nivel tiene que mandar la cantidad y el tipo de recusos liberados por el personaje que termino.
-#define O_TO_N_DESBLOQUEO_PERSONAJE 27 // INFORMAR LA CANTIDAD DE RECURSOS ASIGNADOS--???
-#define N_TO_O_RECOVERY 28
-#define O_TO_N_MUERTE 29 // INFORMAR QUE PERSONAJE MURIO. EJ: "MARIO"
+#define N_TO_O_PERSONAJE_TERMINO_NIVEL 25 // el nivel tiene que mandar la cantidad y el tipo de recusos liberados por el personaje que termino.
+#define O_TO_N_DESBLOQUEO_PERSONAJE 26 // INFORMAR LA CANTIDAD DE RECURSOS ASIGNADOS--???
+#define N_TO_O_RECOVERY 27
+#define O_TO_N_MUERTE 28 // INFORMAR QUE PERSONAJE MURIO. EJ: "MARIO"
 #define OK 100
 #define ERROR 101
 
