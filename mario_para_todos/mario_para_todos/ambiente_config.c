@@ -64,9 +64,9 @@ t_param_plan leer_archivo_plan_config(char *nivel) {
 	return param;
 }
 
-t_param_nivel leer_nivel_config(int rows, int cols) {
+struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 	t_config* config;
-	t_param_nivel param;
+	struct h_t_param_nivel param;
 	t_recusos *list_recursos; //declaro el tipo nodo
 	char aux_str[20];
 	int i, j;

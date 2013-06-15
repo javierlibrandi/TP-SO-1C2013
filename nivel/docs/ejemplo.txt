@@ -1,3 +1,2 @@
-export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/nivel-gui/Debug/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/commons/Debug/
+export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Debug/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Debug/

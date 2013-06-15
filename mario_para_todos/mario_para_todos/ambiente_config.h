@@ -7,7 +7,7 @@
 #define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=1 || y!=1)) ? 1 : 0)
 
 
-typedef struct t_param_plat {
+typedef struct h_t_param_plat {
 	char** planificador_nivel;
 	int PUERTO;
 	int SEGUNDOS_ESPERA;
@@ -21,16 +21,16 @@ typedef struct t_param_plan {
 	int PUERTO;
 } t_param_plan;
 
-typedef struct {
+typedef struct h_t_recusos{
 	char NOMBRE[20];
 	char SIMBOLO;
 	char cantidad; //considero que no tengo mas 255 de un recurso
 	char posX;
 	char posY;
 	char **RECURSOS; //lo usa el personaje no el nivel OJO!!!
-} t_recusos;
+}t_recusos;
 
-typedef struct {
+typedef struct h_t_param_nivel{
 	char *IP;
 	int PUERTO_PLATAFORMA;
 	int PUERTO;
@@ -54,7 +54,7 @@ typedef struct {
 t_param_plat leer_archivo_plataforma_config();
 
 
-t_param_nivel leer_nivel_config(int rows, int cols);
+struct h_t_param_nivel leer_nivel_config(int rows, int cols);
 
 t_param_persoje leer_personaje_config();
 
