@@ -104,18 +104,19 @@ bool busca_planificador(const char *desc_nivel, t_list *list_plataforma,
 
 	bool _list_elements(t_h_planificador *h_planificador) {
 
-		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
+		if (string_equals_ignore_case(h_planificador->desc_nivel, desc_nivel)){
+		//if (!strcmp(string_to_lower (h_planificador->desc_nivel), desc_nivel)) {
 
 			sprintf(msj, "%s;%s", h_planificador->ip, h_planificador->puerto);
 
 			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"Los datos del planificador son ip: %s, puerto: %s ",
+					"Los datos del nivel son ip: %s, puerto: %s ",
 					h_planificador->ip, h_planificador->puerto);
 
 			return true;
 
 		} else {
-			msj = "ERROR: Planificador no encontrado";
+			msj = "ERROR: Planificador de Nivel no encontrado";
 			return false;
 		}
 	}
