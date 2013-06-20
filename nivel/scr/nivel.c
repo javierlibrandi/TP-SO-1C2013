@@ -45,8 +45,8 @@ int main(void) {
 	struct h_t_recusos *recurso;
 	ITEM_NIVEL *ListaItems = NULL;
 
-	//inicializo_pantalla();
-	//nivel_gui_get_area_nivel(&rows, &cols);
+	inicializo_pantalla();
+	nivel_gui_get_area_nivel(&rows, &cols);
 
 	param_nivel = leer_nivel_config(rows, cols);
 
@@ -56,13 +56,10 @@ int main(void) {
 
 	char asignado;
 
-<<<<<<< HEAD
-	//recusos_pantalla(param_nivel.recusos);
-=======
+
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	nivel_gui_dibujar(ListaItems);
->>>>>>> 3261073a7dbc9b6142e2af0ae1fd96c3538cace9
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
