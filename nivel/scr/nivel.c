@@ -43,6 +43,7 @@ int main(void) {
 	int tot_enviados;
 	char *aux_mensaje;
 	struct h_t_recusos *recurso;
+	ITEM_NIVEL *ListaItems = NULL;
 
 	inicializo_pantalla();
 	nivel_gui_get_area_nivel(&rows, &cols);
@@ -55,7 +56,7 @@ int main(void) {
 
 	char asignado;
 
-	recusos_pantalla(param_nivel.recusos);
+	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
@@ -100,7 +101,8 @@ int main(void) {
 									recurso->posX, recurso->posY);
 
 							//TODO falta el tipo
-							fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje, &tot_enviados);
+							fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
+									&tot_enviados);
 							free(aux_mensaje);
 							seguir = false;
 						}
@@ -118,13 +120,21 @@ int main(void) {
 							aux_mensaje = string_from_format("%d;%d",
 									recurso->posX, recurso->posY);
 							//TODO falta el tipo
-							fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
+							fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje,
+									&tot_enviados);
 							seguir = false;
 							free(aux_mensaje);
 						}
 						iter++;
 					}
 					break;
+				case P_TO_N_INICIAR_NIVEL:
+
+					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
+					//personaje_pantalla('k',15,15,&ListaItems,ListaItems);
+					nivel_gui_dibujar(ListaItems);
+					break;
+
 				case P_TO_N_SOLIC_RECURSO:
 					asignado = 'n';
 					while (iter < list_size(param_nivel.recusos) && seguir) {
@@ -137,7 +147,8 @@ int main(void) {
 									aux_mensaje = string_from_format("%d;%d",
 											recurso->posX, recurso->posY);
 									//TODO falta el tipo
-									fd_mensaje(i, N_TO_P_RECURSO_OK, aux_mensaje, &tot_enviados);
+									fd_mensaje(i, N_TO_P_RECURSO_OK,
+											aux_mensaje, &tot_enviados);
 									free(aux_mensaje);
 									asignado = 's';
 									//TODO esto que es???

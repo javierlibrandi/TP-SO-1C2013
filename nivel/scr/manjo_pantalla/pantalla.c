@@ -12,6 +12,7 @@
 #include <mario_para_todos/ambiente_config.h>
 #include "tad_items.h"
 #include <curses.h>
+#include "nivel_p.h"
 
 
 void inicializo_pantalla() {
@@ -31,15 +32,15 @@ void inicializo_pantalla() {
 
 }
 
-void recusos_pantalla(t_list *recursos) {
-	ITEM_NIVEL* ListaItems = NULL;
+void recusos_pantalla(t_list *recursos,ITEM_NIVEL** ListaItems) {
+
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "recusos_pantalla");
 
 	int index = 0;
 
 	void _list_elements(t_recusos *list_recursos) {
-		CrearItem(&ListaItems, list_recursos->SIMBOLO,
+		CrearItem(ListaItems, list_recursos->SIMBOLO,
 				list_recursos->posX,list_recursos->posY, RECURSO_ITEM_TYPE,
 				list_recursos->cantidad);
 
@@ -48,7 +49,7 @@ void recusos_pantalla(t_list *recursos) {
 	}
 
 	list_iterate(recursos, (void*) _list_elements);
-	nivel_gui_dibujar(ListaItems);
+
 }
 
 void libero_recursos_pantalla(t_list *recursos) {
@@ -74,3 +75,15 @@ void libero_recursos_pantalla(t_list *recursos) {
 
 
 
+void personaje_pantalla(char personaje, int x, int y, ITEM_NIVEL **ListaItems) {
+
+
+	log_in_disk_niv(LOG_LEVEL_TRACE, "personaje_pantalla");
+
+
+
+	CrearPersonaje(ListaItems, personaje, x, y);
+
+	log_in_disk_niv(LOG_LEVEL_TRACE, "Creo el personaje %c en la posicion [%d;%d] ",personaje,x,y);
+
+}
