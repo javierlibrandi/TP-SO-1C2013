@@ -26,12 +26,15 @@ int main(void) {
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
+	pthread_t listener;
 
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
 	//ver el criterio para crear personajes.
 	personaje = nuevoPersonaje();
+
+	//pthread_create(&listener, NULL, (void*) listenerPersonaje, (void*) personaje);
 
 	while (!planDeNivelesCumplido(personaje->niveles)) {
 
@@ -60,28 +63,6 @@ int main(void) {
 				ejecutarTurno(personaje);
 			}
 
-			if (tipo == PL_TO_P_MUERTE) {
-				//me puede mandar el mensaje de muerte mientras estoy ejecutando el turno?
-				log_in_disk_per(LOG_LEVEL_INFO,
-						"El personaje ha perdido una vida.");
-				log_in_disk_per(LOG_LEVEL_INFO, "MUERTE POR DEADLOCK");
-				personaje->vidas--;
-
-				log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes:%d",
-						personaje->vidas);
-
-				if (personaje->vidas > 0) {
-					reiniciarNivel(personaje);
-					log_in_disk_per(LOG_LEVEL_INFO,
-							"¡El personaje debe reiniciar el nivel!");
-				} else {
-					reiniciarPlanDeNiveles(personaje);
-					log_in_disk_per(LOG_LEVEL_INFO,
-							"¡El personaje debe reiniciar el juego!");
-					//pensar más adelante como implementar esta función
-				}
-			}
-
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
 		log_in_disk_per(LOG_LEVEL_INFO, "¡Objetivo del nivel cumplido!");
@@ -92,13 +73,14 @@ int main(void) {
 	}	// fin de while "Mientras haya niveles que completar"
 
 	log_in_disk_per(LOG_LEVEL_INFO, "¡Plan de Niveles completo!");
-	log_in_disk_per(LOG_LEVEL_INFO, "El personaje %s ha ganado :)", personaje->nombre);
+	log_in_disk_per(LOG_LEVEL_INFO, "El personaje %s ha ganado :)",
+			personaje->nombre);
 
 	//Se informa al orquestador que se terminó el plan de niveles
-	 sprintf(mensajeFinJuego, "%s;fin del juego", personaje->nombre);
+	sprintf(mensajeFinJuego, "%s;fin del juego", personaje->nombre);
 
-	fd_mensaje(personaje->sockPlanif, P_TO_O_JUEGO_GANADO,
-					mensajeFinJuego, &bytes_enviados);
+	fd_mensaje(personaje->sockPlanif, P_TO_O_JUEGO_GANADO, mensajeFinJuego,
+			&bytes_enviados);
 
 	return EXIT_SUCCESS;
 }

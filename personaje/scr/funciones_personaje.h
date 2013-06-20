@@ -37,6 +37,7 @@
 	int recursoActual;
 	Posicion posProxRecurso;
 	Posicion posActual;
+	fd_set *listaSelect;
  }Personaje;
 
  typedef struct{
@@ -67,7 +68,6 @@
 void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel);
 
 // Esta función va a escuchar al planificador y al nivel
-int listenerPersonaje (int descriptorNivel, int descriptorPlan);
 
 //el personaje actúa ante una notificación de movimiento permitido por parte del planificador del nivel
 void ejecutarTurno(Personaje *personaje);

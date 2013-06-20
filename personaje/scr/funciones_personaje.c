@@ -43,6 +43,7 @@ Personaje* nuevoPersonaje() {
 	personaje->ip_orquestador = param.IP;
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 	personaje->niveles = param.RECURSOS;
+	FD_ZERO(personaje->listaSelect);
 
 	personaje->nivelActual = -1;
 	personaje->recursoActual = -1;
@@ -137,9 +138,9 @@ char* determinarProxNivel(t_list* niveles, int nivelActual) {
 
 	nivelActual++;
 
-	if(list_size(niveles)>nivelActual){
+	if (list_size(niveles) > nivelActual) {
 		proxNivel = list_get(niveles, nivelActual);
-	}else{
+	} else {
 		// Error, porque no hay más niveles para leer
 	}
 
@@ -157,7 +158,8 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 //Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
 //Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
 //infoNivel.nombre_nivel = "nivel2";
-	infoNivel.nombre_nivel = determinarProxNivel(personaje->niveles, personaje->nivelActual);
+	infoNivel.nombre_nivel = determinarProxNivel(personaje->niveles,
+			personaje->nivelActual);
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Voy a enviar solicitud de ubicación del %s",
@@ -181,17 +183,19 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 		exit(EXIT_FAILURE);
 	}
 
-	if (tipo == O_TO_P_UBIC_NIVEL)
+	if (tipo == O_TO_P_UBIC_NIVEL) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Se recibió información del orquestador:%s", buffer);
 
 //ver como extraer ip y puerto del mensaje recibido en buffer
 //Por ahora harcodeo
 
-	aux_msj = string_split(buffer, ";");
+		aux_msj = string_split(buffer, ";");
 
-	strcpy(infoNivel.ip_nivel, aux_msj[0]);
-	infoNivel.puerto_nivel = atoi(aux_msj[1]);
+		//strcpy(infoNivel.ip_nivel, aux_msj[0]);
+		infoNivel.ip_nivel = aux_msj[0];
+		infoNivel.puerto_nivel = atoi(aux_msj[1]);
+	}
 
 //infoNivel.ip_nivel="localhost";
 //infoNivel.puerto_nivel = 5002;
@@ -271,6 +275,25 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Espero OKEYS del nivel y de su planificador...");
+	bufferPla = recv_variable(descriptorPlan, &tipoP);
+	if (tipoP == ERROR) {
+		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del planificador:%s",
+				bufferPla);
+		exit(EXIT_FAILURE);
+	}
+
+	if (tipoP == OK) {
+		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
+		personaje->sockPlanif = descriptorPlan;
+		//usar semaforos para acceder a listaSelect
+		FD_SET(descriptorPlan, personaje->listaSelect);
+	}
+
+	if (tipoP != OK && tipoP != ERROR) {
+		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
+				bufferPla);
+		exit(EXIT_FAILURE);
+	}
 
 	bufferNiv = recv_variable(descriptorNiv, &tipoN);
 	if (tipoN == ERROR) {
@@ -284,6 +307,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 				infoNivel.nombre_nivel);
 		personaje->sockNivel = descriptorNiv;
 		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
+		FD_SET(descriptorNiv, personaje->listaSelect);
 	}
 
 	if (tipoN != OK && tipoN != ERROR) {
@@ -292,83 +316,12 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		exit(EXIT_FAILURE);
 	}
 
-	bufferPla = recv_variable(descriptorNiv, &tipoP);
-	if (tipoP == ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del planificador:%s",
-				bufferPla);
-		exit(EXIT_FAILURE);
-	}
-
-	if (tipoP == OK) {
-		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
-		personaje->sockPlanif = descriptorPlan;
-	}
-
-	if (tipoP != OK && tipoP != ERROR) {
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
-				bufferPla);
-		exit(EXIT_FAILURE);
-	}
-//VER SI HAY QUE VOLVER A MANDAR MENSAJES CON MÁS INFO
-
 	free(bufferNiv);
 	free(bufferPla);
 }
 
 //¿crear función con select que escuche al planif y al nivel?
-int listenerPersonaje(int descriptorNiv, int descriptorPlan) {
 
-	int N = 1;
-	int descriptores[N], tipo, result, j, i;
-	int maxDescriptor = 0;
-	fd_set readset;
-	void *buffer = NULL;
-
-//Limpio lista de sockets
-	FD_ZERO(&readset);
-
-//Inicializo vector de sockets
-	descriptores[0] = descriptorNiv;
-	descriptores[1] = descriptorPlan;
-
-//Agrego los dos sockets de Nivel y Planif a la lista y busco máximo valor
-	for (j = 0; j < N; j++) {
-		FD_SET(descriptores[j], &readset);
-		maxDescriptor =
-				(maxDescriptor > descriptores[j]) ?
-						maxDescriptor : descriptores[j];
-	}
-
-// Me fijo si en alguno llegaron mensajes
-	result = select(maxDescriptor + 1, &readset, NULL, NULL, NULL );
-
-	if (result == -1) {
-		perror("select");
-		exit(EXIT_FAILURE);
-	} else {
-		for (i = 0; i < N; i++) {
-			if (FD_ISSET(descriptores[i], &readset)) {
-				buffer = recv_variable(descriptores[i], &tipo);
-
-				switch (tipo) {
-				case ERROR:
-					log_in_disk_per(LOG_LEVEL_ERROR, "%s", (char*) buffer);
-					exit(EXIT_FAILURE);
-					break;
-				case PL_TO_P_TURNO:
-					break;
-					// ...
-				default:
-					break;
-
-				}
-
-				free(buffer);
-			}
-		}
-	}
-	return EXIT_SUCCESS;
-}
 
 char determinarProxRecurso(Nivel infoNivel, int recursoActual) {
 
@@ -380,9 +333,9 @@ char determinarProxRecurso(Nivel infoNivel, int recursoActual) {
 
 	recursoActual++;
 
-	if(list_size(infoNivel.recursos)>recursoActual){
-		proxRecurso = (char)(list_get(infoNivel.recursos, recursoActual));
-	}else{
+	if (list_size(infoNivel.recursos) > recursoActual) {
+		proxRecurso = (char) (list_get(infoNivel.recursos, recursoActual));
+	} else {
 		// Error, porque no hay más niveles para leer
 	}
 
@@ -400,7 +353,8 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 // Envía a Nivel P_TO_N_UBIC_RECURSO para pedir coordenadas del próximo recurso requerido "recurso"
 
-	recurso = determinarProxRecurso(personaje->infoNivel, personaje->recursoActual);
+	recurso = determinarProxRecurso(personaje->infoNivel,
+			personaje->recursoActual);
 //Ver si sirve el campo recursoActual
 	personaje->recursoActual = recurso;
 
