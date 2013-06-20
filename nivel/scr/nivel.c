@@ -40,7 +40,7 @@ int main(void) {
 	rows = 37;
 	cols = 167;
 	char **mensaje;
-	int tot_enviados;
+	int tot_enviados, cont_msj;
 	char *aux_mensaje;
 	struct h_t_recusos *recurso;
 	ITEM_NIVEL *ListaItems = NULL;
@@ -57,6 +57,8 @@ int main(void) {
 	char asignado;
 
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
+
+	nivel_gui_dibujar(ListaItems);
 
 	//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
@@ -87,6 +89,14 @@ int main(void) {
 					elimino_sck_lista(i, t_personaje->readfds);
 				}
 				mensaje = string_split(buffer, ";");
+
+				log_in_disk_niv(LOG_LEVEL_TRACE, "Tipo de mensaje %d ", tipo);
+
+				for (cont_msj = 0; mensaje[cont_msj] != '/0'; cont_msj++) {
+					log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
+							cont_msj, mensaje[cont_msj]);
+
+				}
 				int iter = 1;
 				bool seguir = true;
 
