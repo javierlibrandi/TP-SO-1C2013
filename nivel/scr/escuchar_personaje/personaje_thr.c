@@ -13,10 +13,10 @@
 #include <mario_para_todos/ambiente_config.h>
 #include <mario_para_todos/grabar.h>
 #include "personaje_thr.h"
+#include <semaphore.h>
 
 void *escucho_personaje(void *p) {
-	int sck, new_sck, tipo;
-	void *buffer = NULL;
+	int sck, new_sck;
 	t_h_personaje *t_personaje = (t_h_personaje*) p;
 	char ip_cliente[16];
 
@@ -25,15 +25,21 @@ void *escucho_personaje(void *p) {
 			t_personaje->pueto, t_personaje->nomb_nivel);
 
 	sck = Abre_Socket_Inet(t_personaje->pueto);
+	t_personaje->sck_personaje=0;
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck,ip_cliente);
 		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
-		if(new_sck > *(t_personaje->sck_personaje) ){
-			*(t_personaje->sck_personaje) = new_sck;
+		if(new_sck > t_personaje->sck_personaje ){
+			t_personaje->sck_personaje = new_sck;
 		}
+		FD_SET(new_sck,t_personaje->readfds);
 		//buffer = recv_variable(new_sck, &tipo);
-
+		log_in_disk_niv(LOG_LEVEL_TRACE,
+				"Acepto la conexion del personaje en el socket %d  ",
+				new_sck);
+		pthread_mutex_unlock(t_personaje->s_personaje_conectado);
 	}
+
 }
 

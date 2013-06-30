@@ -8,11 +8,14 @@
 #ifndef PERSONAJE_THR_H_
 #define PERSONAJE_THR_H_
 
+#include <semaphore.h>
+
 typedef struct{
 	char *nomb_nivel;
 	int pueto;
-	int *sck_personaje;
+	int sck_personaje;
 	fd_set *readfds;
+	pthread_mutex_t *s_personaje_conectado;
 } t_h_personaje;
 
 void *escucho_personaje(void *p);

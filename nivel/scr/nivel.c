@@ -25,9 +25,12 @@
 #include <signal.h>
 #include <mario_para_todos/entorno.h>
 #include "manjo_pantalla/nivel_p.h"
+#include <semaphore.h>
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
+
+static pthread_mutex_t s_personaje_conectado = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
 	struct h_t_param_nivel param_nivel;
@@ -44,6 +47,8 @@ int main(void) {
 	char *aux_mensaje;
 	struct h_t_recusos *recurso;
 	ITEM_NIVEL *ListaItems = NULL;
+	char asignado;
+
 
 	inicializo_pantalla();
 	nivel_gui_get_area_nivel(&rows, &cols);
@@ -54,34 +59,36 @@ int main(void) {
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
 
-	char asignado;
-
-
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	nivel_gui_dibujar(ListaItems);
 
-	//conecxion con el planificador
+//conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
 			param_nivel.nom_nivel, param_nivel.PUERTO);
 
 	FD_ZERO(&readfds);
 	FD_SET(sck_plat, &readfds);
 	t_personaje->readfds = &readfds;
-	t_personaje->sck_personaje = &sck_plat;
+	t_personaje->sck_personaje = sck_plat;
+	pthread_mutex_lock(&s_personaje_conectado);
+	t_personaje->s_personaje_conectado = &s_personaje_conectado;
+
+
 
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
-
+	pthread_mutex_lock(&s_personaje_conectado);
 	for (;;) {
-		if (select(*(t_personaje->sck_personaje) + 1, t_personaje->readfds,
-				NULL, NULL, NULL ) == -1) {
+
+		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
+				NULL, NULL ) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
 
-		for (i = 0; i <= *(t_personaje->sck_personaje); i++) {
+		for (i = 0; i <= t_personaje->sck_personaje; i++) {
 			if (FD_ISSET(i, t_personaje->readfds)) {
 
 				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
@@ -93,7 +100,7 @@ int main(void) {
 
 				log_in_disk_niv(LOG_LEVEL_TRACE, "Tipo de mensaje %d ", tipo);
 
-				for (cont_msj = 0; mensaje[cont_msj] != '/0'; cont_msj++) {
+				for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
 					log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
 							cont_msj, mensaje[cont_msj]);
 
@@ -142,8 +149,8 @@ int main(void) {
 				case P_TO_N_INICIAR_NIVEL:
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
-					//personaje_pantalla('k',15,15,&ListaItems,ListaItems);
 					nivel_gui_dibujar(ListaItems);
+
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
