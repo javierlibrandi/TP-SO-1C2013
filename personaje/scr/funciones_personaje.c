@@ -30,12 +30,10 @@ Personaje* nuevoPersonaje() {
 	int i, k;
 	t_recusos *recursos;
 	char *aux_nivel;
-	fd_set fd_set_aux;
 
 	// lo pongo para el ejemplo
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Voy a crear al personaje");
-
 	t_param_persoje param = leer_personaje_config();
 
 	personaje->nombre = param.NOMBRE;
@@ -44,8 +42,8 @@ Personaje* nuevoPersonaje() {
 	personaje->ip_orquestador = param.IP;
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 	personaje->niveles = param.RECURSOS;
-	FD_ZERO(&fd_set_aux);
-    personaje->listaSelect= &fd_set_aux;
+	personaje->listaSelect = malloc(sizeof(fd_set));
+	FD_ZERO(personaje->listaSelect);
 
 	personaje->nivelActual = -1;
 	personaje->recursoActual = -1;
@@ -231,6 +229,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	if (descriptorNiv == -1) {
 		log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error al conectarse al %s",
 				infoNivel.nombre_nivel);
+		exit(1);
 	} else {
 		log_in_disk_per(LOG_LEVEL_INFO, "Conexión exitosa con %s",
 				infoNivel.nombre_nivel);
@@ -245,6 +244,8 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	if (descriptorPlan == -1) {
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al conectarse al planificador del nivel");
+		exit(EXIT_FAILURE);
+
 	} else {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Conexión exitosa con planificador del %s",
@@ -257,9 +258,11 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	fd_mensaje(descriptorNiv, P_TO_N_INICIAR_NIVEL, mensaje1,
 			&bytes_enviados_niv);
 
-	if (bytes_enviados_niv == -1)
+	if (bytes_enviados_niv == -1) {
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al enviar el mensaje P_TO_N_INICIAR_NIVEL");
+		exit(EXIT_FAILURE);
+	}
 //HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
 // Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"

@@ -475,7 +475,7 @@ t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores) {
 
 		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
 
-			log_in_disk_plan(LOG_LEVEL_TRACE, "devuelvo el planificadore");
+			log_in_disk_plan(LOG_LEVEL_TRACE, "devuelvo el planificador %s",h_planificador->desc_nivel);
 
 			return true;
 

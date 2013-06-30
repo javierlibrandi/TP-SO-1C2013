@@ -22,7 +22,7 @@
 #include <mario_para_todos/entorno.h>
 
 static void eliminar_nodo(int sck, t_list *list_planifidores);
-static t_personaje *planifico_nivel(t_h_planificador *h_planificador);
+static t_personaje *planifico_personaje(t_h_planificador *h_planificador);
 static void mover_personaje(t_personaje *personaje, int *cuantum, int espera);
 
 void* planificador_nivel_thr(void *p) {
@@ -78,11 +78,11 @@ void* planificador_nivel_thr(void *p) {
 
 			} else {
 				//busco el siguiente personaje a planificar
-				log_in_disk_plan(LOG_LEVEL_INFO,
-						"busco personaje listo para moverce");
+//				log_in_disk_plan(LOG_LEVEL_INFO,
+//						"busco personaje listo para moverce");
 
 				pthread_mutex_lock(h_planificador->s_listos);
-				personaje = planifico_nivel(h_planificador);
+				personaje = planifico_personaje(h_planificador);
 				pthread_mutex_unlock(h_planificador->s_listos);
 
 				//si el personaje no es nulo muevo el personaje
@@ -131,19 +131,21 @@ static void eliminar_nodo(int sck, t_list *list_planificadores) {
 	}
 }
 
-static t_personaje *planifico_nivel(t_h_planificador *h_planificador) {
+static t_personaje *planifico_personaje(t_h_planificador *h_planificador) {
 	static int index = 0; //hago un buffer circular
 	int total_elementos;
 	int aux = index;
 	t_personaje *personaje;
+
+	log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
 
 	total_elementos = list_size(h_planificador->l_listos);
 
 	//si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
 	if (index > total_elementos) {
 		index = 0;
-		aux = total_elementos;
 	}
+	aux = total_elementos;
 
 	//doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
 	while (aux != index) {
@@ -153,6 +155,7 @@ static t_personaje *planifico_nivel(t_h_planificador *h_planificador) {
 					index++);
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
+				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",personaje->nombre);
 				return personaje;
 			} else if (index > total_elementos) {
 				index = 0;
@@ -178,7 +181,8 @@ static void mover_personaje(t_personaje *personaje, int *cuantum, int espera) {
 		buffer = recv_variable(personaje->sck, &tipo);
 
 		log_in_disk_plat(LOG_LEVEL_ERROR,
-						"No esta implementado el switch para el mensaje %s que es del tipo %d", buffer, tipo);
+				"No esta implementado el switch para el mensaje %s que es del tipo %d",
+				buffer, tipo);
 
 //		switch (tipo) {
 //		case P_TO_N_BLOQUEO:
