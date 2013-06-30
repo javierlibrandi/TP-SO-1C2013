@@ -30,6 +30,7 @@ Personaje* nuevoPersonaje() {
 	int i, k;
 	t_recusos *recursos;
 	char *aux_nivel;
+	fd_set fd_set_aux;
 
 	// lo pongo para el ejemplo
 
@@ -43,7 +44,8 @@ Personaje* nuevoPersonaje() {
 	personaje->ip_orquestador = param.IP;
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 	personaje->niveles = param.RECURSOS;
-	FD_ZERO(personaje->listaSelect);
+	FD_ZERO(&fd_set_aux);
+    personaje->listaSelect= &fd_set_aux;
 
 	personaje->nivelActual = -1;
 	personaje->recursoActual = -1;
@@ -321,7 +323,6 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 }
 
 //¿crear función con select que escuche al planif y al nivel?
-
 
 char determinarProxRecurso(Nivel infoNivel, int recursoActual) {
 
