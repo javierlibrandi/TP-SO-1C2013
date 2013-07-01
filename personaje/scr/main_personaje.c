@@ -26,7 +26,7 @@ int main(void) {
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
-	pthread_t listener;
+
 
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );

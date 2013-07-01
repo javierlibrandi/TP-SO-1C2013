@@ -12,33 +12,7 @@
 //#include select.h
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/ambiente_config.h>
-
- typedef struct{
-	char* nombre;
-	t_list* recursos;
- }Nivel;
-
- typedef struct{
-	 int x;
-	 int y;
- } Posicion;
-
- typedef struct{
-	char *nombre;
-	char simbolo;
-	t_list *niveles;
-	int nivelActual;
-	int vidas;
-	char *ip_orquestador;
-	int puerto_orquestador;
-	int sockNivel;
-	int sockPlanif;
-	Nivel infoNivel;
-	int recursoActual;
-	Posicion posProxRecurso;
-	Posicion posActual;
-	fd_set *listaSelect;
- }Personaje;
+#include <mario_para_todos/entorno.h>
 
  typedef struct{
 	 char* nombre_nivel;
