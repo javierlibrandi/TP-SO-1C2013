@@ -16,7 +16,14 @@ typedef struct{
 	int sck_personaje;
 	fd_set *readfds;
 	pthread_mutex_t *s_personaje_conectado;
+	t_list *l_personajes;
 } t_h_personaje;
+
+typedef struct{
+	char* nombre_personaje;
+	char id_personaje;
+	int	sokc;
+}t_lista_personaje;
 
 void *escucho_personaje(void *p);
 

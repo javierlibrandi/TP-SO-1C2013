@@ -26,6 +26,10 @@
 #include <mario_para_todos/entorno.h>
 #include "manjo_pantalla/nivel_p.h"
 #include <semaphore.h>
+#include <commons/collections/list.h>
+
+void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
+		t_h_personaje *t_personaje);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -48,20 +52,23 @@ int main(void) {
 	struct h_t_recusos *recurso;
 	ITEM_NIVEL *ListaItems = NULL;
 	char asignado;
+	int iter;
+	bool seguir;
 
-
-	inicializo_pantalla();
-	nivel_gui_get_area_nivel(&rows, &cols);
+	//TODO descomentar para dibujar la pantalla
+//	inicializo_pantalla();
+//	nivel_gui_get_area_nivel(&rows, &cols);
 
 	param_nivel = leer_nivel_config(rows, cols);
 
 	t_personaje = malloc(sizeof(t_h_personaje));
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
-
+	t_personaje->l_personajes = list_create();
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
-	nivel_gui_dibujar(ListaItems);
+	//TODO descomentar para dibujar la pantalla
+	//	nivel_gui_dibujar(ListaItems);
 
 //conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
@@ -73,8 +80,6 @@ int main(void) {
 	t_personaje->sck_personaje = sck_plat;
 	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
-
-
 
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
@@ -105,8 +110,8 @@ int main(void) {
 							cont_msj, mensaje[cont_msj]);
 
 				}
-				int iter = 1;
-				bool seguir = true;
+				iter = 1;
+				seguir = true;
 
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
@@ -149,7 +154,10 @@ int main(void) {
 				case P_TO_N_INICIAR_NIVEL:
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
-					nivel_gui_dibujar(ListaItems);
+					add_personaje_lista(mensaje[1][0], mensaje[0], i,
+							t_personaje);
+					//TODO descomentar para dibujar la pantalla
+					//nivel_gui_dibujar(ListaItems);
 
 					break;
 
@@ -215,6 +223,25 @@ int main(void) {
 
 }
 
+void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
+		t_h_personaje *t_personaje) {
+
+	t_lista_personaje *list_personajes;
+
+	log_in_disk_niv(LOG_LEVEL_TRACE, "funcion add_personaje_lista ");
+
+	list_personajes = malloc(sizeof(t_lista_personaje));
+	list_personajes->id_personaje = id_personaje;
+	list_personajes->nombre_personaje = nombre_personaje;
+	list_personajes->sokc = i;
+
+	list_add(t_personaje->l_personajes, list_personajes);
+
+	log_in_disk_niv(LOG_LEVEL_TRACE,
+			"Agrego a la lista el personaje con  id_personaje %c el nombre %s socket %d",
+			list_personajes->id_personaje, list_personajes->nombre_personaje,
+			list_personajes->sokc);
+}
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel) {
 //	libero_recursos_pantalla(param_nivel->recusos);
 //
