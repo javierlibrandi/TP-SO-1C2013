@@ -26,9 +26,9 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	param.PUERTO = config_get_int_value(config, "PUERTO");
 
-	param.SEGUNDOS_ESPERA =  config_get_int_value(config,"SEGUNDOS_ESPERA");
+	param.SEGUNDOS_ESPERA = config_get_int_value(config, "SEGUNDOS_ESPERA");
 
-	param.CUANTUM =  config_get_int_value(config,"CUANTUM");
+	param.CUANTUM = config_get_int_value(config, "CUANTUM");
 
 	//param.planificador_nivel = config_get_array_value(config, "planDeNiveles");
 
@@ -68,7 +68,7 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 	t_config* config;
 	struct h_t_param_nivel param;
 	t_recusos *list_recursos; //declaro el tipo nodo
-	char aux_str[20];
+	char *aux_str;
 	int i, j;
 	char **aux;
 	char *aux_char;
@@ -95,7 +95,7 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 	i = 1;
 
-	sprintf(aux_str, "%s%d", "CAJA", i);
+	aux_str = string_from_format("%s%d", "CAJA", i);
 
 	while ((aux = config_get_array_value(config, aux_str)) != NULL ) {
 
@@ -130,7 +130,7 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 		}
 
-		sprintf(aux_str, "%s%d", "CAJA", ++i);
+		aux_str = string_from_format("%s%d", "CAJA", ++i);
 	}
 
 	return param;
@@ -142,7 +142,7 @@ t_param_persoje leer_personaje_config() {
 	t_param_persoje param;
 	t_recusos *list_recursos; //declaro el tipo nodo
 	char *aux_char;
-	char aux_str[20];
+	char *aux_str;
 	char **aux;
 	int i;
 
@@ -172,14 +172,15 @@ t_param_persoje leer_personaje_config() {
 
 	i = 0;
 	while (param.PLAN_NIVELES[i] != '\0') {
-		memset(aux_str,'\0',20);
+
 
 		list_recursos = malloc(sizeof(t_recusos));
-		sprintf(aux_str, "OBJ[%s]", param.PLAN_NIVELES[i]);
+		//sprintf(aux_str, "OBJ[%s]", param.PLAN_NIVELES[i]);
+		aux_str = string_from_format("OBJ[%s]",  param.PLAN_NIVELES[i]);
 
-		log_in_disk_per(LOG_LEVEL_TRACE,
-						"Niveles de planificador %s ",
-						param.PLAN_NIVELES[i]);
+
+		log_in_disk_per(LOG_LEVEL_TRACE, "Niveles de planificador %s ",
+				param.PLAN_NIVELES[i]);
 
 		list_recursos->RECURSOS = config_get_array_value(config, aux_str);
 		strcpy(list_recursos->NOMBRE, param.PLAN_NIVELES[i]);

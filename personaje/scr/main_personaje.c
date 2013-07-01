@@ -19,6 +19,7 @@
 #include "funciones_personaje.h"
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/grabar.h>
+#include <mario_para_todos/entorno.h>
 
 int main(void) {
 
@@ -26,7 +27,7 @@ int main(void) {
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
-	pthread_t listener;
+
 
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
