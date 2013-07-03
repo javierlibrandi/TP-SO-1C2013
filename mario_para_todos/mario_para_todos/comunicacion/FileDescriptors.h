@@ -19,7 +19,7 @@
 #define P_TO_N_INICIAR_NIVEL 4 //personaje se conecta a nivel para que lo ubique en mapa "nombrePersonaje;simbolo" Ej. "Mario;#"
 #define	P_TO_PL_INICIAR_NIVEL 5 //personaje se conecta a plataforma y solicita jugar en un determinado nivel "nombrePersonaje, nivelNro" Ej. "Mario;nivel2"
 #define	P_TO_N_UBIC_RECURSO 6 //personaje le solcita a nivel la ubicación de un recurso "recurso" Ej. 'F'
-#define	N_TO_P_UBIC_RECURSO 7 //nivel le da las coordenadas del recurso solicitado "recurso, posX, posY" Ej. "F;14,21"
+#define	N_TO_P_UBIC_RECURSO 7 //nivel le da las coordenadas del recurso solicitado "posX, posY" Ej. "14,21"
 #define	PL_TO_P_TURNO 8
 #define	P_TO_PL_TURNO_CUMPLIDO 9
 #define	P_TO_N_SOLIC_RECURSO 10 //personaje solicita instancia de un recurso al nivel "simbolo;recurso" Ej. "mario;F"
@@ -31,7 +31,7 @@
 #define	P_TO_O_REINICIAR_JUEGO 16 //personaje avisa a planif/orquestador para q reiniciar el plan de niveles "simbolo"
 #define P_TO_O_JUEGO_GANADO 17
 #define N_TO_O_SALUDO 18
-#define P_TO_N_MOVIMIENTO 19 //Personaje solicita moverse al nivel "nombrePersonaje;(xActual, yActual);(xNuevo, yNuevo)" Ej. "Mario;(5,30);(6,30)"
+#define P_TO_N_MOVIMIENTO 19 //Personaje solicita moverse al nivel "simboloPersonaje;(xActual, yActual);(xNuevo, yNuevo)" Ej. "Mario;(5,30);(6,30)"
 #define PL_TO_P_MUERTE 20
 #define P_TO_N_SALIR 21
 #define N_TO_P_RECURSO_OK 22

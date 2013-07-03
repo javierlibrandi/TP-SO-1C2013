@@ -115,15 +115,25 @@ int main(void) {
 
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
+
+					log_in_disk_niv(LOG_LEVEL_TRACE, "entra en el swss");
+
 					while (iter < list_size(param_nivel.recusos) && seguir) {
 						recurso = (struct h_t_recusos*) list_get(
 								param_nivel.recusos, iter);
-						if (mensaje[1][0] == recurso->SIMBOLO) {
+						log_in_disk_niv(LOG_LEVEL_TRACE, "entra en el swss");
+
+						if (mensaje[0][0] == recurso->SIMBOLO) {
 
 							aux_mensaje = string_from_format("%d;%d",
 									recurso->posX, recurso->posY);
 
 							//TODO falta el tipo
+
+							log_in_disk_niv(LOG_LEVEL_TRACE,
+									"se envio recursos %d, %d", recurso->posX,
+									recurso->posY);
+
 							fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 									&tot_enviados);
 							free(aux_mensaje);
@@ -133,6 +143,10 @@ int main(void) {
 					}
 					break;
 				case P_TO_N_MOVIMIENTO:
+
+					aux_mensaje = "te movi";
+					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
+
 					while (iter < list_size(param_nivel.recusos) && seguir) {
 						recurso = (struct t_recusos*) list_get(
 								param_nivel.recusos, iter);
@@ -143,8 +157,10 @@ int main(void) {
 							aux_mensaje = string_from_format("%d;%d",
 									recurso->posX, recurso->posY);
 							//TODO falta el tipo
-							fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje,
-									&tot_enviados);
+//							aux_mensaje = "te movi";
+//							fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje,
+//									&tot_enviados);
+
 							seguir = false;
 							free(aux_mensaje);
 						}

@@ -45,7 +45,7 @@ typedef struct{
 	char *nombre;
 	char simbolo;
 	t_list *niveles;
-	int nivelActual;
+	char * nivelActual;
 	int vidas;
 	char *ip_orquestador;
 	int puerto_orquestador;

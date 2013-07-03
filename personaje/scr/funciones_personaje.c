@@ -263,6 +263,11 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 				"Hubo un error al enviar el mensaje P_TO_N_INICIAR_NIVEL");
 		exit(EXIT_FAILURE);
 	}
+
+	personaje->sockNivel = descriptorNiv;
+	personaje->infoNivel.nombre = infoNivel.nombre_nivel;
+	personaje->nivelActual = infoNivel.nombre_nivel;
+
 //HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
 // Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"
@@ -300,28 +305,28 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		exit(EXIT_FAILURE);
 	}
 
-	bufferNiv = recv_variable(descriptorNiv, &tipoN);
-	if (tipoN == ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
-				bufferNiv);
-		exit(EXIT_FAILURE);
-	}
-
-	if (tipoN == OK) {
-		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
-				infoNivel.nombre_nivel);
-		personaje->sockNivel = descriptorNiv;
-		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
-		FD_SET(descriptorNiv, personaje->listaSelect);
-	}
-
-	if (tipoN != OK && tipoN != ERROR) {
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
-				bufferNiv);
-		exit(EXIT_FAILURE);
-	}
-
-	free(bufferNiv);
+//	bufferNiv = recv_variable(descriptorNiv, &tipoN);
+//	if (tipoN == ERROR) {
+//		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
+//				bufferNiv);
+//		exit(EXIT_FAILURE);
+//	}
+//
+//	if (tipoN == OK) {
+//		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
+//				infoNivel.nombre_nivel);
+//		personaje->sockNivel = descriptorNiv;
+//		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
+//		FD_SET(descriptorNiv, personaje->listaSelect);
+//	}
+//
+//	if (tipoN != OK && tipoN != ERROR) {
+//		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
+//				bufferNiv);
+//		exit(EXIT_FAILURE);
+//	}
+//
+//	free(bufferNiv);
 	free(bufferPla);
 }
 
@@ -350,6 +355,7 @@ char determinarProxRecurso(Nivel infoNivel, int recursoActual) {
 void solicitarUbicacionRecurso(Personaje* personaje) {
 
 	char recurso;
+	char* recu;
 	int bytes_enviados, tipo;
 	char *buffer;
 	char **aux_msj;
@@ -357,15 +363,16 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 // Envía a Nivel P_TO_N_UBIC_RECURSO para pedir coordenadas del próximo recurso requerido "recurso"
 
-	recurso = determinarProxRecurso(personaje->infoNivel,
-			personaje->recursoActual);
+	//recurso = determinarProxRecurso(personaje->infoNivel,
+		//	personaje->recursoActual);
+	recu = "M";
 //Ver si sirve el campo recursoActual
-	personaje->recursoActual = recurso;
+	personaje->recursoActual = 'M';
 
-	sprintf(mensaje, "%c", recurso);
+	sprintf(mensaje, "%s", recu);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Necesito la ubicación del recurso %s",
-			recurso);
+			recu);
 
 	fd_mensaje(personaje->sockNivel, P_TO_N_UBIC_RECURSO, mensaje,
 			&bytes_enviados);
@@ -392,8 +399,8 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 		aux_msj = string_split(buffer, ";");
 
-		personaje->posProxRecurso.x = atoi(aux_msj[1]);
-		personaje->posProxRecurso.y = atoi(aux_msj[2]);
+		personaje->posProxRecurso.x = atoi(aux_msj[0]);
+		personaje->posProxRecurso.y = atoi(aux_msj[1]);
 
 	}
 
@@ -753,7 +760,8 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 
 int conocePosicionRecurso(char recursoActual) {
 
-	if (recursoActual == '-') {
+	//if (recursoActual == '-') {
+		if(1){
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"No tengo asignado un recurso actual. No conozco la posición del próximo recurso.");
 		return 0;
