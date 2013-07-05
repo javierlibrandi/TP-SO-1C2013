@@ -31,7 +31,8 @@
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 		t_h_personaje *t_personaje);
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes);
-struct h_t_recusos *busco_recurso(char id, struct h_t_param_nivel *param_nivel);
+struct h_t_recusos *busco_recurso(char id, t_list *recusos);
+void add_recurso_personaje(t_list *l_recursos_optenidos,const struct h_t_recusos *recurso_actual);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -120,7 +121,7 @@ int main(void) {
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
-					recurso = busco_recurso(mensaje[0][0], &param_nivel);
+					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
 
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
@@ -182,33 +183,35 @@ int main(void) {
 							nodo_lista_personaje->proximo_recurso->NOMBRE;
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El pesonaje solicita un recurso del tipo %c, la cantidad atual es de %d",
+							"El pesonaje solicita un recurso del tipo %s, la cantidad atual es de %d",
 							nombre_recurso, catidad_recursos);
 
-					if (catidad_recursos > 0) {
+					if (catidad_recursos > 0) { //si tengo recursos se los doy
 
 						catidad_recursos--;
-						//tipo_mensaje = N_TO_P_RECURSO_OK;
-						tipo_mensaje = N_TO_P_RECURSO_ERROR;
-						log_in_disk_niv(LOG_LEVEL_INFO,
-								"El recurso entregado al personaje %c",
-								nodo_lista_personaje->id_personaje);
+						tipo_mensaje = N_TO_P_RECURSO_OK;
 
-					} else {
+						log_in_disk_niv(LOG_LEVEL_INFO,"El recurso entregado al personaje %c",nodo_lista_personaje->id_personaje);
+						recurso = busco_recurso(nodo_lista_personaje->proximo_recurso->SIMBOLO,nodo_lista_personaje->l_recursos_optenidos);
+
+						if(recurso!=NULL){ //agreo a la lista de recursos asignados al personaje
+							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
+						}else{
+							add_recurso_personaje(nodo_lista_personaje->l_recursos_optenidos,nodo_lista_personaje->proximo_recurso);
+
+						}
+
+
+					} else { // en caso de no tener bloqueo al personaje
 						tipo_mensaje = N_TO_P_RECURSO_ERROR;
-						log_in_disk_niv(LOG_LEVEL_INFO,
-								"El recurso insuficientes para entregar el personaje %c",
-								nodo_lista_personaje->id_personaje);
+						log_in_disk_niv(LOG_LEVEL_INFO,"El recurso insuficientes para entregar el personaje %c",nodo_lista_personaje->id_personaje);
 					}
-					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
-							catidad_recursos);
-					nodo_lista_personaje->proximo_recurso->cantidad =
-							catidad_recursos;
+					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",catidad_recursos);
 
-					fd_mensaje(i, tipo_mensaje,
-							"LEGASTE AL RECURSO, EN HORA BUENA!!!",
-							&tot_enviados);
-					exit(1);
+					nodo_lista_personaje->proximo_recurso->cantidad = catidad_recursos;
+
+					fd_mensaje(i, tipo_mensaje,"LEGASTE AL RECURSO, EN HORA BUENA!!!",&tot_enviados);
+
 					break;
 				}
 
@@ -242,6 +245,7 @@ void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 	list_personajes->id_personaje = id_personaje;
 	list_personajes->nombre_personaje = nombre_personaje;
 	list_personajes->sokc = i;
+	list_personajes->l_recursos_optenidos = list_create();
 
 	list_add(t_personaje->l_personajes, list_personajes);
 
@@ -290,21 +294,35 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes) {
 /**
  * Busco el recurso por el id, y lo devuelvo en caso de no exister el recurso en la lista devuelvo null
  */
-struct h_t_recusos *busco_recurso(char id, struct h_t_param_nivel *param_nivel) {
+struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
 	int i, tot_elementos;
 	struct h_t_recusos *recurso = NULL;
 	struct h_t_recusos *recurso_aux = NULL;
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "Buesco el recurso %c", id);
 
-	tot_elementos = list_size(param_nivel->recusos);
+	tot_elementos = list_size(recusos);
 
 	for (i = 0; i < tot_elementos; i++) {
-		recurso_aux = (struct h_t_recusos*) list_get(param_nivel->recusos, i);
+		recurso_aux = (struct h_t_recusos*) list_get(recusos, i);
 
 		if (id == recurso_aux->SIMBOLO) {
 			recurso = recurso_aux;
 		}
 	}
 	return recurso;
+}
+
+/**
+ * Si el recurso no esta en la lista de los optenidos por elpersonaje se lo agrego con el valor 1
+ */
+void add_recurso_personaje(t_list *l_recursos_optenidos,const struct h_t_recusos *recurso_actual){
+	struct h_t_recusos *recurso = malloc(sizeof(struct h_t_recusos));
+	log_in_disk_niv(LOG_LEVEL_TRACE, "add_recurso_personaje agrego el recurso %c", recurso_actual->SIMBOLO);
+
+	memcpy(recurso,recurso_actual,sizeof(struct h_t_recusos ));
+
+	recurso->cantidad = 1;
+
+	list_add(l_recursos_optenidos, recurso);
 }

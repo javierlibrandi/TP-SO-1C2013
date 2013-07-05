@@ -23,7 +23,8 @@ typedef struct{
 	char* nombre_personaje;
 	char id_personaje;
 	int	sokc;
-	struct h_t_recusos *proximo_recurso;
+	struct h_t_recusos *proximo_recurso; //recurso actual del personaje
+	t_list *l_recursos_optenidos; //recursos optenidos por el personaje
 }t_lista_personaje;
 
 void *escucho_personaje(void *p);
