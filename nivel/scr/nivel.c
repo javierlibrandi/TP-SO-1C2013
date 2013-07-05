@@ -31,6 +31,7 @@
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 		t_h_personaje *t_personaje);
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes);
+struct h_t_recusos *busco_recurso(char id, struct h_t_param_nivel *param_nivel);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -119,33 +120,20 @@ int main(void) {
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
-					log_in_disk_niv(LOG_LEVEL_TRACE, "entra en el swss");
+					recurso = busco_recurso(mensaje[0][0], &param_nivel);
 
-					while (iter < list_size(param_nivel.recusos) && seguir) {
-						recurso = (struct h_t_recusos*) list_get(
-								param_nivel.recusos, iter);
-						log_in_disk_niv(LOG_LEVEL_TRACE, "entra en el swss");
+					aux_mensaje = string_from_format("%d;%d", recurso->posX,
+							recurso->posY);
 
-						if (mensaje[0][0] == recurso->SIMBOLO) {
+					log_in_disk_niv(LOG_LEVEL_TRACE, "se envio recursos %d, %d",
+							recurso->posX, recurso->posY);
 
-							aux_mensaje = string_from_format("%d;%d",
-									recurso->posX, recurso->posY);
+					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
+							&tot_enviados);
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes); //busco el personaje que me solicita el recurso
+					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
 
-							log_in_disk_niv(LOG_LEVEL_TRACE,
-									"se envio recursos %d, %d", recurso->posX,
-									recurso->posY);
-
-							fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
-									&tot_enviados);
-							nodo_lista_personaje = busco_personaje(i,
-									t_personaje->l_personajes); //busco el personaje que me solicita el recurso
-							nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
-
-							free(aux_mensaje);
-							seguir = false;
-						}
-						iter++;
-					}
 					break;
 				case P_TO_N_MOVIMIENTO:
 
@@ -212,9 +200,8 @@ int main(void) {
 								"El recurso insuficientes para entregar el personaje %c",
 								nodo_lista_personaje->id_personaje);
 					}
-					log_in_disk_niv(LOG_LEVEL_INFO,
-													"Cantidad de recursos %d",
-													catidad_recursos);
+					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
+							catidad_recursos);
 					nodo_lista_personaje->proximo_recurso->cantidad =
 							catidad_recursos;
 
@@ -299,4 +286,25 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes) {
 
 	}
 	return personaje;
+}
+/**
+ * Busco el recurso por el id, y lo devuelvo en caso de no exister el recurso en la lista devuelvo null
+ */
+struct h_t_recusos *busco_recurso(char id, struct h_t_param_nivel *param_nivel) {
+	int i, tot_elementos;
+	struct h_t_recusos *recurso = NULL;
+	struct h_t_recusos *recurso_aux = NULL;
+
+	log_in_disk_niv(LOG_LEVEL_TRACE, "Buesco el recurso %c", id);
+
+	tot_elementos = list_size(param_nivel->recusos);
+
+	for (i = 0; i < tot_elementos; i++) {
+		recurso_aux = (struct h_t_recusos*) list_get(param_nivel->recusos, i);
+
+		if (id == recurso_aux->SIMBOLO) {
+			recurso = recurso_aux;
+		}
+	}
+	return recurso;
 }
