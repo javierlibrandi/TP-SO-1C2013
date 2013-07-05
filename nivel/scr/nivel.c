@@ -30,6 +30,7 @@
 
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 		t_h_personaje *t_personaje);
+t_lista_personaje *busco_personaje(int sck, t_list *l_personajes);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -51,9 +52,11 @@ int main(void) {
 	char *aux_mensaje;
 	struct h_t_recusos *recurso;
 	ITEM_NIVEL *ListaItems = NULL;
-	char asignado;
 	int iter;
 	bool seguir;
+	t_lista_personaje *nodo_lista_personaje;
+	int tipo_mensaje, catidad_recursos;
+	char *nombre_recurso;
 
 	//TODO descomentar para dibujar la pantalla
 //	inicializo_pantalla();
@@ -110,7 +113,7 @@ int main(void) {
 							cont_msj, mensaje[cont_msj]);
 
 				}
-				iter = 1;
+				iter = 0;
 				seguir = true;
 
 				switch (tipo) {
@@ -128,14 +131,16 @@ int main(void) {
 							aux_mensaje = string_from_format("%d;%d",
 									recurso->posX, recurso->posY);
 
-							//TODO falta el tipo
-
 							log_in_disk_niv(LOG_LEVEL_TRACE,
 									"se envio recursos %d, %d", recurso->posX,
 									recurso->posY);
 
 							fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 									&tot_enviados);
+							nodo_lista_personaje = busco_personaje(i,
+									t_personaje->l_personajes); //busco el personaje que me solicita el recurso
+							nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
+
 							free(aux_mensaje);
 							seguir = false;
 						}
@@ -178,48 +183,48 @@ int main(void) {
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
-					asignado = 'n';
-					while (iter < list_size(param_nivel.recusos) && seguir) {
-						recurso = (struct t_recusos*) list_get(
-								param_nivel.recusos, iter);
-						if (mensaje[3][0] == recurso->SIMBOLO) {
-							if ((recurso->posX = atoi(mensaje[1]))
-									&& (recurso->posY = atoi(mensaje[2]))) {
-								if (recurso->cantidad >= 1) {
-									aux_mensaje = string_from_format("%d;%d",
-											recurso->posX, recurso->posY);
-									//TODO falta el tipo
-									fd_mensaje(i, N_TO_P_RECURSO_OK,
-											aux_mensaje, &tot_enviados);
-									free(aux_mensaje);
-									asignado = 's';
-									//TODO esto que es???
-									//fd_mensaje(i, "definir mensaje ok");
-									seguir = false;
-								}
-							}
-						}
-						iter++;
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El pesonaje solicita un recurso");
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes);
+
+					catidad_recursos =
+							nodo_lista_personaje->proximo_recurso->cantidad;
+					nombre_recurso =
+							nodo_lista_personaje->proximo_recurso->NOMBRE;
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El pesonaje solicita un recurso del tipo %c, la cantidad atual es de %d",
+							nombre_recurso, catidad_recursos);
+
+					if (catidad_recursos > 0) {
+
+						catidad_recursos--;
+						//tipo_mensaje = N_TO_P_RECURSO_OK;
+						tipo_mensaje = N_TO_P_RECURSO_ERROR;
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"El recurso entregado al personaje %c",
+								nodo_lista_personaje->id_personaje);
+
+					} else {
+						tipo_mensaje = N_TO_P_RECURSO_ERROR;
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"El recurso insuficientes para entregar el personaje %c",
+								nodo_lista_personaje->id_personaje);
 					}
-					if (asignado != 's') {
-						//TODO esto que es???
-						//fd_mensaje(i, "error blabla");
-					}
+					log_in_disk_niv(LOG_LEVEL_INFO,
+													"Cantidad de recursos %d",
+													catidad_recursos);
+					nodo_lista_personaje->proximo_recurso->cantidad =
+							catidad_recursos;
+
+					fd_mensaje(i, tipo_mensaje,
+							"LEGASTE AL RECURSO, EN HORA BUENA!!!",
+							&tot_enviados);
+					exit(1);
+					break;
 				}
-				break;
-//							switch (tipo) {
-//							case P_TO_N_INICIAR_NIVEL:
-//								//concatena
-//								sprintf(buffer,"%s;%d","hola",5);
-//								//func p mandar mensajes... (i ->puerto, "mensaje ; mensaje")
-//								fd_mensaje(i,"sdsd;sds");
-//
-//
-//
-//
-//							default:
-//								;
-//							}
+
 				free(buffer);
 
 			}
@@ -273,4 +278,25 @@ void sig_handler(int signo) {
 	//if (signo == SIGTERM)
 	//nivel_gui_terminar();
 
+}
+
+t_lista_personaje *busco_personaje(int sck, t_list *l_personajes) {
+	int i;
+	t_lista_personaje *personaje;
+
+	log_in_disk_niv(LOG_LEVEL_TRACE, "busco_personaje");
+
+	for (i = 0; i < list_size(l_personajes); i++) {
+		personaje = (t_lista_personaje*) list_get(l_personajes, i);
+		log_in_disk_niv(LOG_LEVEL_TRACE, "personaje comparado %c",
+				personaje->id_personaje);
+
+		if (personaje->sokc == sck) {
+			log_in_disk_niv(LOG_LEVEL_TRACE, "personaje encontrado %c",
+					personaje->id_personaje);
+			break;	//salgo de el while
+		}
+
+	}
+	return personaje;
 }

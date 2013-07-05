@@ -23,7 +23,8 @@
 
 static void eliminar_nodo(int sck, t_list *list_planifidores);
 static t_personaje *planifico_personaje(t_h_planificador *h_planificador);
-static void mover_personaje(t_personaje *personaje, int *cuantum, int espera);
+static void mover_personaje(t_personaje *personaje,
+		t_h_planificador *h_planificador);
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
@@ -87,8 +88,7 @@ void* planificador_nivel_thr(void *p) {
 
 				//si el personaje no es nulo muevo el personaje
 				if (personaje) {
-					mover_personaje(personaje, h_planificador->cuantum,
-							h_planificador->segundos_espera);
+					mover_personaje(personaje, h_planificador);
 				}
 				tv.tv_sec = h_planificador->segundos_espera;
 				break;
@@ -155,7 +155,8 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador) {
 					index++);
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",personaje->nombre);
+				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
+						personaje->nombre);
 				return personaje;
 			} else if (index > total_elementos) {
 				index = 0;
@@ -166,13 +167,14 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador) {
 	return NULL ;
 }
 
-static void mover_personaje(t_personaje *personaje, int *cuantum, int espera) {
+static void mover_personaje(t_personaje *personaje,
+		t_h_planificador *h_planificador) {
 	int byteEnviados;
 	char *buffer;
 	int tipo;
 
 	//permito mover al personaje mientras el cuantun no llegue a 0
-	while (*cuantum--) {
+	while (h_planificador->cuantum--) {
 		log_in_disk_plat(LOG_LEVEL_INFO,
 				"Permito el movimiento del personaje %s", personaje->nombre);
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
@@ -181,28 +183,18 @@ static void mover_personaje(t_personaje *personaje, int *cuantum, int espera) {
 		buffer = recv_variable(personaje->sck, &tipo);
 
 		log_in_disk_plat(LOG_LEVEL_ERROR,
-				"No esta implementado el switch para el mensaje %s que es del tipo %d",
+				"El pesojaje me envia el mensaje contenido %s y tipo %d",
 				buffer, tipo);
 
-//		switch (tipo) {
-//		case P_TO_N_BLOQUEO:
-//
-//			break;
-//		default:
-//			log_in_disk_plan(LOG_LEVEL_INFO,
-//					"busco personaje listo para moverce");
-//
-//			pthread_mutex_lock(h_planificador->s_listos);
-//			personaje = planifico_nivel(h_planificador);
-//			pthread_mutex_unlock(h_planificador->s_lista_plani);
-//
-//			//si el personaje no es nulo muevo el personaje
-//			if (personaje) {
-//				mover_personaje(personaje, h_planificador->cuantum);
-//			}
-//
-//			break;
-//		}
-		sleep(espera);
+		switch (tipo) {
+		case P_TO_N_BLOQUEO:
+			lock_listas_plantaforma(h_planificador);
+
+			un_lock_listas_plataforma(h_planificador);
+
+			break;
+
+		}
+		sleep(h_planificador->segundos_espera);
 	}
 }

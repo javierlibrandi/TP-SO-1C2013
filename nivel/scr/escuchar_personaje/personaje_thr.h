@@ -23,6 +23,7 @@ typedef struct{
 	char* nombre_personaje;
 	char id_personaje;
 	int	sokc;
+	struct h_t_recusos *proximo_recurso;
 }t_lista_personaje;
 
 void *escucho_personaje(void *p);

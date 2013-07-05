@@ -13,6 +13,7 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <string.h>
+#include <pthread.h>
 
 t_param_plat leer_archivo_plataforma_config() {
 	t_config* config;
@@ -195,4 +196,18 @@ t_param_persoje leer_personaje_config() {
 
 	return param;
 
+}
+
+
+void lock_listas_plantaforma(t_h_planificador *h_planificador){
+	pthread_mutex_lock(h_planificador->s_listos);
+	pthread_mutex_lock(h_planificador->s_bloquedos);
+	pthread_mutex_lock(h_planificador->s_errores);
+
+}
+
+void un_lock_listas_plataforma(t_h_planificador *h_planificador){
+	pthread_mutex_lock(h_planificador->s_listos);
+	pthread_mutex_lock(h_planificador->s_bloquedos);
+	pthread_mutex_lock(h_planificador->s_errores);
 }

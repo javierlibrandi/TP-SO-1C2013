@@ -365,9 +365,9 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 	//recurso = determinarProxRecurso(personaje->infoNivel,
 		//	personaje->recursoActual);
-	recu = "M";
+	recu = "F";
 //Ver si sirve el campo recursoActual
-	personaje->recursoActual = 'M';
+	personaje->recursoActual = 'F';
 
 	sprintf(mensaje, "%s", recu);
 
@@ -718,10 +718,11 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 	char *buffer;
 
 //Envío mensaje a nivel del tipo P_TO_N_SOLIC_RECURSO. "simbolo;recurso"
-	sprintf(mensaje, "%c;%c", personaje->simbolo, personaje->recursoActual);
+	//sprintf(mensaje, "%c;%c", personaje->simbolo, personaje->recursoActual);
+	//recurso = 'F';
+	sprintf(mensaje, "%s", "Quiero una instancia");
 
-	log_in_disk_per(LOG_LEVEL_INFO, "Solicito una instancia de %s al Nivel",
-			personaje->recursoActual);
+	log_in_disk_per(LOG_LEVEL_INFO, "Solicito una instancia al Nivel");
 
 	fd_mensaje(personaje->sockNivel, P_TO_N_SOLIC_RECURSO, mensaje,
 			&bytes_enviados);
@@ -744,7 +745,7 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 				"Hay instancias disponibles. Se adjudicó correctamente el recurso: %s",
 				buffer);
 		//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
-		personaje->recursoActual = '-';
+		//personaje->recursoActual = '-';
 		free(buffer);
 		return 1;
 	}
