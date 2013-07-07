@@ -27,8 +27,10 @@ int main(void) {
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
+	bool flagReiniciarNivel, flagReiniciarJuego;
 
-
+	flagReiniciarJuego = false;
+	flagReiniciarNivel = false;
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 
@@ -39,6 +41,11 @@ int main(void) {
 
 	while (!planDeNivelesCumplido(personaje->niveles)) {
 
+		if (flagReiniciarJuego) {
+			reiniciarPlanDeNiveles(personaje);
+			// VER como reiniciar plan de niveles y vidas. Ver si leer el arch de conf de nuevo o sacarlo de algún lugar en que haya quedado guardado.
+			flagReiniciarJuego = false;
+		}
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
@@ -47,6 +54,12 @@ int main(void) {
 
 		//mientras no se complete el nivel
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
+
+			if (flagReiniciarNivel) {
+				reiniciarNivel(personaje);
+				// VER como reiniciar lista de recursos. Ver si leer el arch de conf de nuevo o sacarlo de algún lugar en que haya quedado guardado.
+				flagReiniciarNivel = false;
+			}
 
 			//Espero y recibo notificación de movimiento permitido
 			log_in_disk_per(LOG_LEVEL_INFO,
@@ -60,16 +73,36 @@ int main(void) {
 				exit(EXIT_FAILURE);
 			}
 
+			if (tipo == PL_TO_P_MUERTE) {
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Se ha perdido una vida! El personaje fue elegido víctima por deadlock.");
+				personaje->vidas--;
+				log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes: %d",
+						personaje->vidas);
+				flagReiniciarNivel = true;
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Se han perdido todos los recursos conseguidos. ");
+
+			}
+
 			if (tipo == PL_TO_P_TURNO) {
 				ejecutarTurno(personaje);
 			}
 
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
-		log_in_disk_per(LOG_LEVEL_INFO, "¡Objetivo del nivel cumplido!");
+		if (personaje->vidas > 0) {
+			log_in_disk_per(LOG_LEVEL_INFO, "¡Objetivo del nivel cumplido!");
+		} else {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"El personaje ha perdido todas sus vidas y ha muerto. Se reiniciará su plan de niveles.");
+			flagReiniciarNivel = false;
+			flagReiniciarJuego = true;
+		}
 
-		//Se informa al nivel y planificador del objetivo cumplido y se cierra la conexión con los mismos
-		salirDelNivel(personaje->sockNivel, personaje->sockPlanif);
+		//Se informa al nivel y planificador del objetivo cumplido/muerte y se cierra la conexión con los mismos
+		salirDelNivel(personaje->sockNivel, personaje->sockPlanif,
+				personaje->vidas);
 
 	}	// fin de while "Mientras haya niveles que completar"
 

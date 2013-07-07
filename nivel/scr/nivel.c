@@ -61,8 +61,8 @@ int main(void) {
 	char *nombre_recurso;
 
 	//TODO descomentar para dibujar la pantalla
-//	inicializo_pantalla();
-//	nivel_gui_get_area_nivel(&rows, &cols);
+	//inicializo_pantalla();
+	//nivel_gui_get_area_nivel(&rows, &cols);
 
 	param_nivel = leer_nivel_config(rows, cols);
 
@@ -73,7 +73,7 @@ int main(void) {
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	//TODO descomentar para dibujar la pantalla
-	//	nivel_gui_dibujar(ListaItems);
+		//nivel_gui_dibujar(ListaItems);
 
 //conecxion con el planificador
 	sck_plat = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,

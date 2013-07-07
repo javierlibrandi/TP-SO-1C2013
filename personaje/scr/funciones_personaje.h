@@ -61,7 +61,7 @@ int evaluarPosicion(Posicion posActual, Posicion posRecurso);
 /* Se moverá una posición en un eje para acercarse al próximo recurso. */
 void moverse(Personaje* personaje);
 
-char determinarProxRecurso(Nivel infoNivel, int recursoActual);
+char determinarProxRecurso(Personaje* personaje);
 
 /* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.
  * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
@@ -71,9 +71,11 @@ int objetivoNivelCumplido(Personaje* personaje);
 
 int planDeNivelesCumplido(t_list *niveles);
 
-void salirDelNivel(int sockNivel, int sockPlanif);
+void salirDelNivel(int sockNivel, int sockPlanif, int vidas);
 
 void reiniciarNivel(Personaje *personaje);
+
+void reiniciarListaRecursos(Personaje *personaje);
 
 void reiniciarPlanDeNiveles(Personaje *personaje);
 
