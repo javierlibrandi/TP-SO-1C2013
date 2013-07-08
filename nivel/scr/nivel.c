@@ -30,14 +30,19 @@
 
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 		t_h_personaje *t_personaje);
-t_lista_personaje *busco_personaje(int sck, t_list *l_personajes);
+t_lista_personaje *busco_personaje(int sck, t_list *l_personajes,int *i);
 struct h_t_recusos *busco_recurso(char id, t_list *recusos);
-void add_recurso_personaje(t_list *l_recursos_optenidos,const struct h_t_recusos *recurso_actual);
+void add_recurso_personaje(t_list *l_recursos_optenidos,struct h_t_recusos *recurso_actual);
+void elimino_personaje_lista_nivel(int sck,t_list *l_personajes);
+void liberar_memoria(t_lista_personaje *personaje);
+void liberar_recursos(t_list *recursos_otenido);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
 
 static pthread_mutex_t s_personaje_conectado = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_personaje_recursos = PTHREAD_MUTEX_INITIALIZER;
+
 
 int main(void) {
 	struct h_t_param_nivel param_nivel;
@@ -59,6 +64,7 @@ int main(void) {
 	t_lista_personaje *nodo_lista_personaje;
 	int tipo_mensaje, catidad_recursos;
 	char *nombre_recurso;
+	int pos; //la posicion en la lista de un personaje
 
 	//TODO descomentar para dibujar la pantalla
 	//inicializo_pantalla();
@@ -105,6 +111,7 @@ int main(void) {
 				if (!strcmp(buffer, Leido_error)) {
 
 					elimino_sck_lista(i, t_personaje->readfds);
+					elimino_personaje_lista_nivel(i,t_personaje->l_personajes);
 				}
 				mensaje = string_split(buffer, ";");
 
@@ -132,7 +139,7 @@ int main(void) {
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
 					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes); //busco el personaje que me solicita el recurso
+							t_personaje->l_personajes,&pos); //busco el personaje que me solicita el recurso
 					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
 
 					break;
@@ -172,10 +179,11 @@ int main(void) {
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
+					pthread_mutex_lock(&s_personaje_recursos);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El pesonaje solicita un recurso");
 					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes);
+							t_personaje->l_personajes,&pos);
 
 					catidad_recursos =
 							nodo_lista_personaje->proximo_recurso->cantidad;
@@ -212,6 +220,7 @@ int main(void) {
 
 					fd_mensaje(i, tipo_mensaje,"LEGASTE AL RECURSO, EN HORA BUENA!!!",&tot_enviados);
 
+					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
 				}
 
@@ -271,14 +280,15 @@ void sig_handler(int signo) {
 
 }
 
-t_lista_personaje *busco_personaje(int sck, t_list *l_personajes) {
-	int i;
+t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
+
 	t_lista_personaje *personaje;
+	int total_personajes;
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "busco_personaje");
-
-	for (i = 0; i < list_size(l_personajes); i++) {
-		personaje = (t_lista_personaje*) list_get(l_personajes, i);
+	total_personajes= list_size(l_personajes);
+	for (*i = 0; *i < total_personajes; *i++) {
+		personaje = (t_lista_personaje*) list_get(l_personajes, *i);
 		log_in_disk_niv(LOG_LEVEL_TRACE, "personaje comparado %c",
 				personaje->id_personaje);
 
@@ -315,14 +325,47 @@ struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
 
 /**
  * Si el recurso no esta en la lista de los optenidos por elpersonaje se lo agrego con el valor 1
+ * param 1 lista de recirsos del personaje
+ * param 2 recurso actual del personaje
  */
-void add_recurso_personaje(t_list *l_recursos_optenidos,const struct h_t_recusos *recurso_actual){
+void add_recurso_personaje(t_list *l_recursos_optenidos,struct h_t_recusos *recurso_actual){
 	struct h_t_recusos *recurso = malloc(sizeof(struct h_t_recusos));
 	log_in_disk_niv(LOG_LEVEL_TRACE, "add_recurso_personaje agrego el recurso %c", recurso_actual->SIMBOLO);
 
 	memcpy(recurso,recurso_actual,sizeof(struct h_t_recusos ));
 
 	recurso->cantidad = 1;
+	recurso->ref_recuso = recurso_actual;
 
 	list_add(l_recursos_optenidos, recurso);
+}
+
+void elimino_personaje_lista_nivel(int sck,t_list *l_personajes){
+	int pos;
+
+	pthread_mutex_lock(&s_personaje_recursos);
+	t_lista_personaje *personaje;
+	busco_personaje(sck,l_personajes,&pos);
+	personaje = (t_lista_personaje *) list_remove(l_personajes,pos);
+	liberar_memoria(personaje);
+	pthread_mutex_unlock(&s_personaje_recursos);
+}
+
+void liberar_memoria(t_lista_personaje *personaje){
+	liberar_recursos(personaje->l_recursos_optenidos);
+	free(personaje->nombre_personaje);
+	free(personaje->proximo_recurso);
+}
+
+void liberar_recursos(t_list *recursos_otenido){
+	int total_recursos;
+	int i;
+	t_recusos *recurso_aux;
+
+	total_recursos = list_size(recursos_otenido);
+	for(i=0;i<total_recursos;i++){
+		recurso_aux = (t_recusos *)list_get(recursos_otenido,i);
+		recurso_aux->ref_recuso->cantidad =+ recurso_aux->cantidad;
+	}
+	list_destroy(recursos_otenido);
 }

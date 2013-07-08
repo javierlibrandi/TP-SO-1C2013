@@ -9,6 +9,7 @@
 #define PERSONAJE_THR_H_
 
 #include <semaphore.h>
+#include <commons/collections/list.h>
 
 typedef struct{
 	char *nomb_nivel;

@@ -208,9 +208,9 @@ void lock_listas_plantaforma(t_h_planificador *h_planificador){
 }
 
 void un_lock_listas_plataforma(t_h_planificador *h_planificador){
-	pthread_mutex_lock(h_planificador->s_listos);
-	pthread_mutex_lock(h_planificador->s_bloquedos);
-	pthread_mutex_lock(h_planificador->s_errores);
+	pthread_mutex_unlock(h_planificador->s_listos);
+	pthread_mutex_unlock(h_planificador->s_bloquedos);
+	pthread_mutex_unlock(h_planificador->s_errores);
 }
 
 
@@ -219,19 +219,19 @@ void un_lock_listas_plataforma(t_h_planificador *h_planificador){
  * de la llista
  *
  */
-int mover_personaje_lista(const t_personaje *personaje,t_list *origen, t_list *destino){
+int mover_personaje_lista(int sck,t_list *origen, t_list *destino){
 	int i,cant_elementos;
 	cant_elementos = list_size(origen);
 	t_personaje *perso;
 
 	log_in_disk_plat(LOG_LEVEL_INFO,
-			"mover_personaje_lista %s", personaje->nombre);
+			"mover_personaje_lista");
 
 
 	for(i=0;i<cant_elementos;i++){
 		perso =(t_personaje*)list_get(origen,i);
 
-		if (perso->sck == personaje->sck){
+		if (perso->sck == sck){
 			list_add(destino,list_remove(origen,i));
 			return 1;
 		}

@@ -21,12 +21,10 @@
 #include <pthread.h>
 #include <mario_para_todos/entorno.h>
 
-
 static void eliminar_planificador(int sck, t_list *list_planifidores);
 static t_personaje *planifico_personaje(t_h_planificador *h_planificador);
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador);
-
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
@@ -69,6 +67,13 @@ void* planificador_nivel_thr(void *p) {
 						pthread_mutex_unlock(h_planificador->s_lista_plani);
 						pthread_exit((void *) "Se desconecto el planificador"); //solo si se desconecta el planificador
 					}
+
+					lock_listas_plantaforma(h_planificador);
+					mover_personaje_lista(sck, h_planificador->l_listos,
+							h_planificador->l_errores);
+					mover_personaje_lista(sck, h_planificador->l_bloquedos,
+							h_planificador->l_errores);
+					un_lock_listas_plataforma(h_planificador);
 
 					free(buffer);
 				} else {
@@ -188,18 +193,27 @@ static void mover_personaje(t_personaje *personaje,
 				"El pesojaje me envia el mensaje contenido %s y tipo %d",
 				buffer, tipo);
 
-		switch (tipo) {
-		case P_TO_N_BLOQUEO:
+		if (P_TO_N_BLOQUEO == tipo) {
 
 			lock_listas_plantaforma(h_planificador);
 
-			mover_personaje_lista(personaje,h_planificador->l_listos,h_planificador->l_bloquedos);
+			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
+					h_planificador->l_bloquedos);
 
 			un_lock_listas_plataforma(h_planificador);
 
-			break;
-
 		}
+
+		if (!strcmp(buffer, Leido_error)) {
+			lock_listas_plantaforma(h_planificador);
+			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
+					h_planificador->l_errores);
+
+			un_lock_listas_plataforma(h_planificador);
+			sleep(h_planificador->segundos_espera);
+			break;
+		}
+
 		sleep(h_planificador->segundos_espera);
 	}
 }

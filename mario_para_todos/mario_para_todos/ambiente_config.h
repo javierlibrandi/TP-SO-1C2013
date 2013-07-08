@@ -28,6 +28,7 @@ typedef struct h_t_recusos {
 	char posX;
 	char posY;
 	char **RECURSOS; //lo usa el personaje no el nivel OJO!!!
+	struct h_t_recusos  *ref_recuso; //referencia al reucuso que usa el personaje para devolver los recursos lo uso en add_recurso_personaje y liberar_recursos
 } t_recusos;
 
 typedef struct h_t_param_nivel {
@@ -80,6 +81,6 @@ void lock_listas_plantaforma(t_h_planificador *h_planificador);
 
 void un_lock_listas_plataforma(t_h_planificador *h_planificador);
 
-int mover_personaje_lista(const t_personaje *personaje,t_list *origen, t_list *destino);
+int mover_personaje_lista(int sck,t_list *origen, t_list *destino);
 
 #endif /* AMBIENTE_CONFIG_H_ */
