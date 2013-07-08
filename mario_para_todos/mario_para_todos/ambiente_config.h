@@ -3,6 +3,7 @@
 #define PATH_CONFIG "resources/properties.cfg"
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #include <commons/collections/list.h>
+#include "entorno.h"
 
 #define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0)
 
@@ -78,5 +79,7 @@ t_param_persoje leer_personaje_config();
 void lock_listas_plantaforma(t_h_planificador *h_planificador);
 
 void un_lock_listas_plataforma(t_h_planificador *h_planificador);
+
+int mover_personaje_lista(const t_personaje *personaje,t_list *origen, t_list *destino);
 
 #endif /* AMBIENTE_CONFIG_H_ */

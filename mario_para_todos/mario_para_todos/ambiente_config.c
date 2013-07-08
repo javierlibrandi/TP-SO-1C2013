@@ -14,6 +14,7 @@
 #include <commons/collections/list.h>
 #include <string.h>
 #include <pthread.h>
+#include "entorno.h"
 
 t_param_plat leer_archivo_plataforma_config() {
 	t_config* config;
@@ -211,3 +212,30 @@ void un_lock_listas_plataforma(t_h_planificador *h_planificador){
 	pthread_mutex_lock(h_planificador->s_bloquedos);
 	pthread_mutex_lock(h_planificador->s_errores);
 }
+
+
+/**
+ * Muevo un personaje de una lista a otra
+ * de la llista
+ *
+ */
+int mover_personaje_lista(const t_personaje *personaje,t_list *origen, t_list *destino){
+	int i,cant_elementos;
+	cant_elementos = list_size(origen);
+	t_personaje *perso;
+
+	log_in_disk_plat(LOG_LEVEL_INFO,
+			"mover_personaje_lista %s", personaje->nombre);
+
+
+	for(i=0;i<cant_elementos;i++){
+		perso =(t_personaje*)list_get(origen,i);
+
+		if (perso->sck == personaje->sck){
+			list_add(destino,list_remove(origen,i));
+			return 1;
+		}
+	}
+return 0;
+}
+

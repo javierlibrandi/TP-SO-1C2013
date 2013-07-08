@@ -21,10 +21,12 @@
 #include <pthread.h>
 #include <mario_para_todos/entorno.h>
 
-static void eliminar_nodo(int sck, t_list *list_planifidores);
+
+static void eliminar_planificador(int sck, t_list *list_planifidores);
 static t_personaje *planifico_personaje(t_h_planificador *h_planificador);
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador);
+
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
@@ -62,7 +64,7 @@ void* planificador_nivel_thr(void *p) {
 								"El error esta en el planificador mato al hilo %s",
 								h_planificador->desc_nivel);
 						pthread_mutex_lock(h_planificador->s_lista_plani);
-						eliminar_nodo(sck,
+						eliminar_planificador(sck,
 								h_planificador->lista_planificadores);
 						pthread_mutex_unlock(h_planificador->s_lista_plani);
 						pthread_exit((void *) "Se desconecto el planificador"); //solo si se desconecta el planificador
@@ -103,7 +105,7 @@ void* planificador_nivel_thr(void *p) {
 	pthread_exit(EXIT_SUCCESS);
 }
 
-static void eliminar_nodo(int sck, t_list *list_planificadores) {
+static void eliminar_planificador(int sck, t_list *list_planificadores) {
 	int index = 0;
 	t_h_planificador *h_planificador;
 
@@ -188,7 +190,10 @@ static void mover_personaje(t_personaje *personaje,
 
 		switch (tipo) {
 		case P_TO_N_BLOQUEO:
+
 			lock_listas_plantaforma(h_planificador);
+
+			mover_personaje_lista(personaje,h_planificador->l_listos,h_planificador->l_bloquedos);
 
 			un_lock_listas_plataforma(h_planificador);
 
