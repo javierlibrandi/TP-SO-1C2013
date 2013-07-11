@@ -12,6 +12,7 @@
 
 #define PATH_PLATAFORMA_LOG "log/tracer.log"
 #define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+#define B_DIBUJAR true
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log

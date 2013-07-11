@@ -92,7 +92,7 @@ void log_in_disk_plan(t_log_level nivel, const char* format, ...) {
 void log_in_disk_niv(t_log_level nivel, const char* format, ...) {
 
 	t_log* logger;
-	logger = log_create(PATH_PLATAFORMA_LOG_NIVEL, "NIVEL", false, LOG_NIVEL);
+	logger = log_create(PATH_PLATAFORMA_LOG_NIVEL, "NIVEL", !B_DIBUJAR, LOG_NIVEL);
 
 	va_list arguments;
 	va_start(arguments, format);
