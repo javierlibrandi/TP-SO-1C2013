@@ -27,6 +27,8 @@
 #include <commons/string.h>
 #include <mario_para_todos/entorno.h>
 #include <semaphore.h>
+#include "inotify/inotify_thr.h"
+
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
@@ -46,6 +48,7 @@ void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
 
+
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
 
@@ -57,6 +60,7 @@ static pthread_mutex_t s_errores = PTHREAD_MUTEX_INITIALIZER;
 int main(void) {
 
 	t_param_plat param_plataforma;
+	pthread_t inotify_pthread;
 
 	pthread_t orquestador_thr;
 	/* Inicialización del objeto atributo */
@@ -86,6 +90,10 @@ int main(void) {
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
+
+	//creo los hilos para inotify
+		pthread_create(&inotify_pthread, &attr, (void*) inotify_thr,
+				(void*) &param_plataforma);
 
 	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador,
 			&orquestador_thr);
@@ -518,3 +526,4 @@ void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos)
 	list_find(l_listos, (void*) _list_elements);
 
 }
+
