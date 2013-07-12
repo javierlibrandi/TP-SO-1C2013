@@ -1,9 +1,13 @@
 #ifndef AMBIENTE_CONFIG_H_
 #define AMBIENTE_CONFIG_H_
-#define PATH_CONFIG "resources/properties.cfg"
-#define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
+
 #include <commons/collections/list.h>
 #include "entorno.h"
+#include <stdlib.h>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0)
 
