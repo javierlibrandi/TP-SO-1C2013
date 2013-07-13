@@ -64,7 +64,6 @@ typedef struct{
 	char recursoActual;
 	Posicion posProxRecurso;
 	Posicion posActual;
-	fd_set *listaSelect;
 }Personaje;
 
 
