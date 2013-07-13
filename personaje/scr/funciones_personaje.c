@@ -43,9 +43,8 @@ Personaje* nuevoPersonaje() {
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 	personaje->niveles = param.RECURSOS;
 
-
 	personaje->nivelActual = -1;
-	//personaje->recursoActual = -1;
+	personaje->indexRecurso = -1;
 	personaje->recursoActual = '-';
 
 	log_in_disk_per(LOG_LEVEL_INFO,
@@ -68,6 +67,7 @@ Personaje* nuevoPersonaje() {
 		}
 
 	}
+
 
 	return personaje;
 }
@@ -131,10 +131,6 @@ int conectarOrquestador(Personaje* personaje) {
 
 char* determinarProxNivel(t_list* niveles, int nivelActual) {
 	char * proxNivel;
-
-//Se fija el primero de la lista de NivelesPendientes
-//Por ahora harcodeo
-//proxNivel = "nivel2";
 
 	nivelActual++;
 
@@ -267,6 +263,8 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	personaje->sockNivel = descriptorNiv;
 	personaje->infoNivel.nombre = infoNivel.nombre_nivel;
 	personaje->nivelActual = infoNivel.nombre_nivel;
+	personaje->posActual.x = 1;
+	personaje->posActual.y = 1;
 
 //HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
@@ -336,16 +334,16 @@ char determinarProxRecurso(Personaje* personaje) {
 
 	char proxRecurso;
 
-//Fijarse en la lista de nivelesPendientes, en el nivel correspondiente el primer recurso a conseguir
-//Por ahora harcodeo
 proxRecurso = 'F';
 
-	/*recursoActual++;
+	/*personaje->indexRecurso = personaje->indexRecurso +1;
 
-	if (list_size(infoNivel.recursos) > recursoActual) {
-		proxRecurso = (char) (list_get(infoNivel.recursos, recursoActual));
+	if (list_size(personaje->infoNivel.recursos) > personaje->indexRecurso) {
+		proxRecurso = (char) (list_get(personaje->infoNivel.recursos, personaje->indexRecurso));
 	} else {
-		// Error, porque no hay más niveles para leer
+		log_in_disk_per(LOG_LEVEL_INFO, "No hay más recursos que conseguir");
+		personaje->recursoActual = '-';
+		personaje->indexRecurso = -1;
 	}*/
 
 	return proxRecurso;
@@ -601,10 +599,10 @@ void reiniciarNivel(Personaje *personaje) {
 
 	reiniciarListaRecursos(personaje);
 
-	personaje->posActual.x = 0;
-	personaje->posActual.y = 0;
+	personaje->posActual.x = 1;
+	personaje->posActual.y = 1;
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"Vuelvo a empezar en posición (0,0) del mapa.");
+			"Vuelvo a empezar en posición (1,1) del mapa.");
 
 }
 
@@ -651,8 +649,6 @@ void moverse(Personaje* personaje) {
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Mi posición actual: (%d, %d)",
 			personaje->posActual.x, personaje->posActual.y);
-
-//Ver si hay una mejor forma que estos if anidados :P
 
 //Primero me muevo por los x. Cuando llego a x le doy la condición para moverse a y.
 	if (personaje->posActual.x == personaje->posProxRecurso.x) {
