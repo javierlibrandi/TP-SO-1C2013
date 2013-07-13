@@ -9,18 +9,9 @@
 #define ENTORNO_H_
 #include <pthread.h>
 #include <commons/collections/list.h>
-#include <stdlib.h>
-#include <sys/select.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #define PATH_PLATAFORMA_LOG "log/tracer.log"
 #define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
-#define PATH_CONFIG "resources/properties.cfg"
-#define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
-#define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR true
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
@@ -64,6 +55,7 @@ typedef struct{
 	char recursoActual;
 	Posicion posProxRecurso;
 	Posicion posActual;
+	fd_set *listaSelect;
 }Personaje;
 
 
