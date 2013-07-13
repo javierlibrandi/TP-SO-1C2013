@@ -177,7 +177,22 @@ int main(void) {
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
 							t_personaje);
-					//TODO descomentar para dibujar la pantalla
+					nivel_gui_dibujar(ListaItems);
+					sleep(5);
+					MoverPersonaje(ListaItems, '@', 1, 2);
+					nivel_gui_dibujar(ListaItems);
+					sleep(5);
+					MoverPersonaje(ListaItems, '@', 1, 3);
+					nivel_gui_dibujar(ListaItems);
+					sleep(5);
+					MoverPersonaje(ListaItems, '@', 1, 4);
+					nivel_gui_dibujar(ListaItems);
+					sleep(5);
+					MoverPersonaje(ListaItems, '@', 1, 5);
+					nivel_gui_dibujar(ListaItems);
+					sleep(5);
+					MoverPersonaje(ListaItems, '@', 1, 15);
+					nivel_gui_dibujar(ListaItems);
 					if (B_DIBUJAR) {
 						nivel_gui_dibujar(ListaItems);
 					}

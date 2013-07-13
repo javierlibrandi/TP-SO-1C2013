@@ -42,8 +42,7 @@ Personaje* nuevoPersonaje() {
 	personaje->ip_orquestador = param.IP;
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 	personaje->niveles = param.RECURSOS;
-	personaje->listaSelect = malloc(sizeof(fd_set));
-	FD_ZERO(personaje->listaSelect);
+
 
 	personaje->nivelActual = -1;
 	//personaje->recursoActual = -1;
@@ -297,7 +296,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
 		personaje->sockPlanif = descriptorPlan;
 		//usar semaforos para acceder a listaSelect
-		FD_SET(descriptorPlan, personaje->listaSelect);
+
 	}
 
 	if (tipoP != OK && tipoP != ERROR) {
