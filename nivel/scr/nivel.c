@@ -27,6 +27,7 @@
 #include "manjo_pantalla/nivel_p.h"
 #include <semaphore.h>
 #include <commons/collections/list.h>
+#include "manjo_pantalla/tad_items.h"
 
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 		t_h_personaje *t_personaje);
@@ -50,7 +51,7 @@ int main(void) {
 	pthread_t escucho_personaje_th;
 	t_h_personaje *t_personaje = malloc(sizeof(t_h_personaje));
 	fd_set readfds;
-	int i, tipo, rows, cols;
+	int i, tipo, rows, cols, posX, posY;
 	char *buffer;
 	rows = 37;
 	cols = 167;
@@ -66,7 +67,6 @@ int main(void) {
 	char *nombre_recurso;
 	int pos; //la posicion en la lista de un personaje
 
-	//TODO descomentar para dibujar la pantalla
 	if (B_DIBUJAR) {
 		inicializo_pantalla();
 		nivel_gui_get_area_nivel(&rows, &cols);
@@ -79,7 +79,6 @@ int main(void) {
 	t_personaje->l_personajes = list_create();
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
-	//TODO descomentar para dibujar la pantalla
 	if (B_DIBUJAR) {
 		nivel_gui_dibujar(ListaItems);
 	}
@@ -148,51 +147,22 @@ int main(void) {
 
 					break;
 				case P_TO_N_MOVIMIENTO:
-
+					posX = atoi(mensaje[3]);
+					posY = atoi(mensaje[4]);
+					MoverPersonaje(ListaItems, mensaje[0][0], posX, posY);
+					if (B_DIBUJAR) {
+						nivel_gui_dibujar(ListaItems);
+					}
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
 
-					while (iter < list_size(param_nivel.recusos) && seguir) {
-						recurso = (struct t_recusos*) list_get(
-								param_nivel.recusos, iter);
-
-						if (mensaje[0][0] == recurso->SIMBOLO) {
-							recurso->posX = atoi(mensaje[3]);
-							recurso->posY = atoi(mensaje[4]);
-							aux_mensaje = string_from_format("%d;%d",
-									recurso->posX, recurso->posY);
-							//TODO falta el tipo
-//							aux_mensaje = "te movi";
-//							fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje,
-//									&tot_enviados);
-
-							seguir = false;
-							free(aux_mensaje);
-						}
-						iter++;
-					}
 					break;
 				case P_TO_N_INICIAR_NIVEL:
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
 							t_personaje);
-					nivel_gui_dibujar(ListaItems);
-					sleep(5);
-					MoverPersonaje(ListaItems, '@', 1, 2);
-					nivel_gui_dibujar(ListaItems);
-					sleep(5);
-					MoverPersonaje(ListaItems, '@', 1, 3);
-					nivel_gui_dibujar(ListaItems);
-					sleep(5);
-					MoverPersonaje(ListaItems, '@', 1, 4);
-					nivel_gui_dibujar(ListaItems);
-					sleep(5);
-					MoverPersonaje(ListaItems, '@', 1, 5);
-					nivel_gui_dibujar(ListaItems);
-					sleep(5);
-					MoverPersonaje(ListaItems, '@', 1, 15);
-					nivel_gui_dibujar(ListaItems);
+
 					if (B_DIBUJAR) {
 						nivel_gui_dibujar(ListaItems);
 					}
@@ -226,6 +196,11 @@ int main(void) {
 								nodo_lista_personaje->proximo_recurso->SIMBOLO,
 								nodo_lista_personaje->l_recursos_optenidos);
 
+						restarRecurso(ListaItems, nodo_lista_personaje->proximo_recurso->SIMBOLO);
+						if (B_DIBUJAR) {
+							nivel_gui_dibujar(ListaItems);
+						}
+						sleep(10);
 						if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
 							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 						} else {
