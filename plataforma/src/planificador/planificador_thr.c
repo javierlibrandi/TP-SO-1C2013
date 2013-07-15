@@ -53,7 +53,7 @@ void* planificador_nivel_thr(void *p) {
 
 				if (!strcmp(buffer, Leido_error)) {
 
-					elimino_sck_lista(sck, h_planificador->readfds);
+
 
 					log_in_disk_plan(LOG_LEVEL_ERROR,
 							"%s lo saco de la lista  ", Leido_error);
@@ -61,12 +61,16 @@ void* planificador_nivel_thr(void *p) {
 						log_in_disk_plan(LOG_LEVEL_ERROR,
 								"El error esta en el planificador mato al hilo %s",
 								h_planificador->desc_nivel);
+
 						pthread_mutex_lock(h_planificador->s_lista_plani);
 						eliminar_planificador(sck,
 								h_planificador->lista_planificadores);
 						pthread_mutex_unlock(h_planificador->s_lista_plani);
 						pthread_exit((void *) "Se desconecto el planificador"); //solo si se desconecta el planificador
-					}
+
+
+
+					}else{
 
 					lock_listas_plantaforma(h_planificador);
 					mover_personaje_lista(sck, h_planificador->l_listos,
@@ -75,6 +79,10 @@ void* planificador_nivel_thr(void *p) {
 							h_planificador->l_errores);
 					un_lock_listas_plataforma(h_planificador);
 
+
+
+					}
+					elimino_sck_lista(sck, h_planificador->readfds);
 					free(buffer);
 				} else {
 
@@ -179,11 +187,14 @@ static void mover_personaje(t_personaje *personaje,
 	int byteEnviados;
 	char *buffer;
 	int tipo;
+	int movimientos_realizados =0;
+	bool personaje_bloqueado = false;
 
 	//permito mover al personaje mientras el cuantun no llegue a 0
-	while (h_planificador->cuantum--) {
+	while (h_planificador->cuantum > ++movimientos_realizados && !personaje_bloqueado) {
 		log_in_disk_plat(LOG_LEVEL_INFO,
-				"Permito el movimiento del personaje %s", personaje->nombre);
+				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d", personaje->nombre, movimientos_realizados);
+
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
 				&byteEnviados);
 
@@ -202,16 +213,19 @@ static void mover_personaje(t_personaje *personaje,
 
 			un_lock_listas_plataforma(h_planificador);
 
+			personaje_bloqueado = true;
+
 		}
 
 		if (!strcmp(buffer, Leido_error)) {
 			lock_listas_plantaforma(h_planificador);
+
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_errores);
 
 			un_lock_listas_plataforma(h_planificador);
-			sleep(h_planificador->segundos_espera);
-			break;
+			elimino_sck_lista(sck, h_planificador->sock); //creo que este el esl socket que tengo que eliminar
+			personaje_bloqueado = true;
 		}
 
 		sleep(h_planificador->segundos_espera);

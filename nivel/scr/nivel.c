@@ -162,10 +162,6 @@ int main(void) {
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
 							t_personaje);
-
-					if (B_DIBUJAR) {
-						nivel_gui_dibujar(ListaItems);
-					}
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
@@ -196,10 +192,9 @@ int main(void) {
 								nodo_lista_personaje->proximo_recurso->SIMBOLO,
 								nodo_lista_personaje->l_recursos_optenidos);
 
-						restarRecurso(ListaItems, nodo_lista_personaje->proximo_recurso->SIMBOLO);
-						if (B_DIBUJAR) {
-							nivel_gui_dibujar(ListaItems);
-						}
+						restarRecurso(ListaItems,
+								nodo_lista_personaje->proximo_recurso->SIMBOLO);
+
 						sleep(10);
 						if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
 							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
@@ -230,6 +225,9 @@ int main(void) {
 					break;
 				}
 
+				if (B_DIBUJAR) {
+					nivel_gui_dibujar(ListaItems);
+				}
 				free(buffer);
 
 			}

@@ -34,7 +34,7 @@ void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
 		char ip_cliente[], t_h_orquestadro *h_orquestador, int segundos_espera,
 		int *cuantum);
-void escucho_conexiones(const t_param_plat param_plataforma,
+void escucho_conexiones(t_param_plat param_plataforma,
 		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
@@ -111,7 +111,7 @@ int main(void) {
 ///					  escucho_conexiones						////
 ////////////////////////////////////////////////////////////////////
 
-void escucho_conexiones(const t_param_plat param_plataforma,
+void escucho_conexiones(t_param_plat param_plataforma,
 		t_list *list_planificadores, t_h_orquestadro *h_orquestador,
 		pthread_t *orquestador_thr) {
 
