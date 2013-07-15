@@ -224,7 +224,7 @@ static void mover_personaje(t_personaje *personaje,
 					h_planificador->l_errores);
 
 			un_lock_listas_plataforma(h_planificador);
-			elimino_sck_lista(sck, h_planificador->sock); //creo que este el esl socket que tengo que eliminar
+			elimino_sck_lista(personaje->sck, h_planificador->sock); //creo que este el esl socket que tengo que eliminar
 			personaje_bloqueado = true;
 		}
 
