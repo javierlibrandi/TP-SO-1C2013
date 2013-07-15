@@ -53,6 +53,7 @@ typedef struct{
 	int sockPlanif;
 	Nivel infoNivel;
 	char recursoActual;
+	int indexRecurso;
 	Posicion posProxRecurso;
 	Posicion posActual;
 	fd_set *listaSelect;
