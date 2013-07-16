@@ -28,11 +28,11 @@
 #include <semaphore.h>
 #include <commons/collections/list.h>
 #include "manjo_pantalla/tad_items.h"
+#include "detecto_interbloque_th/detecto_interbloque_th.h"
 
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 		t_h_personaje *t_personaje);
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
-struct h_t_recusos *busco_recurso(char id, t_list *recusos);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
 void elimino_personaje_lista_nivel(int sck, t_list *l_personajes);
@@ -48,8 +48,9 @@ static pthread_mutex_t s_personaje_recursos = PTHREAD_MUTEX_INITIALIZER;
 int main(void) {
 	struct h_t_param_nivel param_nivel;
 	int sck_plat;
-	pthread_t escucho_personaje_th;
+	pthread_t escucho_personaje_th, detecto_interbloque_th;
 	t_h_personaje *t_personaje = malloc(sizeof(t_h_personaje));
+	t_h_interbloqueo h_interbloqueo;
 	fd_set readfds;
 	int i, tipo, rows, cols, posX, posY;
 	char *buffer;
@@ -60,8 +61,6 @@ int main(void) {
 	char *aux_mensaje;
 	struct h_t_recusos *recurso;
 	ITEM_NIVEL *ListaItems = NULL;
-	int iter;
-	bool seguir;
 	t_lista_personaje *nodo_lista_personaje;
 	int tipo_mensaje, catidad_recursos;
 	char *nombre_recurso;
@@ -98,6 +97,15 @@ int main(void) {
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
 	pthread_mutex_lock(&s_personaje_conectado);
+
+
+	//setteo las estructura para pasar al hilo
+	memcpy(&h_interbloqueo.t_personaje,t_personaje,sizeof(t_h_personaje));
+	h_interbloqueo.param_nivel = param_nivel;
+	//creo el hilo para la deteccion de interbloqueo
+	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+				(void*) &h_interbloqueo);
+
 	for (;;) {
 
 		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
@@ -125,8 +133,7 @@ int main(void) {
 							cont_msj, mensaje[cont_msj]);
 
 				}
-				iter = 0;
-				seguir = true;
+
 
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
@@ -150,9 +157,18 @@ int main(void) {
 					posX = atoi(mensaje[3]);
 					posY = atoi(mensaje[4]);
 					MoverPersonaje(ListaItems, mensaje[0][0], posX, posY);
+					//la informacion del la posicion la necesito para determinar el interbloqueo
+					pthread_mutex_lock(&s_personaje_recursos);
+					nodo_lista_personaje = busco_personaje(i,
+												t_personaje->l_personajes, &pos);
+					nodo_lista_personaje->posX = posX;
+					nodo_lista_personaje->posX = posY;
+					pthread_mutex_unlock(&s_personaje_recursos);
 					if (B_DIBUJAR) {
 						nivel_gui_dibujar(ListaItems);
 					}
+
+
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
 
@@ -283,7 +299,9 @@ void sig_handler(int signo) {
 	//nivel_gui_terminar();
 
 }
-
+/**
+ * el 3er parametro en la posicion en la lista donde se encontro el personaje
+ */
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 
 	t_lista_personaje *personaje;
@@ -304,27 +322,6 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 
 	}
 	return personaje;
-}
-/**
- * Busco el recurso por el id, y lo devuelvo en caso de no exister el recurso en la lista devuelvo null
- */
-struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
-	int i, tot_elementos;
-	struct h_t_recusos *recurso = NULL;
-	struct h_t_recusos *recurso_aux = NULL;
-
-	log_in_disk_niv(LOG_LEVEL_TRACE, "Buesco el recurso %c", id);
-
-	tot_elementos = list_size(recusos);
-
-	for (i = 0; i < tot_elementos; i++) {
-		recurso_aux = (struct h_t_recusos*) list_get(recusos, i);
-
-		if (id == recurso_aux->SIMBOLO) {
-			recurso = recurso_aux;
-		}
-	}
-	return recurso;
 }
 
 /**
