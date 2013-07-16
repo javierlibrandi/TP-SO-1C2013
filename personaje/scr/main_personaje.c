@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -20,6 +21,22 @@
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/grabar.h>
 #include <mario_para_todos/entorno.h>
+
+void manejador_signal(int signal);
+
+void manejador_signal(int signal){
+	switch (signal) {
+	case SIGUSR1:
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"[SEÑAL] Se ha recibido una vida por señal para el personaje");
+		break;
+	case SIGTERM:
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"[SEÑAL] Se ha perdido una vida por señal para el personaje");
+		break;
+	}
+	return;
+}
 
 int main(void) {
 
@@ -82,12 +99,26 @@ int main(void) {
 				flagReiniciarNivel = true;
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se han perdido todos los recursos conseguidos. ");
-
 			}
 
 			if (tipo == PL_TO_P_TURNO) {
 				ejecutarTurno(personaje);
 			}
+
+			/*if (signal(SIGUSR1, manejador_signal) != SIG_ERR ){
+				personaje->vidas = personaje->vidas +1;
+				log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
+			}else{
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"[SEÑAL]No se pudo capturar la señal SIGUSR1 para sumar una vida.");}
+
+			if (signal(SIGTERM, manejador_signal) != SIG_ERR ){
+				personaje->vidas = personaje->vidas -1;
+				log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
+				flagReiniciarNivel = true;
+			}else{
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"[SEÑAL]No se pudo capturar la señal SIGTERM para restar una vida");}*/
 
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
