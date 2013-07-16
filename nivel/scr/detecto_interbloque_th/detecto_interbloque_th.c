@@ -19,7 +19,6 @@
 #include "../escuchar_personaje/personaje_thr.h"
 #include <stdbool.h>
 #include <commons/string.h>
-#include <unistd.h>
 
 int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
@@ -47,9 +46,7 @@ void *detecto_interbloque(void *p) {
 			"Hilo pra la deteccion de interbloqueo del nivel %s levantado",
 			param_nivel.nom_nivel);
 	for (;;) {
-
-		usleep(param_nivel.TiempoChequeoDeadlock);
-
+		sleep(param_nivel.TiempoChequeoDeadlock / 100);
 		if (marcar_personajes_s_recursos(t_personaje.l_personajes) != 0) { // paso 1
 			otnego_vector_diponibles(param_nivel.recusos, NULL );//paso 2
 
