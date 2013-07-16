@@ -99,13 +99,12 @@ int main(void) {
 			(void*) t_personaje);
 	pthread_mutex_lock(&s_personaje_conectado);
 
-
 	//setteo las estructura para pasar al hilo
-	memcpy(&h_interbloqueo.t_personaje,t_personaje,sizeof(t_h_personaje));
+	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
 	//creo el hilo para la deteccion de interbloqueo
 	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-				(void*) &h_interbloqueo);
+			(void*) &h_interbloqueo);
 
 	for (;;) {
 
@@ -135,7 +134,6 @@ int main(void) {
 
 				}
 
-
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
@@ -161,14 +159,13 @@ int main(void) {
 					//la informacion del la posicion la necesito para determinar el interbloqueo
 					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
-												t_personaje->l_personajes, &pos);
+							t_personaje->l_personajes, &pos);
 					nodo_lista_personaje->posX = posX;
 					nodo_lista_personaje->posX = posY;
 					pthread_mutex_unlock(&s_personaje_recursos);
 					if (B_DIBUJAR) {
 						nivel_gui_dibujar(ListaItems);
 					}
-
 
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
@@ -177,13 +174,13 @@ int main(void) {
 
 				case P_TO_N_OBJ_CUMPLIDO:
 
-									nodo_lista_personaje = busco_personaje(i,
-											t_personaje->l_personajes, &pos);
-									aux_mensaje = listarRecursosPersonaje(nodo_lista_personaje);
-									fd_mensaje(i, N_TO_O_PERSONAJE_TERMINO_NIVEL, aux_mensaje,
-											&tot_enviados);
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes, &pos);
+					aux_mensaje = listarRecursosPersonaje(nodo_lista_personaje);
+					fd_mensaje(i, N_TO_O_PERSONAJE_TERMINO_NIVEL, aux_mensaje,
+							&tot_enviados);
 
-									break;
+					break;
 
 				case P_TO_N_INICIAR_NIVEL:
 
@@ -407,10 +404,10 @@ char * listarRecursosPersonaje(t_lista_personaje * personaje) {
 		for (i = 0; i < recurso_aux->cantidad; i++) {
 			strcat(recursos, recurso_aux->SIMBOLO);
 			strcat(recursos, ';');
-					}
-		respuesta = string_from_format("%d;%s", cantidadRecursos,
-				recursos);
+		}
+		respuesta = string_from_format("%d;%s", cantidadRecursos, recursos);
 	}
 
 	return respuesta;
 }
+
