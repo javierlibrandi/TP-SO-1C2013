@@ -19,6 +19,7 @@
 #include "../escuchar_personaje/personaje_thr.h"
 #include <stdbool.h>
 #include <commons/string.h>
+#include <unistd.h>
 
 int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
@@ -46,11 +47,11 @@ void *detecto_interbloque(void *p) {
 			"Hilo pra la deteccion de interbloqueo del nivel %s levantado",
 			param_nivel.nom_nivel);
 	for (;;) {
-		sleep(param_nivel.TiempoChequeoDeadlock / 100);
+		usleep(param_nivel.TiempoChequeoDeadlock);
 		if (marcar_personajes_s_recursos(t_personaje.l_personajes) != 0) { // paso 1
 			otnego_vector_diponibles(param_nivel.recusos, NULL );//paso 2
 
-			while(marchar_personaje_c_recursos(t_personaje.l_personajes)){ //paso  3 miestra sea distinto de 0
+			while(marchar_personaje_c_recursos(t_personaje.l_personajes)!=0){ //paso  3 miestra sea distinto de 0
 
 				otnego_vector_diponibles(param_nivel.recusos, t_personaje.l_personajes); //paso 4
 			}
@@ -61,6 +62,8 @@ void *detecto_interbloque(void *p) {
 			if (param_nivel.Recovery) {
 				//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
 			}
+			free(personaje_bloquedos);
+			personaje_bloquedos = NULL;
 		}
 	}
 }
@@ -84,7 +87,7 @@ int marcar_personajes_s_recursos(t_list *personajes) {
 	for (cont = 0; cont < tot_personajes; cont++) {
 		l_personaje = (t_lista_personaje*) list_get(personajes, cont);
 
-		if (list_is_empty(l_personaje->proximo_recurso)) {
+		if (list_is_empty(l_personaje->l_recursos_optenidos)) {
 			l_personaje->bloquedo = false;
 			log_in_disk_niv(LOG_LEVEL_TRACE,
 					"El personaje %c no es candidato para el interbloqueo",
@@ -121,12 +124,12 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 		l_recurso = list_get(recursos, cont_recursos);
 
 		if (personajes == NULL ) { //si no paso la lista de personajes inicializo el vertor
-				l_recurso->recursos_disponibles = l_recurso->RECURSOS;
+				l_recurso->recursos_disponibles = l_recurso->cantidad;
 		} else {
 			tot_personajes = list_size(personajes);
 			for(cont_personajes=0;cont_personajes<tot_personajes;cont_personajes++){//recorro todos los personajes
 
-				if(!l_personaje->bloquedo && !l_personaje->recusos_sumados){//los personajes que no estan bloquedos ya si terminan pueden devolver los recursos
+				if(!l_personaje->bloquedo && !l_personaje->recusos_sumados){//los personajes que no estan bloquedos ya que si terminan pueden devolver los recursos los sumo
 
 					tot_personajes_personaje=list_size(l_personaje->l_recursos_optenidos);//lista que tiene el personaje
 
@@ -137,7 +140,7 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 						aux_recurso = busco_recurso(l_recursos_personaje->SIMBOLO,recursos); // bueco en la lista de recurso por el ID del recuros del personaje
 
 						aux_recurso->recursos_disponibles += l_recursos_personaje->cantidad; //suma la cantidad de recuros que tiene el personaje
-						l_personaje->recusos_sumados = true;
+						l_personaje->recusos_sumados = true; //lo pongo en true para no sumar 2 vesces los recursos de un personaje
 				}
 			}
 		}
@@ -175,18 +178,19 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 							l_personaje->proximo_recurso->cantidad,
 							l_personaje->proximo_recurso->NOMBRE);
 					marcados++;
-				}
+				}else{
 
-				if (l_personaje->proximo_recurso->posX != l_personaje->posX
-						&& l_personaje->proximo_recurso->posY
-								!= l_personaje->posY) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
-					l_personaje->bloquedo = false;
-					marcados++;
+					if (l_personaje->proximo_recurso->posX != l_personaje->posX
+							|| l_personaje->proximo_recurso->posY
+									!= l_personaje->posY) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
+						l_personaje->bloquedo = false;
+						marcados++;
 
-					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"El personaje %c no es candidato para el interbloqueo, exiten %d recurso %s para cumplir su solicitud pero el personaje no llego a la posicion del recurso",
-							l_personaje->proximo_recurso->cantidad,
-							l_personaje->proximo_recurso->NOMBRE);
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"El personaje %c no es candidato para el interbloqueo, exiten %d recurso %s para cumplir su solicitud pero el personaje no llego a la posicion del recurso",
+								l_personaje->proximo_recurso->cantidad,
+								l_personaje->proximo_recurso->NOMBRE);
+					}
 				}
 			}
 		}
