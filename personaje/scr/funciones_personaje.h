@@ -61,7 +61,7 @@ int evaluarPosicion(Posicion posActual, Posicion posRecurso);
 /* Se moverá una posición en un eje para acercarse al próximo recurso. */
 void moverse(Personaje* personaje);
 
-char determinarProxRecurso(Personaje* personaje);
+char* determinarProxRecurso(Personaje* personaje);
 
 /* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.
  * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
