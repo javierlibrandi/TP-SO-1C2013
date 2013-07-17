@@ -9,6 +9,7 @@
 #define ENTORNO_H_
 #include <pthread.h>
 #include <commons/collections/list.h>
+#include "ambiente_config.h"
 #include <stdlib.h>
 #include <sys/select.h>
 #include <sys/time.h>
@@ -20,7 +21,7 @@
 #define PATH_CONFIG "resources/properties.cfg"
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR false
+#define B_DIBUJAR true
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
@@ -42,7 +43,8 @@ typedef struct{
 
 typedef struct{
 	char* nombre;
-	t_list* recursos;
+	//t_recusos* recursos;
+	char **recursos;
 }Nivel;
 
 typedef struct{

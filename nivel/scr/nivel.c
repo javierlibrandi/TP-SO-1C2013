@@ -104,8 +104,8 @@ int main(void) {
 	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
 	//creo el hilo para la deteccion de interbloqueo
-	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-		(void*) &h_interbloqueo);
+	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+	//	(void*) &h_interbloqueo);
 
 	for (;;) {
 
@@ -237,6 +237,11 @@ int main(void) {
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
+
+					fd_mensaje(i, N_TO_P_RECURSO_OK,
+							"LEGASTE AL RECURSO, EN HORA BUENA!!!",
+							&tot_enviados);
+
 					pthread_mutex_lock(&s_personaje_recursos);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El pesonaje solicita un recurso");
@@ -256,6 +261,10 @@ int main(void) {
 
 						catidad_recursos--;
 						tipo_mensaje = N_TO_P_RECURSO_OK;
+
+						/*fd_mensaje(i, tipo_mensaje,
+								"LEGASTE AL RECURSO, EN HORA BUENA!!!",
+								&tot_enviados);*/
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"El recurso entregado al personaje %c",
@@ -289,9 +298,9 @@ int main(void) {
 					nodo_lista_personaje->proximo_recurso->cantidad =
 							catidad_recursos;
 
-					fd_mensaje(i, tipo_mensaje,
-							"LEGASTE AL RECURSO, EN HORA BUENA!!!",
-							&tot_enviados);
+					/* fd_mensaje(i, tipo_mensaje,
+					 "LEGASTE AL RECURSO, EN HORA BUENA!!!",
+					 &tot_enviados);*/
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
