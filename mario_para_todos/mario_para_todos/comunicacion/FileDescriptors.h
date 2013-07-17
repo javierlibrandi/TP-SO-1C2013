@@ -37,11 +37,12 @@
 #define N_TO_P_RECURSO_OK 22
 #define N_TO_P_RECURSO_ERROR 23
 #define N_TO_P_MOVIDO 24
-#define N_TO_O_PERSONAJE_TERMINO_NIVEL 25 // el nivel tiene que mandar la cantidad y el tipo de recusos liberados por el personaje que termino.
+#define N_TO_O_PERSONAJE_TERMINO_NIVEL 25 // el nivel tiene que mandar la cantidad y el tipo de recusos liberados por el personaje que termino. EJ: "cantTiposRecurso;recurso1;cantidad;recurso2;cantidad;recurso3:cantidad"
 #define O_TO_N_DESBLOQUEO_PERSONAJE 26 // INFORMAR LA CANTIDAD DE RECURSOS ASIGNADOS--???
 #define N_TO_O_RECOVERY 27
 #define O_TO_N_MUERTE 28 // INFORMAR QUE PERSONAJE MURIO. EJ: "MARIO"
 #define P_TO_PL_SALIR 29
+#define O_TO_N_ASIGNAR_RECURSOS 30 //
 #define OK 100
 #define ERROR 101
 

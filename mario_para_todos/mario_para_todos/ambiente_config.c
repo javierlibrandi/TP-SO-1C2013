@@ -135,6 +135,11 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 		aux_str = string_from_format("%s%d", "CAJA", ++i);
 	}
 
+	param.TiempoChequeoDeadlock = config_get_int_value(config, "TiempoChequeoDeadlock");
+	param.Recovery = config_get_int_value(config, "Recovery");
+
+
+
 	return param;
 
 }

@@ -28,11 +28,12 @@ typedef struct t_param_plan {
 typedef struct h_t_recusos {
 	char NOMBRE[20];
 	char SIMBOLO;
-	char cantidad; //considero que no tengo mas 255 de un recurso
+	char cantidad;/*considero que no tengo mas 255 de un recurso*/
 	char posX;
 	char posY;
 	char **RECURSOS; //lo usa el personaje no el nivel OJO!!!
 	struct h_t_recusos  *ref_recuso; //referencia al reucuso que usa el personaje para devolver los recursos lo uso en add_recurso_personaje y liberar_recursos
+	char recursos_disponibles; //campo auximilar para el interbloqueo
 } t_recusos;
 
 typedef struct h_t_param_nivel {
@@ -41,6 +42,8 @@ typedef struct h_t_param_nivel {
 	int PUERTO;
 	char *nom_nivel;
 	t_list *recusos;
+	int TiempoChequeoDeadlock;
+	int Recovery;
 } t_param_nivel;
 
 // para el personaje

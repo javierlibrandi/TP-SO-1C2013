@@ -10,7 +10,7 @@
 
 #include <pthread.h>
 #include <commons/collections/list.h>
-
+#include <mario_para_todos/ambiente_config.h>
 
 
 typedef struct t_h_parlante{
