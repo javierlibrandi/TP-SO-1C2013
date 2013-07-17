@@ -15,7 +15,7 @@
 typedef struct{
 	char *nomb_nivel;
 	int pueto;
-	int sck_personaje;
+	int sck_personaje;  // Socket mas alto (para el selet)
 	fd_set *readfds;
 	pthread_mutex_t *s_personaje_conectado;
 	t_list *l_personajes;

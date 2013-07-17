@@ -41,6 +41,5 @@ int con_pla_nival(char *ip, int puerto_orq, char *nombre_nivel, int puerto) {
 	fd_mensaje(sck,N_TO_O_SALUDO,aux_str,&byteRecibidos);
 
 
-
 	return sck;
 }

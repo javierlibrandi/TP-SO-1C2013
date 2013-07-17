@@ -31,7 +31,7 @@
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
-		t_h_personaje *t_personaje);
+		t_h_personaje *t_personaje2);
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
@@ -40,7 +40,7 @@ void liberar_memoria(t_lista_personaje *personaje);
 void liberar_recursos(t_list *recursos_otenido);
 void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos);
 
-//void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
+//void libero_memoria(t_h_personaje *t_personaje2, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
 
 static pthread_mutex_t s_personaje_conectado = PTHREAD_MUTEX_INITIALIZER;
@@ -50,7 +50,7 @@ int main(void) {
 	struct h_t_param_nivel param_nivel;
 	int sck_plat;
 	pthread_t escucho_personaje_th, detecto_interbloque_th;
-	t_h_personaje * t_personaje = malloc(sizeof(t_h_personaje));
+	t_h_personaje * t_personaje2 = malloc(sizeof(t_h_personaje));
 	t_h_interbloqueo h_interbloqueo;
 	fd_set readfds;
 	int i, tipo, rows, cols, posX, posY;
@@ -74,10 +74,10 @@ int main(void) {
 	}
 	param_nivel = leer_nivel_config(rows, cols);
 
-	t_personaje = malloc(sizeof(t_h_personaje));
-	t_personaje->nomb_nivel = param_nivel.nom_nivel;
-	t_personaje->pueto = param_nivel.PUERTO;
-	t_personaje->l_personajes = list_create();
+	t_personaje2 = malloc(sizeof(t_h_personaje));
+	t_personaje2->nomb_nivel = param_nivel.nom_nivel;
+	t_personaje2->pueto = param_nivel.PUERTO;
+	t_personaje2->l_personajes = list_create();
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	if (B_DIBUJAR) {
@@ -90,39 +90,40 @@ int main(void) {
 
 	FD_ZERO(&readfds);
 	FD_SET(sck_plat, &readfds);
-	t_personaje->readfds = &readfds;
-	t_personaje->sck_personaje = sck_plat;
+	t_personaje2->readfds = &readfds;
+	t_personaje2->sck_personaje = sck_plat;
 	pthread_mutex_lock(&s_personaje_conectado);
-	t_personaje->s_personaje_conectado = &s_personaje_conectado;
+	t_personaje2->s_personaje_conectado = &s_personaje_conectado;
 
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
-			(void*) t_personaje);
+			(void*) t_personaje2);
 	pthread_mutex_lock(&s_personaje_conectado);
 
 	//setteo las estructura para pasar al hilo
-	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
+	memcpy(&h_interbloqueo.t_personaje, t_personaje2, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
 	//creo el hilo para la deteccion de interbloqueo
-	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-		(void*) &h_interbloqueo);
+//	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+//		(void*) &h_interbloqueo);
 
 	for (;;) {
 
-		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
+		if (select(t_personaje2->sck_personaje + 1, t_personaje2->readfds, NULL,
 				NULL, NULL ) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
 
-		for (i = 0; i <= t_personaje->sck_personaje; i++) {
-			if (FD_ISSET(i, t_personaje->readfds)) {
+		for (i = 0; i <= t_personaje2->sck_personaje; i++) {
+			if (FD_ISSET(i, t_personaje2->readfds)) {
 
 				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
 				if (!strcmp(buffer, Leido_error)) {
 
-					elimino_personaje_lista_nivel(i, t_personaje->l_personajes);
-					elimino_sck_lista(i, t_personaje->readfds);
+					elimino_personaje_lista_nivel(i,
+							t_personaje2->l_personajes);
+					elimino_sck_lista(i, t_personaje2->readfds);
 
 				}
 				mensaje = string_split(buffer, ";");
@@ -149,7 +150,7 @@ int main(void) {
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
 					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes, &pos); //busco el personaje que me solicita el recurso
+							t_personaje2->l_personajes, &pos); //busco el personaje que me solicita el recurso
 					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
 
 					break;
@@ -160,7 +161,7 @@ int main(void) {
 					//la informacion del la posicion la necesito para determinar el interbloqueo
 					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes, &pos);
+							t_personaje2->l_personajes, &pos);
 					nodo_lista_personaje->posX = posX;
 					nodo_lista_personaje->posX = posY;
 					pthread_mutex_unlock(&s_personaje_recursos);
@@ -177,7 +178,7 @@ int main(void) {
 
 					recursos_personaje = "";
 					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes, &pos);
+							t_personaje2->l_personajes, &pos);
 					log_in_disk_niv(LOG_LEVEL_TRACE,
 							"el personaje: %c a completado el nivel ",
 							nodo_lista_personaje->id_personaje);
@@ -196,13 +197,13 @@ int main(void) {
 							recursos_personaje, &tot_enviados);
 					//Espero la respuesta del orquestador con los recursos que asigno
 
-					buffer = recv_variable(t_personaje->sck_personaje, &tipo);
+					buffer = recv_variable(t_personaje2->sck_personaje, &tipo);
 
 					if (!strcmp(buffer, Leido_error)) {
 						log_in_disk_niv(LOG_LEVEL_TRACE,
 								"Hubo un error en la lectura del socket de la plataforma, se volvera a intentar.");
 
-						buffer = recv_variable(t_personaje->sck_personaje,
+						buffer = recv_variable(t_personaje2->sck_personaje,
 								&tipo);
 						//todo Volver a cotrolar error.
 					}
@@ -233,7 +234,7 @@ int main(void) {
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
-							t_personaje);
+							t_personaje2);
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
@@ -241,7 +242,7 @@ int main(void) {
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El pesonaje solicita un recurso");
 					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes, &pos);
+							t_personaje2->l_personajes, &pos);
 
 					catidad_recursos =
 							nodo_lista_personaje->proximo_recurso->cantidad;
@@ -309,7 +310,7 @@ int main(void) {
 
 	pthread_join(escucho_personaje_th, NULL );
 
-	//ero_memoria(t_personaje, &param_nivel);
+	//ero_memoria(t_personaje2, &param_nivel);
 
 	//nivel_gui_terminar();
 
@@ -320,7 +321,7 @@ int main(void) {
 }
 
 void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
-		t_h_personaje *t_personaje) {
+		t_h_personaje *t_personaje2) {
 
 	t_lista_personaje *list_personajes;
 
@@ -332,20 +333,20 @@ void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 	list_personajes->sokc = i;
 	list_personajes->l_recursos_optenidos = list_create();
 
-	list_add(t_personaje->l_personajes, list_personajes);
+	list_add(t_personaje2->l_personajes, list_personajes);
 
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"Agrego a la lista el personaje con  id_personaje %c el nombre %s socket %d",
 			list_personajes->id_personaje, list_personajes->nombre_personaje,
 			list_personajes->sokc);
 }
-//void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel) {
+//void libero_memoria(t_h_personaje *t_personaje2, struct t_param_nivel *param_nivel) {
 //	libero_recursos_pantalla(param_nivel->recusos);
 //
-//	free(t_personaje->nomb_nivel);
-//	free(t_personaje->readfds);
-//	free(t_personaje->sck_personaje);
-//	free(t_personaje);
+//	free(t_personaje2->nomb_nivel);
+//	free(t_personaje2->readfds);
+//	free(t_personaje2->sck_personaje);
+//	free(t_personaje2);
 //
 //}
 
