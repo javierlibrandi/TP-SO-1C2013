@@ -38,6 +38,7 @@ void add_recurso_personaje(t_list *l_recursos_optenidos,
 void elimino_personaje_lista_nivel(int sck, t_list *l_personajes);
 void liberar_memoria(t_lista_personaje *personaje);
 void liberar_recursos(t_list *recursos_otenido);
+void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -49,7 +50,7 @@ int main(void) {
 	struct h_t_param_nivel param_nivel;
 	int sck_plat;
 	pthread_t escucho_personaje_th, detecto_interbloque_th;
-	t_h_personaje *t_personaje = malloc(sizeof(t_h_personaje));
+	t_h_personaje * t_personaje = malloc(sizeof(t_h_personaje));
 	t_h_interbloqueo h_interbloqueo;
 	fd_set readfds;
 	int i, tipo, rows, cols, posX, posY;
@@ -64,6 +65,7 @@ int main(void) {
 	t_lista_personaje *nodo_lista_personaje;
 	int tipo_mensaje, catidad_recursos;
 	char *nombre_recurso;
+	char *recursos_personaje;
 	int pos; //la posicion en la lista de un personaje
 
 	if (B_DIBUJAR) {
@@ -98,13 +100,12 @@ int main(void) {
 			(void*) t_personaje);
 	pthread_mutex_lock(&s_personaje_conectado);
 
-
 	//setteo las estructura para pasar al hilo
-	memcpy(&h_interbloqueo.t_personaje,t_personaje,sizeof(t_h_personaje));
+	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
 	//creo el hilo para la deteccion de interbloqueo
 	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-				(void*) &h_interbloqueo);
+		(void*) &h_interbloqueo);
 
 	for (;;) {
 
@@ -134,7 +135,6 @@ int main(void) {
 
 				}
 
-
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
@@ -160,7 +160,7 @@ int main(void) {
 					//la informacion del la posicion la necesito para determinar el interbloqueo
 					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
-												t_personaje->l_personajes, &pos);
+							t_personaje->l_personajes, &pos);
 					nodo_lista_personaje->posX = posX;
 					nodo_lista_personaje->posX = posY;
 					pthread_mutex_unlock(&s_personaje_recursos);
@@ -168,11 +168,67 @@ int main(void) {
 						nivel_gui_dibujar(ListaItems);
 					}
 
-
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
 
 					break;
+
+				case P_TO_N_OBJ_CUMPLIDO:
+
+					recursos_personaje = "";
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes, &pos);
+					log_in_disk_niv(LOG_LEVEL_TRACE,
+							"el personaje: %c a completado el nivel ",
+							nodo_lista_personaje->id_personaje);
+
+					listarRecursosPersonaje(
+							nodo_lista_personaje->l_recursos_optenidos,
+							recursos_personaje);
+
+					log_in_disk_niv(LOG_LEVEL_TRACE,
+							"el personaje: %c a completado el nivel y libera estos recursos: %s, ",
+							nodo_lista_personaje->id_personaje,
+							recursos_personaje);
+					//Informo al orquestador los recursos liberados
+
+					fd_mensaje(i, N_TO_O_PERSONAJE_TERMINO_NIVEL,
+							recursos_personaje, &tot_enviados);
+					//Espero la respuesta del orquestador con los recursos que asigno
+
+					buffer = recv_variable(t_personaje->sck_personaje, &tipo);
+
+					if (!strcmp(buffer, Leido_error)) {
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"Hubo un error en la lectura del socket de la plataforma, se volvera a intentar.");
+
+						buffer = recv_variable(t_personaje->sck_personaje,
+								&tipo);
+						//todo Volver a cotrolar error.
+					}
+
+					if (tipo == O_TO_N_ASIGNAR_RECURSOS) {
+
+//						log_in_disk_niv (LOG_LEVEL_INFO,
+//								"");
+
+						//Recibir del nivel los recursos que se asignaron y a que personajes se le asignaron.
+
+					}
+
+					else {
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"No se recibió el mensaje esperado desde el orquestador con los recursos asignados %s:",
+								buffer);
+						exit(EXIT_FAILURE);
+					}
+
+					liberar_memoria(nodo_lista_personaje);
+
+					free(recursos_personaje);
+
+					break;
+
 				case P_TO_N_INICIAR_NIVEL:
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
@@ -373,3 +429,25 @@ void liberar_recursos(t_list *recursos_otenido) {
 	}
 	list_destroy(recursos_otenido);
 }
+
+//Recibe una lista de recursos de tipo t_recusos y devuelve un string de tipo. EJ:"cantidadRecursos;simbolo1;cantidad1;simbolo2;cantidad2.."
+
+void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos) {
+
+	int cantidadRecu = list_size(lista_Recursos);
+	int i;
+	char recursosAux[5] = ("");
+	t_recusos *recurso_aux;
+	recursos = malloc(2);
+
+	sprintf(recursos, "%d", cantidadRecu);
+	for (i = 0; i < cantidadRecu; i++) {
+		recurso_aux = list_get(lista_Recursos, i);
+		sprintf(recursosAux, "%c;%c;%c;%c;", ';', recurso_aux->SIMBOLO, ';',
+				recurso_aux->cantidad);
+		string_append(&recursos, recursosAux);
+
+	}
+
+}
+
