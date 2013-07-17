@@ -104,8 +104,8 @@ int main(void) {
 	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
 	//creo el hilo para la deteccion de interbloqueo
-//	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-//			(void*) &h_interbloqueo);
+	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+		(void*) &h_interbloqueo);
 
 	for (;;) {
 
@@ -362,11 +362,13 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 
 	t_lista_personaje *personaje;
 	int total_personajes;
+	int j;
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "busco_personaje");
 	total_personajes = list_size(l_personajes);
-	for (*i = 0; *i < total_personajes; *i++) {
-		personaje = (t_lista_personaje*) list_get(l_personajes, *i);
+	for (j = 0; j < total_personajes; j++) {
+
+		personaje = (t_lista_personaje*) list_get(l_personajes, j);
 		log_in_disk_niv(LOG_LEVEL_TRACE, "personaje comparado %c",
 				personaje->id_personaje);
 
@@ -377,6 +379,7 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 		}
 
 	}
+	*i = j;
 	return personaje;
 }
 
