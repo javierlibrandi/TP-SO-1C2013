@@ -166,6 +166,9 @@ void escucho_conexiones(t_param_plat param_plataforma,
 						ip_cliente, h_orquestador,
 						param_plataforma.SEGUNDOS_ESPERA,
 						&param_plataforma.CUANTUM);
+				h_orquestador->sock_nivel = new_sck; //por este mismo socket se va a comunicar el nivel con el orquestador
+
+
 
 			} else {
 				fd_mensaje(new_sck, ERROR,

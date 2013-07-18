@@ -31,6 +31,14 @@ void *orequestador_thr(void* p) {
 	int byteEnviados;
 	char respuesta[100];
 
+	//pongo el socket del nivel en el orquestador
+	if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
+		*(t_h_orq->sock) = t_h_orq->sock_nivel;
+	}
+
+	FD_SET(t_h_orq->sock_nivel,t_h_orq->readfds);
+	FD_SET(0,t_h_orq->readfds); // pongo a escuhcar la entrada estardar para que no se vuelve loco cuando se caen todas las conexiones
+
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 	for (;;) {
 		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
@@ -92,7 +100,7 @@ void *orequestador_thr(void* p) {
 	pthread_exit(EXIT_SUCCESS);
 }
 
-bool busca_planificador(const char *desc_nivel, t_list *list_plataforma,
+bool busca_planificador(char *desc_nivel, t_list *list_plataforma,
 		char * msj) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador de nivel: %s \t",

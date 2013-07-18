@@ -12,6 +12,7 @@
 
 typedef struct {
 	int *sock;
+	int sock_nivel; //esta chanchada es pq nunca conecte el nivel al orquetador y es un lio y no se me ocurre como hacerlo bien :S
 	fd_set *readfds;
 	t_estados *lista_estados;
 	t_list *planificadores;
@@ -28,7 +29,7 @@ typedef struct {
  * Este es el hilo que va a escucha a los personajes
  */
 void *orequestador_thr(void *p);
-bool busca_planificador(const char *desc_nivel, t_list *list_plataforma, char * msj);
+bool busca_planificador(char *desc_nivel, t_list *list_plataforma, char * msj);
 
 
 #endif /* ORQUESTADOR_THR_H_ */
