@@ -19,7 +19,7 @@
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include <mario_para_todos/entorno.h>
 #include <pthread.h>
-
+#include <stdbool.h>
 #include <sys/select.h>
 
 /* According to earlier standards */
@@ -32,7 +32,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-static void eliminar_planificador(int sck, t_list *list_planifidores);
 static t_personaje *planifico_personaje(t_h_planificador *h_planificador);
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador);
@@ -49,7 +48,15 @@ void* planificador_nivel_thr(void *p) {
 
 	tv.tv_sec = h_planificador->segundos_espera;
 
+	h_planificador->error_nivel = false; //Inicializo al bandera del error en el planificador.
+
 	for (;;) {
+
+		if (h_planificador->error_nivel) {
+
+			pthread_exit((void *) "Se desconecto el planificador"); // Si la bandera esta en true, es por que hubo error y hay que matar al hilo.
+		}
+
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
 				NULL, &tv) == -1) {
 			perror("select");
@@ -66,35 +73,25 @@ void* planificador_nivel_thr(void *p) {
 
 					log_in_disk_plan(LOG_LEVEL_ERROR,
 							"%s lo saco de la lista  ", Leido_error);
-					if (h_planificador->sck_planificador == sck) {
-						log_in_disk_plan(LOG_LEVEL_ERROR,
-								"El error esta en el planificador mato al hilo %s",
-								h_planificador->desc_nivel);
 
-						pthread_mutex_lock(h_planificador->s_lista_plani);
-						eliminar_planificador(sck,
-								h_planificador->lista_planificadores);
-						pthread_mutex_unlock(h_planificador->s_lista_plani);
-						pthread_exit((void *) "Se desconecto el planificador"); //solo si se desconecta el planificador
+//					log_in_disk_plan(LOG_LEVEL_ERROR,
+//												"Error en la coneccion con el personaje: %c con el planificador de nivel: %s  "); // TODO Agregar el nombre del personaje que tuvo el error. 1ro buscarlo en la lista por socket.
 
-					} else {
+					lock_listas_plantaforma(h_planificador);
+					mover_personaje_lista(sck, h_planificador->l_listos,
+							h_planificador->l_errores);
+					mover_personaje_lista(sck, h_planificador->l_bloquedos,
+							h_planificador->l_errores);
+					un_lock_listas_plataforma(h_planificador);
 
-						lock_listas_plantaforma(h_planificador);
-						mover_personaje_lista(sck, h_planificador->l_listos,
-								h_planificador->l_errores);
-						mover_personaje_lista(sck, h_planificador->l_bloquedos,
-								h_planificador->l_errores);
-						un_lock_listas_plataforma(h_planificador);
-
-					}
 					elimino_sck_lista(sck, h_planificador->readfds);
-					free(buffer);
-				} else {
+					free(buffer); // TODO Donde se hace el malloc??
 
+				} else {
+					// Aca se responde a los mensajes que reciba el planificador.
 					log_in_disk_plan(LOG_LEVEL_TRACE,
 							"salida del segundo llamado %s nivel %s \n", buffer,
 							h_planificador->desc_nivel);
-
 				}
 
 			} else {
@@ -123,13 +120,14 @@ void* planificador_nivel_thr(void *p) {
 	pthread_exit(EXIT_SUCCESS);
 }
 
-static void eliminar_planificador(int sck, t_list *list_planificadores) {
+void eliminar_planificador(int sck, t_list *list_planificadores) {
 	int index = 0;
 	t_h_planificador *h_planificador;
 
 	bool _list_elements(t_h_planificador *h_planificador) {
 
-		if (*(h_planificador->sock) == sck) {
+//		if (*(h_planificador->sock) == sck) {
+		if (h_planificador->sck_planificador == sck) { //Este es el socket que hay que comparar.
 			log_in_disk_plat(LOG_LEVEL_INFO,
 					"Elimino el planificador %s de la lista",
 					h_planificador->desc_nivel);
@@ -161,13 +159,13 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador) {
 
 	total_elementos = list_size(h_planificador->l_listos);
 
-	//si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
+//si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
 	if (index > total_elementos) {
 		index = 0;
 	}
 	aux = total_elementos;
 
-	//doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
+//doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
 	while (aux != index) {
 		{
 			//obtengo de a uno los personajes
@@ -195,7 +193,7 @@ static void mover_personaje(t_personaje *personaje,
 	int movimientos_realizados = 0;
 	bool personaje_bloqueado = false;
 
-	//permito mover al personaje mientras el cuantun no llegue a 0
+//permito mover al personaje mientras el cuantun no llegue a 0
 	while (*(h_planificador->cuantum) > ++movimientos_realizados
 			&& !personaje_bloqueado) {
 		log_in_disk_plat(LOG_LEVEL_INFO,

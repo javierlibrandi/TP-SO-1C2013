@@ -218,6 +218,19 @@ void un_lock_listas_plataforma(t_h_planificador *h_planificador){
 	pthread_mutex_unlock(h_planificador->s_errores);
 }
 
+void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq){
+	pthread_mutex_lock(h_orq->s_listos);
+	pthread_mutex_lock(h_orq->s_bloquedos);
+	pthread_mutex_lock(h_orq->s_errores);
+
+}
+
+void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq){
+	pthread_mutex_unlock(h_orq->s_listos);
+	pthread_mutex_unlock(h_orq->s_bloquedos);
+	pthread_mutex_unlock(h_orq->s_errores);
+}
+
 
 /**
  * Muevo un personaje de una lista a otra

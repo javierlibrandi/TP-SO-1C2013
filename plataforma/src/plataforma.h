@@ -10,10 +10,6 @@
 #include <commons/collections/list.h>
 #include <pthread.h>
 
-typedef struct{
-	t_list *prj_listo;
-	t_list *prj_bloquedo;
-}t_estados;
 
 
 

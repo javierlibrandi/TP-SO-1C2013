@@ -29,14 +29,12 @@
 #include <semaphore.h>
 #include "inotify/inotify_thr.h"
 
-
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
 		char ip_cliente[], t_h_orquestadro *h_orquestador, int segundos_espera,
 		int *cuantum);
-void escucho_conexiones(t_param_plat param_plataforma,
-		t_list *list_plataforma, t_h_orquestadro *h_orquestador,
-		pthread_t *orquestador_thr);
+void escucho_conexiones(t_param_plat param_plataforma, t_list *list_plataforma,
+		t_h_orquestadro *h_orquestador, pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
 t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
@@ -47,7 +45,6 @@ void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 		char *msj);
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
-
 
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
@@ -90,10 +87,11 @@ int main(void) {
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
-
+	FD_ZERO(h_orquestador->readfds);
+	*(h_orquestador->sock) = 0;
 	//creo los hilos para inotify
-		pthread_create(&inotify_pthread, &attr, (void*) inotify_thr,
-				(void*) &param_plataforma);
+	pthread_create(&inotify_pthread, &attr, (void*) inotify_thr,
+			(void*) &param_plataforma);
 
 	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador,
 			&orquestador_thr);
@@ -146,7 +144,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				 */
 				pthread_create(orquestador_thr, NULL, (void *) orequestador_thr,
 						(void*) h_orquestador);
-
+				//TODO CAmbiar para que el orquestador se cree en el Main. Es facil por que ahora la lista del select se inicializa en el main.
 				solo_personaje = 'S';
 
 			} else {
@@ -154,6 +152,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 						buffer, h_orquestador);
 			}
 			break;
+
 		case N_TO_O_SALUDO: //creo el planificador del nivel
 			log_in_disk_orq(LOG_LEVEL_TRACE, "Mensaje tip N_TO_O_SALUDO");
 			if (!existe_nivel(buffer, list_planificadores)) {
@@ -166,14 +165,18 @@ void escucho_conexiones(t_param_plat param_plataforma,
 						ip_cliente, h_orquestador,
 						param_plataforma.SEGUNDOS_ESPERA,
 						&param_plataforma.CUANTUM);
-				h_orquestador->sock_nivel = new_sck; //por este mismo socket se va a comunicar el nivel con el orquestador
 
-
+				//Agrego el socket del nivel a la lista que escucha el orquestador
+				FD_SET(new_sck, h_orquestador->readfds);
+				if (new_sck > *(h_orquestador->sock)) {
+					*(h_orquestador->sock) = new_sck;
+				}
 
 			} else {
 				fd_mensaje(new_sck, ERROR,
 						"Ya hay un nivel con ese nombre dado de alta",
 						&byteEnviados);
+				//Hacer close del socket??
 			}
 
 			break;
@@ -183,11 +186,10 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 			agregar_personaje_planificador(new_sck, h_orquestador, buffer);
 
-			fd_mensaje(new_sck, OK,"Personaje planificado",&byteEnviados);
+			fd_mensaje(new_sck, OK, "Personaje planificado", &byteEnviados);
 			if (byteEnviados == -1)
 				log_in_disk_orq(LOG_LEVEL_TRACE,
-									"Error al enviar mensaje a pesonaje");
-
+						"Error al enviar mensaje a pesonaje");
 
 			break;
 
@@ -227,12 +229,11 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->s_errores = h_orquestador->s_errores;
 	h_planificador->segundos_espera = segundos_espera;
 	h_planificador->cuantum = cuantum;
-	h_planificador->sck_planificador = sock; // guardo el socked del planificador para poder diferencialo de los personajes
-
+	h_planificador->sck_planificador = sock; // guardo el socked del planificador para poder diferencialo de los personajes //En realidad es el socket del nivel.
 
 ///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
-	FD_SET(sock, &readfds);
+	// FD_SET(sock, &readfds);   // Lo comento por que ahora al nivel lo escucha el orquestador.
 	/*	IMPORTANTE QUE SEA UN PUNTERO ASI LO VEO EN EL SELECT() DEL HILO
 	 CUANDO LO MODIFICO EN LA PLATAFORMA.
 	 TAMBIEN HAGO UNA COPIA DE MEMORIA PARA NO PERDER EL VALOR.
@@ -241,7 +242,8 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->desc_nivel = malloc(strlen(aux_msj[0]));
 	strcpy(h_planificador->desc_nivel, aux_msj[0]); //agrego la des del nivel
 	h_planificador->sock = malloc(sizeof(int));
-	memcpy(h_planificador->sock, &sock, sizeof(int));
+	//memcpy(h_planificador->sock, &sock, sizeof(int));  // Comentado por que ya no esta escuchando el socket del nivel.
+	*(h_planificador->sock) = 0; //Arego el cero a la lista para que no quede vacia porque ya no esta el socket del nivel
 	h_planificador->readfds = malloc(sizeof(fd_set));
 	memcpy(h_planificador->readfds, &readfds, sizeof(fd_set));
 	strcpy(h_planificador->ip, ip_cliente);
@@ -354,12 +356,14 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 	bool aux_existe_persojaje_bloquedo;
 	static unsigned long int sec_personaje = 0;
 
-	if (crear_orquesador == 'N') {
+	/* ESTO NO VA MAS POR QUE AHORA LA LISTA DE SOCKETS SE INICIALIZA AFUERA, EN EL MAIN.
+	 * if (crear_orquesador == 'N') {
 
-		FD_ZERO(h_orquestador->readfds);
-		*(h_orquestador->sock) = 0;
+	 FD_ZERO(h_orquestador->readfds);
+	 *(h_orquestador->sock) = 0;
 
-	} // A Partir de aca es codigo compartido para el caso S y N
+	 } // A Partir de aca es codigo compartido para el caso S y N
+	 */
 
 	mensaje = string_split(aux_char, ";");
 
@@ -397,7 +401,7 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		nuevo_personaje->nombre = mensaje[0];
 		nuevo_personaje->nivel = mensaje[2];
 
-		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar
+		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar.
 		list_add(h_orquestador->l_listos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
 		pthread_mutex_unlock(h_orquestador->s_listos);
 
@@ -486,7 +490,8 @@ t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores) {
 
 		if (!strcmp(h_planificador->desc_nivel, desc_nivel)) {
 
-			log_in_disk_plan(LOG_LEVEL_TRACE, "devuelvo el planificador %s",h_planificador->desc_nivel);
+			log_in_disk_plan(LOG_LEVEL_TRACE, "devuelvo el planificador %s",
+					h_planificador->desc_nivel);
 
 			return true;
 
@@ -505,8 +510,7 @@ t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores) {
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE,
-			"agregar_sck_personaje busco el personaje: %s \t",
-			nom_personaje);
+			"agregar_sck_personaje busco el personaje: %s \t", nom_personaje);
 
 	bool _list_elements(t_personaje *personaje) {
 
@@ -515,13 +519,15 @@ void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos)
 
 		if (!strcmp(personaje->nombre, nom_personaje)) {
 
-			log_in_disk_plan(LOG_LEVEL_TRACE, "Agrego el descriptor del socket al nivel");
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"Agrego el descriptor del socket al nivel");
 			personaje->sck = sck;
 
 			return true;
 
 		} else {
-			log_in_disk_plan(LOG_LEVEL_TRACE, "No econtre al personaje para agregar el socket");
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"No econtre al personaje para agregar el socket");
 			return false;
 		}
 	}
