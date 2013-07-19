@@ -25,15 +25,21 @@
 
 void manejador_signal(int signal);
 
+static Personaje *personaje;
+
 void manejador_signal(int signal){
 	switch (signal) {
 	case SIGUSR1:
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"[SEÑAL] Se ha recibido una vida por señal para el personaje");
+		personaje->vidas++;
+		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
 		break;
 	case SIGTERM:
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"[SEÑAL] Se ha perdido una vida por señal para el personaje");
+		personaje->vidas--;
+		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
 		break;
 	}
 	return;
@@ -41,7 +47,6 @@ void manejador_signal(int signal){
 
 int main(void) {
 
-	Personaje *personaje = NULL;
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
@@ -106,20 +111,13 @@ int main(void) {
 				ejecutarTurno(personaje);
 			}
 
-			/*if (signal(SIGUSR1, manejador_signal) != SIG_ERR ){
-				personaje->vidas = personaje->vidas +1;
-				log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
-			}else{
+			if (signal(SIGUSR1, manejador_signal) == SIG_ERR )
 				log_in_disk_per(LOG_LEVEL_INFO,
-						"[SEÑAL]No se pudo capturar la señal SIGUSR1 para sumar una vida.");}
+						"[SEÑAL]No se pudo capturar la señal SIGUSR1 para sumar una vida.");
 
-			if (signal(SIGTERM, manejador_signal) != SIG_ERR ){
-				personaje->vidas = personaje->vidas -1;
-				log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
-				flagReiniciarNivel = true;
-			}else{
+			if (signal(SIGTERM, manejador_signal) == SIG_ERR )
 				log_in_disk_per(LOG_LEVEL_INFO,
-						"[SEÑAL]No se pudo capturar la señal SIGTERM para restar una vida");}*/
+						"[SEÑAL]No se pudo capturar la señal SIGTERM para restar una vida");
 
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
