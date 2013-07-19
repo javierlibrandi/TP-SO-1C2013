@@ -10,6 +10,7 @@
 #include <mario_para_todos/entorno.h>
 #include <mario_para_todos/ambiente_config.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -39,6 +40,7 @@ Personaje* nuevoPersonaje() {
 	personaje->nombre = param.NOMBRE;
 	personaje->simbolo = param.SMBOLO;
 	personaje->vidas = param.VIDAS;
+	personaje->vidasIniciales = param.VIDAS;
 	personaje->ip_orquestador = param.IP;
 	personaje->puerto_orquestador = param.PUERTO_PLATAFORMA;
 
@@ -101,7 +103,8 @@ int conectarOrquestador(Personaje* personaje) {
 
 //Armo mensaje P_TO_P_SALUDO con "nombrePersonaje;simbolo;nivel"
 
-	nivel = determinarProxNivel(personaje->niveles, personaje->nivelActual);
+	nivel = determinarProxNivel(personaje);
+	personaje->infoNivel.nombre = nivel;
 	sprintf(mensaje, "%s;%c;%s", personaje->nombre, personaje->simbolo, nivel);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
@@ -130,18 +133,52 @@ int conectarOrquestador(Personaje* personaje) {
 	return descriptor;
 }
 
-char* determinarProxNivel(t_list* niveles, int nivelActual) {
-	char * proxNivel;
+char* determinarProxNivel(Personaje *personaje) {
+	char *proxNivel;
+	t_link_element *nodoNivelProx;
+	int nivAct;
 
-	nivelActual++;
+	personaje->nivelActual++;
+	nivAct = personaje->nivelActual;
 
-	if (list_size(niveles) > nivelActual) {
-		proxNivel = list_get(niveles, nivelActual);
-	} else {
-		// Error, porque no hay más niveles para leer
+	log_in_disk_per(LOG_LEVEL_INFO,
+			"nivel actual: %d, tamaño lista niveles: %d", personaje->nivelActual, list_size(personaje->niveles));
+
+	if (list_size(personaje->niveles) > nivAct) {
+		proxNivel = list_get(personaje->niveles, nivAct);
+		log_in_disk_per(LOG_LEVEL_INFO, "ProxNivel %s", proxNivel);
+
+	}
+
+	nodoNivelProx = obtenerNodo(personaje->niveles, nivAct + 1);
+	log_in_disk_per(LOG_LEVEL_INFO, "despues de obtener nodo");
+
+	if (nodoNivelProx == NULL ) {
+		//if ((obtenerNodo(personaje.niveles, personaje.nivelActual))->next == NULL){
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"Último nivel para completar el juego. var nivelActual");
+		personaje->nivelActual = -2;
+		log_in_disk_per(LOG_LEVEL_INFO,
+						"var nivelActual: %d", personaje->nivelActual);
 	}
 
 	return proxNivel;
+
+}
+
+t_link_element* obtenerNodo(t_list* self, int index) {
+	int cont = 0;
+
+	if ((self->elements_count > index) && (index >= 0)) {
+		t_link_element *element = self->head;
+		while (cont < index) {
+			element = element->next;
+			cont++;
+		}
+		return element;
+	}
+	return NULL ;
+
 }
 
 InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
@@ -154,9 +191,8 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 
 //Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
 //Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
-//infoNivel.nombre_nivel = "nivel2";
-	infoNivel.nombre_nivel = determinarProxNivel(personaje->niveles,
-			personaje->nivelActual);
+	//infoNivel.nombre_nivel = determinarProxNivel(personaje);
+	infoNivel.nombre_nivel = personaje->infoNivel.nombre;
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Voy a enviar solicitud de ubicación del %s",
@@ -194,9 +230,6 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 		infoNivel.puerto_nivel = atoi(aux_msj[1]);
 	}
 
-//infoNivel.ip_nivel="localhost";
-//infoNivel.puerto_nivel = 5002;
-
 	log_in_disk_per(LOG_LEVEL_ERROR, "%s",
 			"EL personaje se desconecta del orquestador.");
 	close(descriptor);
@@ -209,13 +242,11 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 }
 
 void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
-	int descriptorPlan, tipoP, descriptorNiv;
-	//int tipoN;
+	int descriptorPlan, tipoP, descriptorNiv, tipoN;
+	;
 	int bytes_enviados_niv, bytes_enviados_pl;
-//char **aux_msj1, **aux_msj2;
 	char mensaje1[max_len], mensaje2[max_len];
-	char *bufferPla;
-	//char *bufferNiv,
+	char *bufferPla, *bufferNiv;
 	t_recusos *recursos;
 	int k;
 
@@ -265,24 +296,6 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		exit(EXIT_FAILURE);
 	}
 
-	personaje->sockNivel = descriptorNiv;
-	personaje->infoNivel.nombre = infoNivel.nombre_nivel;
-	personaje->nivelActual = infoNivel.nombre_nivel;
-	personaje->posActual.x = 1;
-	personaje->posActual.y = 1;
-
-	log_in_disk_per(LOG_LEVEL_INFO, "Inicializo recursos del %s",
-			infoNivel.nombre_nivel);
-	recursos = recursos_nivel(personaje->niveles, infoNivel.nombre_nivel);
-
-	for (k = 0; recursos->RECURSOS[k] != '\0'; k++) { //recorro todos los recuros del nivel
-
-		log_in_disk_per(LOG_LEVEL_INFO, "Nombre recurso %s ",
-				recursos->RECURSOS[k]);
-
-	}
-	personaje->infoNivel.recursos = recursos->RECURSOS;
-
 //HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
 
 // Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"
@@ -320,28 +333,41 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		exit(EXIT_FAILURE);
 	}
 
-//	bufferNiv = recv_variable(descriptorNiv, &tipoN);
-//	if (tipoN == ERROR) {
-//		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
-//				bufferNiv);
-//		exit(EXIT_FAILURE);
-//	}
-//
-//	if (tipoN == OK) {
-//		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
-//				infoNivel.nombre_nivel);
-//		personaje->sockNivel = descriptorNiv;
-//		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
-//		FD_SET(descriptorNiv, personaje->listaSelect);
-//	}
-//
-//	if (tipoN != OK && tipoN != ERROR) {
-//		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
-//				bufferNiv);
-//		exit(EXIT_FAILURE);
-//	}
-//
-//	free(bufferNiv);
+	bufferNiv = recv_variable(descriptorNiv, &tipoN);
+	if (tipoN == ERROR) {
+		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
+				bufferNiv);
+		exit(EXIT_FAILURE);
+	}
+
+	if (tipoN == OK) {
+		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
+				infoNivel.nombre_nivel);
+		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
+		personaje->sockNivel = descriptorNiv;
+		personaje->posActual.x = 1;
+		personaje->posActual.y = 1;
+
+		log_in_disk_per(LOG_LEVEL_INFO, "Inicializo recursos del %s",
+				infoNivel.nombre_nivel);
+		recursos = recursos_nivel(personaje->niveles, infoNivel.nombre_nivel);
+
+		for (k = 0; recursos->RECURSOS[k] != '\0'; k++) { //recorro todos los recuros del nivel
+
+			log_in_disk_per(LOG_LEVEL_INFO, "Recurso %d: %s ", k,
+					recursos->RECURSOS[k]);
+
+		}
+		personaje->infoNivel.recursos = recursos->RECURSOS;
+	}
+
+	if (tipoN != OK && tipoN != ERROR) {
+		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
+				bufferNiv);
+		exit(EXIT_FAILURE);
+	}
+
+	free(bufferNiv);
 	free(bufferPla);
 }
 
@@ -358,15 +384,26 @@ char* determinarProxRecurso(Personaje* personaje) {
 	index = personaje->indexRecurso;
 	prox = personaje->infoNivel.recursos;
 
-	if (prox[index][0] != '\0') {
-		proxRecurso = personaje->infoNivel.recursos[index];
-	}
+	if (sizeof(prox) > 5) {
+		if (prox[index][0] != '\0') {
+			proxRecurso = personaje->infoNivel.recursos[index];
+		}
 
-	if (sizeof(prox) == index + 2) {
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Último recurso para completar el nivel.");
+		if (sizeof(prox) == index + 2) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Último recurso para completar el nivel.");
+			personaje->indexRecurso = -1;
+		}
+	} else {
+		if (prox[index][0] != '\0') {
+			proxRecurso = personaje->infoNivel.recursos[index];
+		}
 
-		personaje->indexRecurso = -1;
+		if (sizeof(prox) == index + 3) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Último recurso para completar el nivel.");
+			personaje->indexRecurso = -1;
+		}
 	}
 	/*char* proxRecurso;
 	 int index;
@@ -606,11 +643,10 @@ void reiniciarListaRecursos(Personaje *personaje) {
 	personaje->recursoActual = '-';
 	personaje->indexRecurso = -1;
 
-
 }
 
 //Devuelve TRUE si la lista de recursos del nivel pendientes es null.
-int objetivoNivelCumplido(Personaje* personaje) {
+bool objetivoNivelCumplido(Personaje* personaje) {
 
 //if (personaje->niveles.recursosRestantes == NULL )
 //harcodeo para que por ahora me devuelva siempre 0 :P
@@ -618,14 +654,14 @@ int objetivoNivelCumplido(Personaje* personaje) {
 }
 
 //Devuelve TRUE si la lista de niveles pendientes es null.
-int planDeNivelesCumplido(t_list * niveles) {
+bool planDeNivelesCumplido(Personaje* personaje) {
 
 //if (niveles == NULL )
 //harcodeo para que por ahora me devuelva siempre 0 :P
-	if (2 > 3)
-		return 1;
+	if (personaje->nivelActual == -2)
+		return true;
 	else {
-		return 0;
+		return false;
 	}
 
 }
@@ -659,8 +695,12 @@ void reiniciarPlanDeNiveles(Personaje *personaje) {
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Reiniciando plan de niveles...");
 
-	//INCOMPLETO VER
-	//Ver como reinicializar valores de plan de niveles, vidas, sockets y demás.
+	personaje->nivelActual = -1;
+	personaje->recursoActual = '-';
+	personaje->indexRecurso = -1;
+	personaje->finNivel = false;
+	//personaje->posActual.x = 1;
+	//personaje->posActual.y = 1;
 
 }
 
@@ -799,20 +839,22 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 				buffer);
 		//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
 		personaje->recursoActual = '-';
-		if(personaje->indexRecurso == -1){
-					personaje->finNivel = true;
-				}
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"Valor index: %d. Si es -1 deberia salir del nivel",
+				personaje->indexRecurso);
+		if (personaje->indexRecurso == -1) {
+			personaje->finNivel = true;
+		}
 		free(buffer);
 		return 1;
 	}
 
-	if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR) {
+	if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
 		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado: %s",
 				buffer);
-		exit(EXIT_FAILURE);
-	}
+	exit(EXIT_FAILURE);
+
 	//TODO fata este return lo agrege para que no me de un error
-	return 0;
 }
 
 int conocePosicionRecurso(char recursoActual) {

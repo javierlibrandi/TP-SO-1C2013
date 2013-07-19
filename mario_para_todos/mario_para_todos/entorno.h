@@ -61,7 +61,7 @@ typedef struct{
 	char *nombre;
 	char simbolo;
 	t_list *niveles;
-	char * nivelActual;
+	int nivelActual;
 	int vidas;
 	char *ip_orquestador;
 	int puerto_orquestador;
@@ -73,6 +73,7 @@ typedef struct{
 	Posicion posProxRecurso;
 	Posicion posActual;
 	bool finNivel;
+	int vidasIniciales;
 }Personaje;
 
 

@@ -47,7 +47,9 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel);
 void ejecutarTurno(Personaje *personaje);
 
 //devuelve el próximo nivel a completar
-char* determinarProxNivel(t_list* niveles, int nivelActual);
+char* determinarProxNivel(Personaje* personaje);
+
+t_link_element* obtenerNodo(t_list* self, int index);
 
 //Le solicita al Nivel las coordenadas x-y del proximo nivel a completar
 void solicitarUbicacionRecurso(Personaje* personaje);
@@ -67,9 +69,9 @@ char* determinarProxRecurso(Personaje* personaje);
  * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
 int solicitarInstanciaRecurso();
 
-int objetivoNivelCumplido(Personaje* personaje);
+bool objetivoNivelCumplido(Personaje* personaje);
 
-int planDeNivelesCumplido(t_list *niveles);
+bool planDeNivelesCumplido(Personaje* personaje);
 
 void salirDelNivel(int sockNivel, int sockPlanif, int vidas);
 

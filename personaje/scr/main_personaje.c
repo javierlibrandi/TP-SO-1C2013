@@ -26,7 +26,7 @@
 void manejador_signal(int signal);
 
 Personaje *personaje;
-bool flagReiniciarNivel;
+bool flagReiniciarNivel, flagReiniciarJuego;
 
 void manejador_signal(int signal){
 	switch (signal) {
@@ -52,7 +52,6 @@ int main(void) {
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
-	bool flagReiniciarJuego;
 
 	flagReiniciarJuego = false;
 	flagReiniciarNivel = false;
@@ -65,12 +64,13 @@ int main(void) {
 
 	//pthread_create(&listener, NULL, (void*) listenerPersonaje, (void*) personaje);
 
-	while (!planDeNivelesCumplido(personaje->niveles)) {
+	while (!planDeNivelesCumplido(personaje)) {
 
 		if (flagReiniciarJuego) {
 			reiniciarPlanDeNiveles(personaje);
 			// VER como reiniciar plan de niveles y vidas. Ver si leer el arch de conf de nuevo o sacarlo de algún lugar en que haya quedado guardado.
 			flagReiniciarJuego = false;
+			flagReiniciarNivel = false;
 		}
 		descriptor = conectarOrquestador(personaje);
 
@@ -90,7 +90,7 @@ int main(void) {
 			//Espero y recibo notificación de movimiento permitido
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Esperando turno para jugar del planificador del %s",
-					personaje->nivelActual);
+					personaje->infoNivel.nombre);
 
 			buffer = recv_variable(personaje->sockPlanif, &tipo);
 			if (tipo == ERROR) {
@@ -126,6 +126,7 @@ int main(void) {
 
 		if (personaje->vidas > 0) {
 			log_in_disk_per(LOG_LEVEL_INFO, "¡OBJETIVO DE %s CUMPLIDO!", personaje->infoNivel.nombre);
+			personaje->nivelActual = -1;
 		} else {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"El personaje ha perdido todas sus vidas y ha muerto. Se reiniciará su plan de niveles.");
@@ -137,14 +138,19 @@ int main(void) {
 		salirDelNivel(personaje->sockNivel, personaje->sockPlanif,
 				personaje->vidas);
 
+		log_in_disk_per(LOG_LEVEL_INFO, "nivelactual: %d. -2 para terminar plan",personaje->nivelActual);
+		if(personaje->nivelActual == -2){
+			log_in_disk_per(LOG_LEVEL_INFO, "Se acaba de completar el último nivel.");
+		}
+
 	}	// fin de while "Mientras haya niveles que completar"
 
-	log_in_disk_per(LOG_LEVEL_INFO, "¡Plan de Niveles completo!");
+	log_in_disk_per(LOG_LEVEL_INFO, "¡PLAN DE NIVELES CUMPLIDO!");
 	log_in_disk_per(LOG_LEVEL_INFO, "El personaje %s ha ganado :)",
 			personaje->nombre);
 
 	//Se informa al orquestador que se terminó el plan de niveles
-	sprintf(mensajeFinJuego, "%s;fin del juego", personaje->nombre);
+	sprintf(mensajeFinJuego, "%c;fin del juego", personaje->simbolo);
 
 	fd_mensaje(personaje->sockPlanif, P_TO_O_JUEGO_GANADO, mensajeFinJuego,
 			&bytes_enviados);

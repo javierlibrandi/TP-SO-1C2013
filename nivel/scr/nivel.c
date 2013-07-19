@@ -234,6 +234,9 @@ int main(void) {
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
 							t_personaje);
+					tipo_mensaje = OK;
+
+					fd_mensaje(i, tipo_mensaje, "Nivel iniciado.",&tot_enviados);
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
