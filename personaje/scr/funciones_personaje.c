@@ -350,19 +350,25 @@ char* determinarProxRecurso(Personaje* personaje) {
 
 	char* proxRecurso;
 	int index;
+	static int total_recursos = 0;
 
-	index = personaje->indexRecurso + 1;
-
-	if ((sizeof(personaje->infoNivel.recursos)) > index) {
-		proxRecurso = personaje->infoNivel.recursos[index];
-		personaje->indexRecurso++;
+	if (personaje->indexRecurso == -1){
+		for(index=0;personaje->infoNivel.recursos[index]!='\0';index++){
+			total_recursos++;
+		}
 	}
 
-	if ((sizeof(personaje->infoNivel.recursos)) == index + 1) {
+	index = personaje->indexRecurso + 1;
+	proxRecurso = personaje->infoNivel.recursos[index];
+	personaje->indexRecurso++;
+
+
+	if ((total_recursos-1) == index) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Último recurso para completar el nivel.");
-		personaje->recursoActual = '-';
+
 		personaje->indexRecurso = -1;
+		exit(1);
 	}
 
 	return proxRecurso;
@@ -429,7 +435,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 		personaje->posProxRecurso.x = atoi(aux_msj[0]);
 		personaje->posProxRecurso.y = atoi(aux_msj[1]);
 
-		personaje->recursoActual = recurso;
+		personaje->recursoActual = *recurso;
 	}
 
 	if (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
