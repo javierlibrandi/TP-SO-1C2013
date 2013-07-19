@@ -173,7 +173,7 @@ int main(void) {
 
 					break;
 
-				case P_TO_N_OBJ_CUMPLIDO:
+				case P_TO_N_OBJ_CUMPLIDO://TODO Falta terminar, hay que recibir la respuesta del orquestador y liberar los recuros
 
 					recursos_personaje = "";
 					nodo_lista_personaje = busco_personaje(i,
@@ -238,10 +238,6 @@ int main(void) {
 
 				case P_TO_N_SOLIC_RECURSO:
 
-					fd_mensaje(i, N_TO_P_RECURSO_OK,
-							"LEGASTE AL RECURSO, EN HORA BUENA!!!",
-							&tot_enviados);
-
 					pthread_mutex_lock(&s_personaje_recursos);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El pesonaje solicita un recurso");
@@ -261,10 +257,9 @@ int main(void) {
 
 						catidad_recursos--;
 						tipo_mensaje = N_TO_P_RECURSO_OK;
-
-						/*fd_mensaje(i, tipo_mensaje,
+						fd_mensaje(i, tipo_mensaje,
 								"LEGASTE AL RECURSO, EN HORA BUENA!!!",
-								&tot_enviados);*/
+								&tot_enviados);
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"El recurso entregado al personaje %c",
@@ -298,9 +293,9 @@ int main(void) {
 					nodo_lista_personaje->proximo_recurso->cantidad =
 							catidad_recursos;
 
-					/* fd_mensaje(i, tipo_mensaje,
+					/*fd_mensaje(i, tipo_mensaje,
 					 "LEGASTE AL RECURSO, EN HORA BUENA!!!",
-					 &tot_enviados);*/
+					 &tot_enviados); */
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;

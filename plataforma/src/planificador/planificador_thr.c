@@ -108,7 +108,7 @@ void* planificador_nivel_thr(void *p) {
 					mover_personaje(personaje, h_planificador);
 				}
 				tv.tv_sec = h_planificador->segundos_espera;
-				break;
+				//break;
 			}
 		}
 
@@ -155,31 +155,31 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador) {
 	int aux = index;
 	t_personaje *personaje;
 
-	log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
+	//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
 
 	total_elementos = list_size(h_planificador->l_listos);
 
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
-	if (index > total_elementos) {
+	if (index >= total_elementos) {
 		index = 0;
 	}
 	aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
-	while (aux != index) {
-		{
-			//obtengo de a uno los personajes
-			personaje = (t_personaje*) list_get(h_planificador->l_listos,
-					index++);
+	//while (aux != index)
+	while (aux > index) {
 
-			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
-						personaje->nombre);
-				return personaje;
-			} else if (index > total_elementos) {
-				index = 0;
-			}
+		//obtengo de a uno los personajes
+		personaje = (t_personaje*) list_get(h_planificador->l_listos, index++);
+
+		if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
+			log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
+					personaje->nombre);
+			return personaje;
 		}
+//		else if (index > total_elementos) {
+//			index = 0;
+//		}
 	}
 
 	return NULL ;
@@ -194,7 +194,7 @@ static void mover_personaje(t_personaje *personaje,
 	bool personaje_bloqueado = false;
 
 //permito mover al personaje mientras el cuantun no llegue a 0
-	while (*(h_planificador->cuantum) > ++movimientos_realizados
+	while (*(h_planificador->cuantum) >= ++movimientos_realizados
 			&& !personaje_bloqueado) {
 		log_in_disk_plat(LOG_LEVEL_INFO,
 				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
