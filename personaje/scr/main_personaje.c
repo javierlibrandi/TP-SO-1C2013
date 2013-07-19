@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <mario_para_todos/comunicacion/Socket_Cliente.h>
@@ -123,7 +124,7 @@ int main(void) {
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
 		if (personaje->vidas > 0) {
-			log_in_disk_per(LOG_LEVEL_INFO, "¡Objetivo del nivel cumplido!");
+			log_in_disk_per(LOG_LEVEL_INFO, "¡OBJETIVO DE %s CUMPLIDO!", personaje->infoNivel.nombre);
 		} else {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"El personaje ha perdido todas sus vidas y ha muerto. Se reiniciará su plan de niveles.");

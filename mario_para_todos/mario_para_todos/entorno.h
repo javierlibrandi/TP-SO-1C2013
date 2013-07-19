@@ -11,6 +11,7 @@
 #include <commons/collections/list.h>
 #include "ambiente_config.h"
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -71,6 +72,7 @@ typedef struct{
 	int indexRecurso;
 	Posicion posProxRecurso;
 	Posicion posActual;
+	bool finNivel;
 }Personaje;
 
 

@@ -45,6 +45,7 @@ Personaje* nuevoPersonaje() {
 	personaje->nivelActual = -1;
 	personaje->indexRecurso = -1;
 	personaje->recursoActual = '-';
+	personaje->finNivel = false;
 
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"El personaje creado es %s, identificado con el caracter %c, y con %d vidas.",
@@ -349,43 +350,50 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 char* determinarProxRecurso(Personaje* personaje) {
 
 	char* proxRecurso;
+	char** prox;
 	int index;
-	static int total_recursos = 0;
 
-	if (personaje->indexRecurso == -1){
-		for(index=0;personaje->infoNivel.recursos[index]!='\0';index++){
-			total_recursos++;
-		}
-	}
-
-	index = personaje->indexRecurso + 1;
-	proxRecurso = personaje->infoNivel.recursos[index];
 	personaje->indexRecurso++;
 
+	index = personaje->indexRecurso;
+	prox = personaje->infoNivel.recursos;
 
-	if ((total_recursos-1) == index) {
+	if (prox[index][0] != '\0') {
+		proxRecurso = personaje->infoNivel.recursos[index];
+	}
+
+	if (sizeof(prox) == index + 2) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Último recurso para completar el nivel.");
 
 		personaje->indexRecurso = -1;
-		exit(1);
 	}
+	/*char* proxRecurso;
+	 int index;
+
+	 static int total_recursos = 0;
+
+	 if (personaje->indexRecurso == -1){
+	 for(index=0;personaje->infoNivel.recursos[index]!='\0';index++){
+	 total_recursos++;
+	 }
+	 }
+
+	 index = personaje->indexRecurso + 1;
+	 proxRecurso = personaje->infoNivel.recursos[index];
+	 personaje->indexRecurso++;
+
+
+	 if ((total_recursos-1) == index) {
+	 log_in_disk_per(LOG_LEVEL_INFO,
+	 "Último recurso para completar el nivel.");
+
+	 personaje->indexRecurso = -1;
+	 exit(1);
+	 }*/
 
 	return proxRecurso;
-	/*if (list_size(personaje->infoNivel.recursos) > index) {
-	 proxRecurso = (char) (list_get(personaje->infoNivel.recursos, index));
-	 personaje->indexRecurso++;
-	 }
 
-	 //Me fijo si es el último recurso
-	 if (list_size(personaje->infoNivel.recursos) == index + 1) {
-
-	 log_in_disk_per(LOG_LEVEL_INFO, "Último recurso para completar el nivel.");
-	 personaje->recursoActual = '-';
-	 personaje->indexRecurso = -1;
-	 }
-	 return proxRecurso;
-	 */
 }
 
 //el personaje se fija cuál es el próximo recurso a conseguir. Le solicita al Nivel las coordenadas x-y del mismo. */
@@ -602,11 +610,7 @@ int objetivoNivelCumplido(Personaje* personaje) {
 
 //if (personaje->niveles.recursosRestantes == NULL )
 //harcodeo para que por ahora me devuelva siempre 0 :P
-	if (2 > 3)
-		return 1;
-	else {
-		return 0;
-	}
+	return personaje->finNivel;
 }
 
 //Devuelve TRUE si la lista de niveles pendientes es null.
@@ -791,6 +795,9 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 				buffer);
 		//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
 		personaje->recursoActual = '-';
+		if(personaje->indexRecurso == -1){
+					personaje->finNivel = true;
+				}
 		free(buffer);
 		return 1;
 	}
