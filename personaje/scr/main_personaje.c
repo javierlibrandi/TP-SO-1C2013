@@ -25,7 +25,8 @@
 
 void manejador_signal(int signal);
 
-static Personaje *personaje;
+Personaje *personaje;
+bool flagReiniciarNivel;
 
 void manejador_signal(int signal){
 	switch (signal) {
@@ -39,6 +40,7 @@ void manejador_signal(int signal){
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"[SEÑAL] Se ha perdido una vida por señal para el personaje");
 		personaje->vidas--;
+		flagReiniciarNivel = true;
 		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
 		break;
 	}
@@ -50,10 +52,11 @@ int main(void) {
 	int descriptor, tipo, bytes_enviados;
 	InfoProxNivel InfoProxNivel;
 	char *buffer, mensajeFinJuego[max_len];
-	bool flagReiniciarNivel, flagReiniciarJuego;
+	bool flagReiniciarJuego;
 
 	flagReiniciarJuego = false;
 	flagReiniciarNivel = false;
+
 	//puts("Elija el nombre para su personaje:");
 	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
 

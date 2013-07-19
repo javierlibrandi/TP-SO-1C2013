@@ -603,6 +603,10 @@ void reiniciarListaRecursos(Personaje *personaje) {
 			"Reiniciando recursos a conseguir para completar %s",
 			personaje->nivelActual);
 
+	personaje->recursoActual = '-';
+	personaje->indexRecurso = -1;
+
+
 }
 
 //Devuelve TRUE si la lista de recursos del nivel pendientes es null.
