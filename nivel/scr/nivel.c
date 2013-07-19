@@ -173,7 +173,7 @@ int main(void) {
 
 					break;
 
-				case P_TO_N_OBJ_CUMPLIDO://TODO Falta terminar, hay que recibir la respuesta del orquestador y liberar los recuros
+				case P_TO_N_OBJ_CUMPLIDO: //TODO Falta terminar, hay que recibir la respuesta del orquestador y liberar los recuros
 
 					recursos_personaje = "";
 					nodo_lista_personaje = busco_personaje(i,
@@ -286,16 +286,16 @@ int main(void) {
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"El recurso insuficientes para entregar el personaje %c",
 								nodo_lista_personaje->id_personaje);
+
+						fd_mensaje(i, tipo_mensaje,
+								"No hay instancias disponibles. Tendrás que esperar :P!!!",
+								&tot_enviados);
 					}
 					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
 							catidad_recursos);
 
 					nodo_lista_personaje->proximo_recurso->cantidad =
 							catidad_recursos;
-
-					/*fd_mensaje(i, tipo_mensaje,
-					 "LEGASTE AL RECURSO, EN HORA BUENA!!!",
-					 &tot_enviados); */
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
