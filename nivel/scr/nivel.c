@@ -285,7 +285,6 @@ int main(void) {
 						restarRecurso(ListaItems,
 								nodo_lista_personaje->proximo_recurso->SIMBOLO);
 
-						sleep(10);
 						if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
 							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 						} else {
