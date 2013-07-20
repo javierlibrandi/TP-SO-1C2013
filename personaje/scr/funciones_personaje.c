@@ -163,6 +163,8 @@ char* determinarProxNivel(Personaje *personaje) {
 
 	personaje->nivelActual=nivel_acutal++;
 
+	personaje->nivelActual=nivel_acutal++;
+
 	return proxNivel;
 
 }
