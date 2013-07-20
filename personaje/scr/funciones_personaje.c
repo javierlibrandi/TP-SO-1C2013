@@ -135,25 +135,24 @@ int conectarOrquestador(Personaje* personaje) {
 
 char* determinarProxNivel(Personaje *personaje) {
 	char *proxNivel;
-	t_link_element *nodoNivelProx;
-	int nivAct;
+	static int nro_total_niveles = -1;
+	static int nivel_acutal = 0;
 
-	personaje->nivelActual++;
-	nivAct = personaje->nivelActual;
-
-	log_in_disk_per(LOG_LEVEL_INFO,
-			"nivel actual: %d, tamaño lista niveles: %d", personaje->nivelActual, list_size(personaje->niveles));
-
-	if (list_size(personaje->niveles) > nivAct) {
-		proxNivel = list_get(personaje->niveles, nivAct);
-		log_in_disk_per(LOG_LEVEL_INFO, "ProxNivel %s", proxNivel);
-
+	if( nro_total_niveles == -1){
+		nro_total_niveles = list_size(personaje->niveles);//inicializo la secuencia del nivel
 	}
 
-	nodoNivelProx = obtenerNodo(personaje->niveles, nivAct + 1);
-	log_in_disk_per(LOG_LEVEL_INFO, "despues de obtener nodo");
+	log_in_disk_per(LOG_LEVEL_INFO,
+			"nivel actual: %d, tamaño lista niveles: %d", personaje->nivelActual, nro_total_niveles);
 
-	if (nodoNivelProx == NULL ) {
+
+
+	proxNivel = list_get(personaje->niveles, nivel_acutal); //optengo en nivel actual
+	log_in_disk_per(LOG_LEVEL_INFO, "ProxNivel %s", proxNivel);
+
+
+
+	if (nivel_acutal == nro_total_niveles ) {
 		//if ((obtenerNodo(personaje.niveles, personaje.nivelActual))->next == NULL){
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Último nivel para completar el juego. var nivelActual");
@@ -161,6 +160,8 @@ char* determinarProxNivel(Personaje *personaje) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 						"var nivelActual: %d", personaje->nivelActual);
 	}
+
+	personaje->nivelActual=nivel_acutal++;
 
 	return proxNivel;
 
