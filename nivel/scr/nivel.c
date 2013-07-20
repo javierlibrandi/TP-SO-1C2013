@@ -239,6 +239,17 @@ int main(void) {
 					fd_mensaje(i, tipo_mensaje, "Nivel iniciado.",&tot_enviados);
 					break;
 
+				case P_TO_N_REINICIAR_NIVEL:
+
+					log_in_disk_niv(LOG_LEVEL_INFO, "El personaje debe reiniciar el nivel.");
+					log_in_disk_niv(LOG_LEVEL_INFO, "Se lo reubica en la posición (1,1) del mapa y se liberan sus recursos.");
+
+					MoverPersonaje(ListaItems, mensaje[0][0], 1, 1);
+
+					//Liberar recursos y desbloquear personajes
+
+					break;
+
 				case P_TO_N_SOLIC_RECURSO:
 
 					pthread_mutex_lock(&s_personaje_recursos);

@@ -28,20 +28,24 @@ void manejador_signal(int signal);
 Personaje *personaje;
 bool flagReiniciarNivel, flagReiniciarJuego;
 
-void manejador_signal(int signal){
+void manejador_signal(int signal) {
 	switch (signal) {
 	case SIGUSR1:
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"[SEÑAL] Se ha recibido una vida por señal para el personaje");
 		personaje->vidas++;
-		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
+		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d",
+				personaje->nombre, personaje->vidas);
 		break;
 	case SIGTERM:
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"[SEÑAL] Se ha perdido una vida por señal para el personaje");
 		personaje->vidas--;
 		flagReiniciarNivel = true;
-		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d", personaje->nombre, personaje->vidas);
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"Se han perdido todos los recursos conseguidos. ");
+		log_in_disk_per(LOG_LEVEL_INFO, "Vidas restantes para %s: %d",
+				personaje->nombre, personaje->vidas);
 		break;
 	}
 	return;
@@ -64,11 +68,13 @@ int main(void) {
 
 	//pthread_create(&listener, NULL, (void*) listenerPersonaje, (void*) personaje);
 
+	log_in_disk_per(LOG_LEVEL_INFO, "**** COMIENZA EL JUEGO PARA %s ****",
+			personaje->nombre);
+
 	while (!planDeNivelesCumplido(personaje)) {
 
 		if (flagReiniciarJuego) {
 			reiniciarPlanDeNiveles(personaje);
-			// VER como reiniciar plan de niveles y vidas. Ver si leer el arch de conf de nuevo o sacarlo de algún lugar en que haya quedado guardado.
 			flagReiniciarJuego = false;
 			flagReiniciarNivel = false;
 		}
@@ -78,12 +84,11 @@ int main(void) {
 
 		iniciarNivel(personaje, InfoProxNivel);
 
-		//mientras no se complete el nivel
+		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
 
 			if (flagReiniciarNivel) {
 				reiniciarNivel(personaje);
-				// VER como reiniciar lista de recursos. Ver si leer el arch de conf de nuevo o sacarlo de algún lugar en que haya quedado guardado.
 				flagReiniciarNivel = false;
 			}
 
@@ -99,6 +104,7 @@ int main(void) {
 				exit(EXIT_FAILURE);
 			}
 
+			//Espero y recibo muerte. VER PORQUE ESTE MENSAJE DEBERÍA ENVIARLO EL NIVEL :S
 			if (tipo == PL_TO_P_MUERTE) {
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se ha perdido una vida! El personaje fue elegido víctima por deadlock.");
@@ -111,9 +117,12 @@ int main(void) {
 			}
 
 			if (tipo == PL_TO_P_TURNO) {
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"****** TURNO PARA %s ******", personaje->nombre);
 				ejecutarTurno(personaje);
 			}
 
+			//Aviso si las señales no pudieron capturarse
 			if (signal(SIGUSR1, manejador_signal) == SIG_ERR )
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"[SEÑAL]No se pudo capturar la señal SIGUSR1 para sumar una vida.");
@@ -125,11 +134,13 @@ int main(void) {
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
 		if (personaje->vidas > 0) {
-			log_in_disk_per(LOG_LEVEL_INFO, "¡OBJETIVO DE %s CUMPLIDO!", personaje->infoNivel.nombre);
-			personaje->nivelActual = -1;
-		} else {
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"El personaje ha perdido todas sus vidas y ha muerto. Se reiniciará su plan de niveles.");
+					"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
+					personaje->infoNivel.nombre);
+		} else {
+			personaje->nivelActual = -1;
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"****** EL PERSONAJE HA MUERTO ******");
 			flagReiniciarNivel = false;
 			flagReiniciarJuego = true;
 		}
@@ -138,14 +149,14 @@ int main(void) {
 		salirDelNivel(personaje->sockNivel, personaje->sockPlanif,
 				personaje->vidas);
 
-		log_in_disk_per(LOG_LEVEL_INFO, "nivelactual: %d. -2 para terminar plan",personaje->nivelActual);
-		if(personaje->nivelActual == -2){
-			log_in_disk_per(LOG_LEVEL_INFO, "Se acaba de completar el último nivel.");
+		if (personaje->nivelActual == -2) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Se acaba de completar el último nivel.");
 		}
 
 	}	// fin de while "Mientras haya niveles que completar"
 
-	log_in_disk_per(LOG_LEVEL_INFO, "¡PLAN DE NIVELES CUMPLIDO!");
+	log_in_disk_per(LOG_LEVEL_INFO, "****** ¡PLAN DE NIVELES CUMPLIDO! ******");
 	log_in_disk_per(LOG_LEVEL_INFO, "El personaje %s ha ganado :)",
 			personaje->nombre);
 

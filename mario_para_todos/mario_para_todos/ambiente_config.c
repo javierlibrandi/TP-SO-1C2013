@@ -155,10 +155,10 @@ t_param_persoje leer_personaje_config() {
 
 	log_in_disk_per(LOG_LEVEL_TRACE,
 			"comienzo lectura archivo de configuracion del personaje en el %s ",
-			PATH_CONFIG);
+			PATH_CONFIG_PERSONAJE);
 
 	param.RECURSOS = list_create(); //creo lista de recursos
-	config = config_create(PATH_CONFIG);
+	config = config_create(PATH_CONFIG_PERSONAJE);
 
 	//param.nom_nivel = nivel; //copio el nombre del nivel que pase por parametro en el main
 	param.NOMBRE = config_get_string_value(config, "NOMBRE");

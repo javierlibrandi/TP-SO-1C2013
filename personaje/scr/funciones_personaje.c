@@ -142,7 +142,8 @@ char* determinarProxNivel(Personaje *personaje) {
 	nivAct = personaje->nivelActual;
 
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"nivel actual: %d, tamaño lista niveles: %d", personaje->nivelActual, list_size(personaje->niveles));
+			"nivel actual: %d, tamaño lista niveles: %d",
+			personaje->nivelActual, list_size(personaje->niveles));
 
 	if (list_size(personaje->niveles) > nivAct) {
 		proxNivel = list_get(personaje->niveles, nivAct);
@@ -158,8 +159,8 @@ char* determinarProxNivel(Personaje *personaje) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Último nivel para completar el juego. var nivelActual");
 		personaje->nivelActual = -2;
-		log_in_disk_per(LOG_LEVEL_INFO,
-						"var nivelActual: %d", personaje->nivelActual);
+		log_in_disk_per(LOG_LEVEL_INFO, "var nivelActual: %d",
+				personaje->nivelActual);
 	}
 
 	return proxNivel;
@@ -505,11 +506,13 @@ void ejecutarTurno(Personaje *personaje) {
 //int tipo;
 	int bytes_enviados, bytes_enviados2, recursoAdjudicado;
 //char *buffer;
-	char *mensajeFinTurno, *mensajeBloqueo;
+	char *mensajeFinTurno;
+	char mensajeBloqueo[max_len];
 
 //Armo mensaje de turno cumplido y bloqueo. Ver con Planif. qué info mandar
 	mensajeFinTurno = personaje->nombre;
-	mensajeBloqueo = personaje->nombre;
+
+	sprintf(mensajeBloqueo, "%c", personaje->recursoActual);
 
 //Espero y recibo notificación de movimiento permitido
 
@@ -518,10 +521,10 @@ void ejecutarTurno(Personaje *personaje) {
 
 //Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
 	if (!conocePosicionRecurso(personaje->recursoActual)) {
-
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Desconozco la ubicación del recurso que necesito. Solicito coordenadas al nivel");
 		solicitarUbicacionRecurso(personaje);
+	}
 
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Me muevo una posición en dirección del recurso");
@@ -538,48 +541,7 @@ void ejecutarTurno(Personaje *personaje) {
 			if (recursoAdjudicado) {
 				//Se adjudicó el recurso, agregar a la lista de recursos del personaje
 				log_in_disk_per(LOG_LEVEL_INFO,
-						"Recurso adjudicado al personaje.");
-				fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
-						mensajeFinTurno, &bytes_enviados);
-
-			} else {
-				//notificarBloqueo:
-				log_in_disk_per(LOG_LEVEL_INFO,
-						"Nivel informa que no hay instancias disponibles del recurso solicitado.");
-				log_in_disk_per(LOG_LEVEL_INFO,
-						"Envío notificación de bloqueo al planificador.");
-
-				fd_mensaje(personaje->sockPlanif, P_TO_N_BLOQUEO,
-						mensajeBloqueo, &bytes_enviados2);
-			}
-		} else {
-
-			//no se llegó al recurso todavía. Enviar mensaje de turno cumplido
-			log_in_disk_per(LOG_LEVEL_INFO,
-					"No se llegó a la posición del recurso aún. Envío notificación de turno cumplido al planificador.");
-
-			fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
-					mensajeFinTurno, &bytes_enviados);
-		}
-
-	} else {
-		// MITAD si ya conocemos la ubic del recurso
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Me muevo una posición en dirección del recurso");
-		moverse(personaje);
-
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Evalúo si llegué a la posición destino del recurso.");
-
-		if (evaluarPosicion(personaje->posActual, personaje->posProxRecurso)) {
-			log_in_disk_per(LOG_LEVEL_INFO,
-					"Llegué al recurso. Solicito una instancia del mismo.");
-
-			recursoAdjudicado = solicitarInstanciaRecurso(personaje);
-			if (recursoAdjudicado) {
-				//Se adjudicó el recurso, agregar a la lista de recursos del personaje
-				log_in_disk_per(LOG_LEVEL_INFO,
-						"Recurso adjudicado al personaje.");
+						"****** RECURSO CONSEGUIDO ******");
 				fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
 						mensajeFinTurno, &bytes_enviados);
 
@@ -604,7 +566,6 @@ void ejecutarTurno(Personaje *personaje) {
 		}
 	}
 
-}
 
 //Avisa y se desconecta del planificador y del nivel
 void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
@@ -635,29 +596,20 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 
 // se debe inicializar nuevamente la lista de recursos de determinado nivel. Debe ser igual a la del arch de configuración.
 void reiniciarListaRecursos(Personaje *personaje) {
-	//INCOMPLETO VER
-	log_in_disk_per(LOG_LEVEL_INFO,
-			"Reiniciando recursos a conseguir para completar %s",
-			personaje->nivelActual);
+	log_in_disk_per(LOG_LEVEL_INFO, "Reiniciando recursos a conseguir del %s",
+			personaje->infoNivel.nombre);
 
 	personaje->recursoActual = '-';
 	personaje->indexRecurso = -1;
 
 }
 
-//Devuelve TRUE si la lista de recursos del nivel pendientes es null.
 bool objetivoNivelCumplido(Personaje* personaje) {
-
-//if (personaje->niveles.recursosRestantes == NULL )
-//harcodeo para que por ahora me devuelva siempre 0 :P
 	return personaje->finNivel;
 }
 
-//Devuelve TRUE si la lista de niveles pendientes es null.
 bool planDeNivelesCumplido(Personaje* personaje) {
 
-//if (niveles == NULL )
-//harcodeo para que por ahora me devuelva siempre 0 :P
 	if (personaje->nivelActual == -2)
 		return true;
 	else {
@@ -666,7 +618,7 @@ bool planDeNivelesCumplido(Personaje* personaje) {
 
 }
 
-//Avisa al nivel para que lo reinicie en el mapa y libere los recursos. Reinicia los recursos pendientes. VER
+//Avisa al nivel para que lo reinicie en el mapa y libere los recursos. Reinicia los recursos pendientes.
 void reiniciarNivel(Personaje *personaje) {
 
 	char mensaje[max_len];
@@ -675,11 +627,17 @@ void reiniciarNivel(Personaje *personaje) {
 //Envío mensaje a nivel del tipo P_TO_N_REINICIAR_NIVEL. "simbolo"
 	sprintf(mensaje, "%c", personaje->simbolo);
 
-	log_in_disk_per(LOG_LEVEL_INFO, "Reiniciando nivel... Aviso al Nivel");
+	log_in_disk_per(LOG_LEVEL_INFO, "****** REINICIANDO %s ******",
+			personaje->infoNivel.nombre);
 
 	fd_mensaje(personaje->sockNivel, P_TO_N_REINICIAR_NIVEL, mensaje,
 			&bytes_enviados);
-	//ESPERO OK??
+
+	if (bytes_enviados == -1) {
+		log_in_disk_per(LOG_LEVEL_ERROR, "%s",
+				"Hubo un error al enviar el mensaje P_TO_O_PROX_NIVEL");
+		exit(EXIT_FAILURE);
+	}
 
 	reiniciarListaRecursos(personaje);
 
@@ -693,33 +651,28 @@ void reiniciarNivel(Personaje *personaje) {
 //Reinicia sus vidas y plan de niveles. VER
 void reiniciarPlanDeNiveles(Personaje *personaje) {
 
-	log_in_disk_per(LOG_LEVEL_INFO, "Reiniciando plan de niveles...");
+	log_in_disk_per(LOG_LEVEL_INFO,
+			"****** REINICIANDO PLAN DE NIVELES ******");
 
 	personaje->nivelActual = -1;
 	personaje->recursoActual = '-';
 	personaje->indexRecurso = -1;
 	personaje->finNivel = false;
-	//personaje->posActual.x = 1;
-	//personaje->posActual.y = 1;
 
 }
 
 //Devuelve 1 si la posicion actual del personaje es igual al del recurso que necesita, y 0 en caso contrario
-int evaluarPosicion(Posicion posicionActual, Posicion posicionRecurso) {
+bool evaluarPosicion(Posicion posicionActual, Posicion posicionRecurso) {
 
 	if (posicionActual.x == posicionRecurso.x
-			&& posicionActual.y == posicionRecurso.y)
-			//Harcodeo para que devuelva 1 para probar solicitarInstanciaRecurso()
-			//Harcodeo para que devuelve 0 para probar seguir moviéndose
-			//if (2 > 1)
-					{
+			&& posicionActual.y == posicionRecurso.y) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Se llegó a la posición del recurso que se necesita.");
-		return 1;
+		return true;
 	} else {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"No se llegó aún a la posición del recurso que se necesita.");
-		return 0;
+		return false;
 	}
 
 }
@@ -754,7 +707,6 @@ void moverse(Personaje* personaje) {
 			nuevaPosicion.y = (personaje->posActual.y);
 		}
 	}
-	//  pos actual: (7,5)  --> posRecurso: (7,4)
 
 	if (flag_y == 1) {
 		if (personaje->posActual.y < personaje->posProxRecurso.y) {
@@ -804,7 +756,7 @@ void moverse(Personaje* personaje) {
 	}
 }
 
-int solicitarInstanciaRecurso(Personaje *personaje) {
+bool solicitarInstanciaRecurso(Personaje *personaje) {
 
 	char mensaje[max_len];
 	int bytes_enviados, tipo;
@@ -812,7 +764,6 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 
 //Envío mensaje a nivel del tipo P_TO_N_SOLIC_RECURSO. "simbolo;recurso"
 	//sprintf(mensaje, "%c;%c", personaje->simbolo, personaje->recursoActual);
-	//recurso = 'F';
 	sprintf(mensaje, "%s", "Quiero una instancia");
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Solicito una instancia al Nivel");
@@ -830,7 +781,7 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"No hay instancias disponibles del recurso:%s", buffer);
 		free(buffer);
-		return 0;
+		return false;
 	}
 
 	if (tipo == N_TO_P_RECURSO_OK) {
@@ -846,7 +797,7 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 			personaje->finNivel = true;
 		}
 		free(buffer);
-		return 1;
+		return true;
 	}
 
 	if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
@@ -854,18 +805,16 @@ int solicitarInstanciaRecurso(Personaje *personaje) {
 				buffer);
 	exit(EXIT_FAILURE);
 
-	//TODO fata este return lo agrege para que no me de un error
 }
 
-int conocePosicionRecurso(char recursoActual) {
+bool conocePosicionRecurso(char recursoActual) {
 
 	if (recursoActual == '-') {
-		//if (1) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"No tengo asignado un recurso actual. No conozco la posición del próximo recurso.");
-		return 0;
+		return false;
 	} else {
-		return 1;
+		return true;
 	}
 }
 
