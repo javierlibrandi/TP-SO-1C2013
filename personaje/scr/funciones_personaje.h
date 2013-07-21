@@ -58,7 +58,7 @@ void solicitarUbicacionRecurso(Personaje* personaje);
 //void llegarARecurso(Posicion posicionRecurso, Posicion posicionActual);
 
 /* El personaje determina si debe seguir moviéndose para conseguir el recurso o si llegó a destino y debe solicitar una instancia al Nivel*/
-int evaluarPosicion(Posicion posActual, Posicion posRecurso);
+bool evaluarPosicion(Posicion posActual, Posicion posRecurso);
 
 /* Se moverá una posición en un eje para acercarse al próximo recurso. */
 void moverse(Personaje* personaje);
@@ -67,7 +67,7 @@ char* determinarProxRecurso(Personaje* personaje);
 
 /* El personaje solicita adjudicarse un recurso. El nivel deberá descontarlo de sus recursos disponibles.
  * devuelve 0 si no hay disponibles y 1 si se logró adjudicar */
-int solicitarInstanciaRecurso();
+bool solicitarInstanciaRecurso(Personaje *personaje);
 
 bool objetivoNivelCumplido(Personaje* personaje);
 
@@ -81,7 +81,7 @@ void reiniciarListaRecursos(Personaje *personaje);
 
 void reiniciarPlanDeNiveles(Personaje *personaje);
 
-int conocePosicionRecurso(char recursoActual);
+bool conocePosicionRecurso(char recursoActual);
 
 t_recusos  *recursos_nivel(t_list *recursos,char *nivel);
 

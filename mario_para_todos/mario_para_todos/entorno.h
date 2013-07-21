@@ -19,7 +19,10 @@
 
 #define PATH_PLATAFORMA_LOG "log/tracer.log"
 #define PATH_CONFIG "resources/properties.cfg"
-//#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/Dropbox/tp-20131c-gaturro/nivel/log/tracer.log"
+
+#define PATH_PERSONAJE_LOG "/home/utnso/git/tp-20131c-gaturro/personaje/log/tracer.log"
+#define PATH_CONFIG_PERSONAJE "/home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg"
+//#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/Dropboxtp-20131c-gaturro/nivel/log/tracer.log"
 //#define PATH_CONFIG_NIVEL "/home/utnso/Dropbox/tp-20131c-gaturro/nivel/resources/properties.cfg"
 //#define PATH_CONFIG_INOTIFY "/home/utnso/Dropbox/tp-20131c-gaturro/plataforma/resources/"
 #define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
