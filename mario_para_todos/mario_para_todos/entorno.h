@@ -44,6 +44,7 @@ typedef struct{
 	char simbolo;
 	unsigned long int sec_entrada;
 	int sck;
+	char prox_recurso;
 }t_personaje; // re subido
 
 typedef struct{

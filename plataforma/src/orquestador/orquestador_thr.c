@@ -24,14 +24,15 @@
 
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
-	char *buffer;
-	int i;
+	char *buffer, *respuesta_recursos;
+	int i, j, cant_recu_liberados, k;
 	int tipo;
 	char **mensaje;
 	//char *aux_char=NULL;
 	int byteEnviados;
 	char respuesta[100];
 	t_h_planificador * h_planificador;
+	t_personaje* pers = NULL;
 
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
@@ -85,6 +86,52 @@ void *orequestador_thr(void* p) {
 				mensaje = string_split(buffer, ";");
 
 				switch (tipo) {
+
+				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
+
+					for (j = 0; j < atoi(mensaje[0]); j++) {
+
+						pthread_mutex_lock(h_planificador->s_lista_plani);
+						busca_planificador_socket(i, t_h_orq->planificadores,
+								h_planificador); // necesitmos el nombre del nivel
+						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+
+						cant_recu_liberados = atoi(mensaje[2]);
+
+						buscar_bloqueados_recurso(mensaje[j + 1],
+								h_planificador->desc_nivel,
+								t_h_orq->l_bloquedos, pers);
+
+						for (k = 0;
+								((k < cant_recu_liberados) && (pers != NULL )); k++)
+								{
+
+							lock_listas_plantaforma_orq(t_h_orq);
+							buscar_bloqueados_recurso(mensaje[j + 1],
+									h_planificador->desc_nivel,
+									t_h_orq->l_bloquedos, pers);
+
+							mover_personaje_lista(pers->sck,
+									t_h_orq->l_bloquedos, t_h_orq->l_listos);
+							un_lock_listas_plataforma_orq(t_h_orq);
+
+							if (!strcmp(respuesta_recursos , "")) {
+								string_append(&respuesta_recursos,
+										string_from_format("%c;%c",
+												pers->simbolo,
+												mensaje[j + 1][0]));
+							} else {
+								string_append(&respuesta_recursos,
+										string_from_format(";%c;%c",
+												pers->simbolo,
+												mensaje[j + 1][0]));
+							}
+						}
+					}
+					fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS, respuesta_recursos, &byteEnviados);
+
+					break;
+
 				case P_TO_O_PROX_NIVEL:
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
@@ -187,3 +234,23 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 	return (bool*) list_find(list_plataforma, (void*) _list_elements);
 
 }
+//el 1er parametro de la funcion es un char* de tipo "recurso,cantidad" por ej: "F,3".
+void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
+		t_personaje *pers) {
+	char recurso = recur[0];
+	int total_bloqueados = list_size(bloqueados);
+	int count;
+	t_personaje *unper;
+
+	for (count = 0; count < total_bloqueados; count++) {
+
+		unper = list_get(bloqueados, count);
+
+		if (!strcmp(unper->nivel, nivel) && unper->prox_recurso == recurso) {
+			pers = unper;
+			return;
+		}
+	}
+	pers = NULL;
+}
+

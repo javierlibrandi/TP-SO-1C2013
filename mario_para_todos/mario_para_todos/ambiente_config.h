@@ -42,7 +42,7 @@ typedef struct h_t_param_nivel {
 	int PUERTO;
 	char *nom_nivel;
 	t_list *recusos;
-	int TiempoChequeoDeadlock;
+	unsigned long int TiempoChequeoDeadlock;
 	int Recovery;
 } t_param_nivel;
 

@@ -78,6 +78,8 @@ int main(void) {
 
 		iniciarNivel(personaje, InfoProxNivel);
 
+
+
 		//mientras no se complete el nivel
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
 
