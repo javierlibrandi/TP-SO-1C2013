@@ -153,6 +153,7 @@ int main(void) {
 		//Se informa al nivel y planificador del objetivo cumplido/muerte y se cierra la conexión con los mismos
 		salirDelNivel(personaje->sockNivel, personaje->sockPlanif,
 				personaje->vidas);
+		sleep(10);
 
 		if (personaje->nivelActual == -2) {
 			log_in_disk_per(LOG_LEVEL_INFO,
