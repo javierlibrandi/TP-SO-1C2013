@@ -635,7 +635,11 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		}
 
 		//Espero OK del planifcador de finalización de nivel.
+<<<<<<< HEAD
 		 recv_variable(sockPlanif, &tipo);
+=======
+		recv_variable(sockPlanif, &tipo);
+>>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-20131c-gaturro.git
 
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
