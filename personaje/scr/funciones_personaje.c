@@ -600,7 +600,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 //Avisa y se desconecta del planificador y del nivel
 void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
-	char *mensajeFinNivel, *mensajeFinNivelP, *buffer;
+	char *mensajeFinNivel, *mensajeFinNivelP;
 	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4, tipo;
 
 	mensajeFinNivel = "Bye Nivel";
@@ -635,7 +635,8 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		}
 
 		//Espero OK del planifcador de finalización de nivel.
-		recv_variable(sockPlanif, &tipo);
+		 recv_variable(sockPlanif, &tipo);
+
 
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
