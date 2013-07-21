@@ -29,6 +29,12 @@ void *escucho_personaje(void *p) {
 
 	for (;;) {
 		new_sck = Acepta_Conexion_Cliente(sck,ip_cliente);
+		if (new_sck==-1){
+			log_in_disk_niv(LOG_LEVEL_ERROR,
+							"Error con la conexion del personaje %d  ",
+							new_sck);
+			exit(1);
+		}
 		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
 		if(new_sck > t_personaje->sck_personaje ){
 			t_personaje->sck_personaje = new_sck;
