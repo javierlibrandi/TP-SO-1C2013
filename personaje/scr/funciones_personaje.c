@@ -111,10 +111,11 @@ int conectarOrquestador(Personaje* personaje) {
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
 	fd_mensaje(descriptor, P_TO_P_SALUDO, mensaje, &bytes_enviados);
 
-	if (bytes_enviados == -1){
-		log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error al enviar el mensaje P_TO_P_SALUDO");
+	if (bytes_enviados == -1) {
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Hubo un error al enviar el mensaje P_TO_P_SALUDO");
 		log_in_disk_per(LOG_LEVEL_ERROR, "%s",
-						"Plataforma cerró la conexión. El proceso personaje va a terminar.");
+				"Plataforma cerró la conexión. El proceso personaje va a terminar.");
 	}
 
 //Recibo OK del orquestador
@@ -599,8 +600,8 @@ void ejecutarTurno(Personaje *personaje) {
 
 //Avisa y se desconecta del planificador y del nivel
 void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
-	char *mensajeFinNivel, *mensajeFinNivelP;
-	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4;
+	char *mensajeFinNivel, *mensajeFinNivelP, *buffer;
+	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4, tipo;
 
 	mensajeFinNivel = "Bye Nivel";
 	mensajeFinNivelP = "Bye Planificador";
@@ -631,6 +632,14 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
 					"Planificador cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
+		}
+
+		//Espero OK del planifcador de finalización de nivel.
+		buffer = recv_variable(personaje->sockPlanif, &tipo);
+
+		if (tipo == OK) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Se recibió OK de finalización de nivel.");
 		}
 
 	} else {
