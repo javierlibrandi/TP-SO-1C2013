@@ -111,9 +111,12 @@ int conectarOrquestador(Personaje* personaje) {
 	log_in_disk_per(LOG_LEVEL_INFO, "Envío primer mensaje de saludo.");
 	fd_mensaje(descriptor, P_TO_P_SALUDO, mensaje, &bytes_enviados);
 
-	if (bytes_enviados == -1)
-		log_in_disk_per(LOG_LEVEL_ERROR, "%s",
+	if (bytes_enviados == -1) {
+		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al enviar el mensaje P_TO_P_SALUDO");
+		log_in_disk_per(LOG_LEVEL_ERROR, "%s",
+				"Plataforma cerró la conexión. El proceso personaje va a terminar.");
+	}
 
 //Recibo OK del orquestador
 
@@ -311,10 +314,11 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	fd_mensaje(descriptorPlan, P_TO_PL_INICIAR_NIVEL, mensaje2,
 			&bytes_enviados_pl);
 
-	if (bytes_enviados_pl == -1){
+	if (bytes_enviados_pl == -1) {
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Hubo un error al enviar el mensaje P_TO_PL_INICIAR_NIVEL");
-		log_in_disk_per(LOG_LEVEL_ERROR, "Planificador cerró la conexión. El proceso personaje va a terminar.");
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Planificador cerró la conexión. El proceso personaje va a terminar.");
 		exit(EXIT_FAILURE);
 
 	}
@@ -491,7 +495,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 //***** REEMPLAZAR FUNCIÓN ejecutarTurno en REPO 21/7
 void ejecutarTurno(Personaje *personaje) {
-	int bytes_enviados, bytes_enviados2, recursoAdjudicado;
+	int bytes_enviados, bytes_enviados1, bytes_enviados2, recursoAdjudicado;
 	char *mensajeFinTurno;
 	char mensajeBloqueo[max_len];
 
@@ -549,6 +553,14 @@ void ejecutarTurno(Personaje *personaje) {
 			fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
 					mensajeFinTurno, &bytes_enviados);
 
+			if (bytes_enviados == -1) {
+				log_in_disk_per(LOG_LEVEL_TRACE,
+						"Hubo un error al enviar el mensaje P_TO_PL_TURNO_CUMPLIDO");
+				log_in_disk_per(LOG_LEVEL_TRACE,
+						"Planificador cerró la conexión. El proceso personaje va a terminar.");
+				exit(EXIT_FAILURE);
+			}
+
 		} else {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Nivel informa que no hay instancias disponibles del recurso solicitado.");
@@ -556,7 +568,15 @@ void ejecutarTurno(Personaje *personaje) {
 					"Envío notificación de bloqueo al planificador.");
 
 			fd_mensaje(personaje->sockPlanif, P_TO_N_BLOQUEO, mensajeBloqueo,
-					&bytes_enviados2);
+					&bytes_enviados1);
+
+			if (bytes_enviados1 == -1) {
+				log_in_disk_per(LOG_LEVEL_TRACE,
+						"Hubo un error al enviar el mensaje P_TO_N_BLOQUEO");
+				log_in_disk_per(LOG_LEVEL_TRACE,
+						"Nivel cerró la conexión. El proceso personaje va a terminar.");
+				exit(EXIT_FAILURE);
+			}
 			personaje->bloqueado = true;
 		}
 	} else {
@@ -566,14 +586,22 @@ void ejecutarTurno(Personaje *personaje) {
 				"No se llegó a la posición del recurso aún. Envío notificación de turno cumplido al planificador.");
 
 		fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
-				mensajeFinTurno, &bytes_enviados);
+				mensajeFinTurno, &bytes_enviados2);
+
+		if (bytes_enviados2 == -1) {
+			log_in_disk_per(LOG_LEVEL_TRACE,
+					"Hubo un error al enviar el mensaje P_TO_PL_TURNO_CUMPLIDO");
+			log_in_disk_per(LOG_LEVEL_TRACE,
+					"Planificador cerró la conexión. El proceso personaje va a terminar.");
+			exit(EXIT_FAILURE);
+		}
 	}
 }
 
 //Avisa y se desconecta del planificador y del nivel
 void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
-	char *mensajeFinNivel, *mensajeFinNivelP;
-	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4;
+	char *mensajeFinNivel, *mensajeFinNivelP, *buffer;
+	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4, tipo;
 
 	mensajeFinNivel = "Bye Nivel";
 	mensajeFinNivelP = "Bye Planificador";
@@ -606,8 +634,16 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 			exit(EXIT_FAILURE);
 		}
 
+		//Espero OK del planifcador de finalización de nivel.
+		buffer = recv_variable(personaje->sockPlanif, &tipo);
+
+		if (tipo == OK) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Se recibió OK de finalización de nivel.");
+		}
+
 	} else {
-		fd_mensaje(sockNivel, P_TO_N_SALIR, mensajeFinNivel, &bytes_enviados);
+		fd_mensaje(sockNivel, P_TO_N_SALIR, mensajeFinNivel, &bytes_enviados3);
 
 		if (bytes_enviados3 == -1) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
@@ -619,7 +655,7 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		}
 
 		fd_mensaje(sockPlanif, P_TO_PL_SALIR, mensajeFinNivelP,
-				&bytes_enviados1);
+				&bytes_enviados4);
 
 		if (bytes_enviados4 == -1) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
