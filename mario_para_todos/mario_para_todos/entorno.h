@@ -78,6 +78,7 @@ typedef struct{
 	Posicion posActual;
 	bool finNivel;
 	int vidasIniciales;
+	bool bloqueado;
 }Personaje;
 
 
