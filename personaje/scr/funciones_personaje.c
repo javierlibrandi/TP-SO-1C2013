@@ -635,7 +635,7 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		}
 
 		//Espero OK del planifcador de finalización de nivel.
-		buffer = recv_variable(personaje->sockPlanif, &tipo);
+		recv_variable(sockPlanif, &tipo);
 
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
