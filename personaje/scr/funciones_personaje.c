@@ -638,6 +638,7 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		 recv_variable(sockPlanif, &tipo);
 
 
+
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
 					"Se recibió OK de finalización de nivel.");
