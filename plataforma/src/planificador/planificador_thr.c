@@ -236,6 +236,10 @@ static void mover_personaje(t_personaje *personaje,
 
 			un_lock_listas_plataforma(h_planificador);
 
+			fd_mensaje(personaje->sck,OK,"Me alegro pos vos!!!!",&byteEnviados);
+
+			personaje_bloqueado = true;
+
 			break;
 		case P_TO_N_BLOQUEO:
 
