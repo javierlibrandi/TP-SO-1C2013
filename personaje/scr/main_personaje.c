@@ -60,9 +60,6 @@ int main(void) {
 	flagReiniciarJuego = false;
 	flagReiniciarNivel = false;
 
-	//puts("Elija el nombre para su personaje:");
-	//printf( "\nHas elegido: \"%s\"\n", gets(nombre_per) );
-
 	//ver el criterio para crear personajes.
 	personaje = nuevoPersonaje();
 
@@ -71,6 +68,7 @@ int main(void) {
 	log_in_disk_per(LOG_LEVEL_INFO, "**** COMIENZA EL JUEGO PARA %s ****",
 			personaje->nombre);
 
+
 	while (!planDeNivelesCumplido(personaje)) {
 
 		if (flagReiniciarJuego) {
@@ -78,12 +76,20 @@ int main(void) {
 			flagReiniciarJuego = false;
 			flagReiniciarNivel = false;
 		}
+		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d", descriptor);
+
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
 
+		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d", descriptor);
+
 		iniciarNivel(personaje, InfoProxNivel);
 
+		log_in_disk_per(LOG_LEVEL_INFO, "Socket despues de iniciar nivel: %d", personaje->sockPlanif);
+
+
+		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
 
 			if (flagReiniciarNivel) {
