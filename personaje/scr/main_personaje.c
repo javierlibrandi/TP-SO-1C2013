@@ -84,13 +84,6 @@ int main(void) {
 
 		iniciarNivel(personaje, InfoProxNivel);
 
-<<<<<<< HEAD
-
-
-		//mientras no se complete el nivel
-=======
-		//mientras no se complete el nivel y el personaje tenga vidas
->>>>>>> a02fcbf336fa0f14ebce52b2c23ac73e5c2db9c6
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
 
 			if (flagReiniciarNivel) {

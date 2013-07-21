@@ -66,7 +66,7 @@ void* planificador_nivel_thr(void *p) {
 		}
 
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
-				NULL, NULL) == -1) {
+				NULL, NULL ) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
@@ -211,7 +211,7 @@ static void mover_personaje(t_personaje *personaje,
 
 //permito mover al personaje mientras el cuantun no llegue a 0
 	while (*(h_planificador->cuantum) >= ++movimientos_realizados //TODO Revisar condicion del ciclo.
-			&& !personaje_bloqueado) {
+	&& !personaje_bloqueado) {
 
 		log_in_disk_plat(LOG_LEVEL_INFO,
 				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
@@ -220,13 +220,24 @@ static void mover_personaje(t_personaje *personaje,
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
 				&byteEnviados);
 
-		//buffer = recv_variable(personaje->sck, &tipo);
+		buffer = recv_variable(personaje->sck, &tipo);
 
-//		log_in_disk_plat(LOG_LEVEL_ERROR,
-//				"El pesojaje me envia el mensaje contenido %s y tipo %d",
-//				buffer, tipo);
+		switch (tipo) {
 
-		if (P_TO_N_BLOQUEO == 5) {
+		case P_TO_PL_OBJ_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
+
+			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
+
+			lock_listas_plantaforma(h_planificador);
+
+			eliminar_personaje_termino_nivel(personaje->sck,
+					h_planificador->l_listos);
+			elimino_sck_lista(personaje->sck, h_planificador->readfds);
+
+			un_lock_listas_plataforma(h_planificador);
+
+			break;
+		case P_TO_N_BLOQUEO:
 
 			lock_listas_plantaforma(h_planificador);
 
@@ -237,7 +248,7 @@ static void mover_personaje(t_personaje *personaje,
 
 			personaje_bloqueado = true;
 			//personaje->prox_recurso = buffer[0];
-
+			break;
 		}
 
 		if (!strcmp(buffer, Leido_error)) {
@@ -250,7 +261,7 @@ static void mover_personaje(t_personaje *personaje,
 			elimino_sck_lista(personaje->sck, h_planificador->readfds); //creo que este el esl socket que tengo que eliminar
 			personaje_bloqueado = true;
 		}
-
+		free(buffer);
 		sleep(h_planificador->segundos_espera);
 	}
 }
