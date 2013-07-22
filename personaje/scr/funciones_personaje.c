@@ -506,6 +506,7 @@ void ejecutarTurno(Personaje *personaje) {
 				personaje->indexRecurso);
 		personaje->recursoActual = '-';
 		personaje->finNivel = true;
+		personaje->bloqueado = false;
 		return;
 
 	} else {
@@ -514,6 +515,7 @@ void ejecutarTurno(Personaje *personaje) {
 					"Se da como asignado el recurso por el que había quedado bloqueado. Index: %d",
 					personaje->indexRecurso);
 			personaje->recursoActual = '-';
+			personaje->bloqueado = false;
 		}
 
 	}

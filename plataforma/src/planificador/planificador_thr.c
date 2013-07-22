@@ -21,6 +21,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <sys/select.h>
+#include "../planificador/planificador_thr.h"
 
 /* According to earlier standards */
 #include <sys/time.h>
@@ -43,7 +44,7 @@ void * hilo_planificador(void * p);
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
-	t_personaje *personaje;
+
 	void *buffer = NULL;
 	int tipo, sck;
 	struct timeval tv;
@@ -66,7 +67,7 @@ void* planificador_nivel_thr(void *p) {
 		}
 
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
-				NULL, NULL ) == -1) {
+				NULL, &tv ) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
@@ -283,26 +284,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 	liberar_memoria_personaje(personaje);
 }
 
-t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
-		int *indice_personaje) {
-	int count;
-	int total_personajes = list_size(l_listo);
-	t_personaje *per;
-	log_in_disk_plat(LOG_LEVEL_INFO, "busca_personaje_skc");
-	for (count = 0; count < total_personajes; count++) {
-		per = list_get(l_listo, count);
-		if (per->sck == sck) {
 
-			log_in_disk_plat(LOG_LEVEL_INFO, "Retorno el personaje %s",
-					per->nombre);
-
-			*indice_personaje = count;
-			return per;
-		}
-	}
-
-	return NULL ;
-}
 void liberar_memoria_personaje(t_personaje *personaje) {
 	log_in_disk_plat(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
 			personaje->nombre);

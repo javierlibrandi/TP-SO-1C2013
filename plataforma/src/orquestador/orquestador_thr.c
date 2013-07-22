@@ -33,6 +33,7 @@ void *orequestador_thr(void* p) {
 	char respuesta[100];
 	t_h_planificador * h_planificador;
 	t_personaje* pers = NULL;
+	int indice_personaje;
 
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
@@ -115,7 +116,7 @@ void *orequestador_thr(void* p) {
 									t_h_orq->l_bloquedos, t_h_orq->l_listos);
 							un_lock_listas_plataforma_orq(t_h_orq);
 
-							if (!strcmp(respuesta_recursos , "")) {
+							if (!strcmp(respuesta_recursos, "")) {
 								string_append(&respuesta_recursos,
 										string_from_format("%c;%c",
 												pers->simbolo,
@@ -128,7 +129,8 @@ void *orequestador_thr(void* p) {
 							}
 						}
 					}
-					fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS, respuesta_recursos, &byteEnviados);
+					fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS, respuesta_recursos,
+							&byteEnviados);
 
 					break;
 
@@ -138,10 +140,18 @@ void *orequestador_thr(void* p) {
 
 					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
 							respuesta)) {
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+
+						busca_personaje_skc(i, t_h_orq->l_nuevos,
+								&indice_personaje);
+						pers = (t_personaje *) list_remove(t_h_orq->l_nuevos,
+								indice_personaje);
+
+						list_add(t_h_orq->l_listos, pers);
 
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
+
+						pthread_mutex_unlock(t_h_orq->s_lista_plani);
 
 						log_in_disk_orq(LOG_LEVEL_TRACE,
 								"datos del nivel enviados: %s", respuesta);

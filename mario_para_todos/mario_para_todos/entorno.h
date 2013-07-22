@@ -28,7 +28,7 @@
 #define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR true
+#define B_DIBUJAR false
 
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
@@ -48,6 +48,7 @@ typedef struct{
 	unsigned long int sec_entrada;
 	int sck;
 	char prox_recurso;
+	bool listo_para_planificar; //solo planifico los personajes que el orquestador ya paso los datos del nivel.
 }t_personaje; // re subido
 
 typedef struct{

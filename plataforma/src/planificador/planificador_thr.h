@@ -20,4 +20,5 @@ typedef struct t_h_parlante{
 
 void *planificador_nivel_thr(void *p);
 void eliminar_planificador(int sck, t_list *list_planifidores);
+
 #endif /* PLANIFICADOR_THR_H_ */

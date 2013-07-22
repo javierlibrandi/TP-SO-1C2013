@@ -28,6 +28,7 @@
 #include <mario_para_todos/entorno.h>
 #include <semaphore.h>
 #include "inotify/inotify_thr.h"
+#include <stdbool.h>
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
@@ -87,6 +88,7 @@ int main(void) {
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
+	h_orquestador->l_nuevos = list_create(); //lista de personajes nuevos que no estan para lanificar.
 	FD_ZERO(h_orquestador->readfds);
 	*(h_orquestador->sock) = 0;
 	//creo los hilos para inotify
@@ -402,7 +404,10 @@ t_h_orquestadro *creo_personaje_lista(char crear_orquesador, int sock,
 		nuevo_personaje->nivel = mensaje[2];
 
 		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar.
-		list_add(h_orquestador->l_listos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
+
+		//nuevo_personaje->listo_para_planificar = false; //pongo al personane para que no se planifique hasta que pase los datos del nivel
+
+		list_add(h_orquestador->l_nuevos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
 		pthread_mutex_unlock(h_orquestador->s_listos);
 
 		log_in_disk_plat(LOG_LEVEL_TRACE,
@@ -536,3 +541,23 @@ void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos)
 
 }
 
+t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
+		int *indice_personaje) {
+	int count;
+	int total_personajes = list_size(l_listo);
+	t_personaje *per;
+	log_in_disk_plat(LOG_LEVEL_INFO, "busca_personaje_skc");
+	for (count = 0; count < total_personajes; count++) {
+		per = list_get(l_listo, count);
+		if (per->sck == sck) {
+
+			log_in_disk_plat(LOG_LEVEL_INFO, "Retorno el personaje %s",
+					per->nombre);
+
+			*indice_personaje = count;
+			return per;
+		}
+	}
+
+	return NULL ;
+}

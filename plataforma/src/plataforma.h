@@ -16,7 +16,8 @@
 
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);
-
+t_personaje *busca_personaje_skc(int sck, t_list *l_listos,
+		int *indice_personaje);
 
 
 #endif /* PLATAFORMA_H_ */

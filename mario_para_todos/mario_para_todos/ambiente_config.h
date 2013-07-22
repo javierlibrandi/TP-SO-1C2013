@@ -93,6 +93,7 @@ typedef struct {
 	t_list *l_listos;
 	t_list *l_bloquedos;
 	t_list *l_errores;
+	t_list *l_nuevos;
 	pthread_mutex_t *s_lista_plani;
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
