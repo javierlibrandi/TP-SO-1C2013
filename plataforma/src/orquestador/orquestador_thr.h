@@ -9,12 +9,7 @@
 #define ORQUESTADOR_THR_H_
 
 #include "../plataforma.h"
-#include <sys/select.h>
 
-/* According to earlier standards */
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 /**
  * Este es el hilo que va a escucha a los personajes
@@ -25,5 +20,8 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 		t_h_planificador * planificador);
 void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 		t_personaje *pers);
+bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
+		t_h_planificador* h_planificador);
+
 
 #endif /* ORQUESTADOR_THR_H_ */

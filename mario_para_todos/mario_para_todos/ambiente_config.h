@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+
 #define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0)
 
 typedef struct h_t_param_plat {
