@@ -55,6 +55,7 @@ static pthread_mutex_t s_listos = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_bloqueados = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_errores = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_nuevos = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_terminados = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
 
@@ -84,11 +85,13 @@ int main(void) {
 	h_orquestador->s_bloquedos = &s_bloqueados;
 	h_orquestador->s_errores = &s_errores;
 	h_orquestador->s_nuevos = &s_nuevos;
+	h_orquestador->s_terminados = &s_terminados;
 	//listas
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
 	h_orquestador->l_nuevos = list_create(); //lista de personajes nuevos que no estan para lanificar.
+	h_orquestador->terminados = list_create();//pongo las visctimas que elige el orquestador
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	FD_ZERO(h_orquestador->readfds);
 	*(h_orquestador->sock) = 0;
@@ -417,7 +420,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
-		//sleep(2);
+
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
 	}
