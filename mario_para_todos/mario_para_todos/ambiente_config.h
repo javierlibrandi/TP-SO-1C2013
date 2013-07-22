@@ -79,16 +79,11 @@ typedef struct {
 	bool error_nivel;	//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
 } t_h_planificador;
 
-typedef struct{
-	t_list *prj_listo;
-	t_list *prj_bloquedo;
-}t_estados;
 
 typedef struct {
 	int *sock;
 	//int sock_nivel; //esta chanchada es pq nunca conecte el nivel al orquetador y es un lio y no se me ocurre como hacerlo bien :S
 	fd_set *readfds;
-	t_estados *lista_estados;
 	t_list *planificadores;
 	t_list *l_listos;
 	t_list *l_bloquedos;
@@ -98,6 +93,7 @@ typedef struct {
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
 	pthread_mutex_t *s_errores;
+	pthread_mutex_t *s_nuevos;
 
 } t_h_orquestadro;
 

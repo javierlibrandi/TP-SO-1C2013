@@ -21,6 +21,11 @@
 #include <mario_para_todos/entorno.h>
 #include "../planificador/planificador_thr.h"
 #include <stdbool.h>
+#include <sys/select.h>
+
+/* According to earlier standards */
+#include <sys/time.h>
+#include <sys/types.h>
 
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
@@ -31,9 +36,10 @@ void *orequestador_thr(void* p) {
 	//char *aux_char=NULL;
 	int byteEnviados;
 	char respuesta[100];
-	t_h_planificador * h_planificador;
+	t_h_planificador * h_planificador = NULL;
 	t_personaje* pers = NULL;
 	int indice_personaje;
+
 
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
@@ -45,11 +51,14 @@ void *orequestador_thr(void* p) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 	for (;;) {
+		log_in_disk_orq(LOG_LEVEL_ERROR, "vuelvo al select ");
 		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
 				== -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
+
+		log_in_disk_orq(LOG_LEVEL_ERROR, "ppppppppppppp ");
 
 		for (i = 0; i <= *(t_h_orq->sock); i++) {
 			if (FD_ISSET(i, t_h_orq->readfds)) {
@@ -85,7 +94,8 @@ void *orequestador_thr(void* p) {
 				}
 
 				mensaje = string_split(buffer, ";");
-
+				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
+						tipo);
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
@@ -140,7 +150,8 @@ void *orequestador_thr(void* p) {
 
 					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
 							respuesta)) {
-
+						pthread_mutex_lock(t_h_orq->s_listos);
+						pthread_mutex_lock(t_h_orq->s_nuevos);
 						busca_personaje_skc(i, t_h_orq->l_nuevos,
 								&indice_personaje);
 						pers = (t_personaje *) list_remove(t_h_orq->l_nuevos,
@@ -151,6 +162,8 @@ void *orequestador_thr(void* p) {
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
 
+						pthread_mutex_unlock(t_h_orq->s_listos);
+						pthread_mutex_unlock(t_h_orq->s_nuevos);
 						pthread_mutex_unlock(t_h_orq->s_lista_plani);
 
 						log_in_disk_orq(LOG_LEVEL_TRACE,
