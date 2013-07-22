@@ -203,16 +203,17 @@ int main(void) {
 					mensaje = string_split(buffer, ";");
 					if (!strcmp(buffer, Leido_error)) {
 						log_in_disk_niv(LOG_LEVEL_TRACE,
-								"Hubo un error en la lectura del socket de la plataforma, se volvera a intentar.");
+								"Hubo un error en la lectura del socket de la plataforma.");
 
 						exit(EXIT_FAILURE);
 					}
 					if (tipo == O_TO_N_ASIGNAR_RECURSOS) {
 						log_in_disk_niv(LOG_LEVEL_TRACE,
-								"Se recibieron los recursos asignados desde el orquestador: %s",
+								"Se recibieron los recursos asignados desde el orquestador: %s .",
 								mensaje);
 
-						liberar_memoria(nodo_lista_personaje);
+						liberar_memoria(nodo_lista_personaje); //TODO Pasarlo a atnes de l if==tipo por si hay problemas con la recepcion.
+						elimino_sck_lista(i, t_personaje->readfds);
 						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje.
 
 						for (cont_msj = 0; mensaje[cont_msj] != '\0';) {
@@ -255,6 +256,11 @@ int main(void) {
 
 						//Recibir del nivel los recursos que se asignaron y a que personajes se le asignaron.
 
+					} else {
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"No se recibió el mensaje esperado desde el orquestador con los recursos asignados %s:",
+								buffer);
+						//exit(EXIT_FAILURE);
 					}
 					if (B_DIBUJAR) {
 						BorrarItem(ListaItems,
@@ -262,14 +268,7 @@ int main(void) {
 						nivel_gui_dibujar(ListaItems);
 					}
 
-					else {
-						log_in_disk_niv(LOG_LEVEL_INFO,
-								"No se recibió el mensaje esperado desde el orquestador con los recursos asignados %s:",
-								buffer);
-						exit(EXIT_FAILURE);
-					}
-
-					free(recursos_personaje);
+					//free(recursos_personaje);
 
 					break;
 
@@ -286,8 +285,10 @@ int main(void) {
 
 				case P_TO_N_REINICIAR_NIVEL:
 
-					log_in_disk_niv(LOG_LEVEL_INFO, "El personaje debe reiniciar el nivel.");
-					log_in_disk_niv(LOG_LEVEL_INFO, "Se lo reubica en la posición (1,1) del mapa y se liberan sus recursos.");
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El personaje debe reiniciar el nivel.");
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se lo reubica en la posición (1,1) del mapa y se liberan sus recursos.");
 
 					MoverPersonaje(ListaItems, mensaje[0][0], 1, 1);
 

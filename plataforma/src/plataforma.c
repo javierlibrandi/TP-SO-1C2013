@@ -38,8 +38,8 @@ void escucho_conexiones(t_param_plat param_plataforma, t_list *list_plataforma,
 		t_h_orquestadro *h_orquestador, pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
-void creo_personaje_lista(char crear_orquesador, int sock,
-		char *aux_char, t_h_orquestadro* h_orquestador);
+void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
+		t_h_orquestadro* h_orquestador);
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);
 void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
@@ -152,8 +152,8 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				solo_personaje = 'S';
 
 			} else {
-				creo_personaje_lista(solo_personaje, new_sck,
-						buffer, h_orquestador);
+				creo_personaje_lista(solo_personaje, new_sck, buffer,
+						h_orquestador);
 			}
 			break;
 
@@ -349,8 +349,8 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
  * si el crear_orquesador es S ya el orquestador esta creado
  */
 
-void creo_personaje_lista(char crear_orquesador, int sock,
-		char *aux_char, t_h_orquestadro* h_orquestador) {
+void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
+		t_h_orquestadro* h_orquestador) {
 
 	t_personaje* nuevo_personaje;
 	char **mensaje;
@@ -402,10 +402,10 @@ void creo_personaje_lista(char crear_orquesador, int sock,
 		//Creo el personaje
 		nuevo_personaje = malloc(sizeof(t_personaje));
 		nuevo_personaje->simbolo = mensaje[1][0];
-		nuevo_personaje->nombre = malloc(strlen(mensaje[0])+1);
-		strcpy(nuevo_personaje->nombre , mensaje[0]);
-		nuevo_personaje->nivel = malloc(strlen(mensaje[2])+1);
-		strcpy(nuevo_personaje->nivel , mensaje[2]);
+		nuevo_personaje->nombre = malloc(strlen(mensaje[0]) + 1);
+		strcpy(nuevo_personaje->nombre, mensaje[0]);
+		nuevo_personaje->nivel = malloc(strlen(mensaje[2]) + 1);
+		strcpy(nuevo_personaje->nivel, mensaje[2]);
 
 		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar.
 
@@ -418,9 +418,8 @@ void creo_personaje_lista(char crear_orquesador, int sock,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
-sleep(5);
+		sleep(2);
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
-
 
 	}
 }

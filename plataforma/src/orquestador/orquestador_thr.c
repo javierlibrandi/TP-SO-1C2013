@@ -85,51 +85,51 @@ void *orequestador_thr(void* p) {
 				}
 
 				mensaje = string_split(buffer, ";");
-				log_in_disk_orq(LOG_LEVEL_ERROR,
-												"rev tipo de mensaje %d", tipo);
+				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
+						tipo);
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
-
-					for (j = 0; j < atoi(mensaje[0]); j++) {
-
-						pthread_mutex_lock(h_planificador->s_lista_plani);
-						busca_planificador_socket(i, t_h_orq->planificadores,
-								h_planificador); // necesitmos el nombre del nivel
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
-
-						cant_recu_liberados = atoi(mensaje[2]);
-
-						buscar_bloqueados_recurso(mensaje[j + 1],
-								h_planificador->desc_nivel,
-								t_h_orq->l_bloquedos, pers);
-
-						for (k = 0;
-								((k < cant_recu_liberados) && (pers != NULL )); k++)
-								{
-
-							lock_listas_plantaforma_orq(t_h_orq);
-							buscar_bloqueados_recurso(mensaje[j + 1],
-									h_planificador->desc_nivel,
-									t_h_orq->l_bloquedos, pers);
-
-							mover_personaje_lista(pers->sck,
-									t_h_orq->l_bloquedos, t_h_orq->l_listos);
-							un_lock_listas_plataforma_orq(t_h_orq);
-
-							if (!strcmp(respuesta_recursos, "")) {
-								string_append(&respuesta_recursos,
-										string_from_format("%c;%c",
-												pers->simbolo,
-												mensaje[j + 1][0]));
-							} else {
-								string_append(&respuesta_recursos,
-										string_from_format(";%c;%c",
-												pers->simbolo,
-												mensaje[j + 1][0]));
-							}
-						}
-					}
+					respuesta_recursos = "";
+//					for (j = 0; j < atoi(mensaje[0]); j++) {
+//
+//						pthread_mutex_lock(h_planificador->s_lista_plani);
+//						busca_planificador_socket(i, t_h_orq->planificadores,
+//								h_planificador); // necesitmos el nombre del nivel
+//						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+//
+//						cant_recu_liberados = atoi(mensaje[2]);
+//
+//						buscar_bloqueados_recurso(mensaje[j + 1],
+//								h_planificador->desc_nivel,
+//								t_h_orq->l_bloquedos, pers);
+//
+//						for (k = 0;
+//								((k < cant_recu_liberados) && (pers != NULL )); k++)
+//								{
+//
+//							lock_listas_plantaforma_orq(t_h_orq);
+//							buscar_bloqueados_recurso(mensaje[j + 1],
+//									h_planificador->desc_nivel,
+//									t_h_orq->l_bloquedos, pers);
+//
+//							mover_personaje_lista(pers->sck,
+//									t_h_orq->l_bloquedos, t_h_orq->l_listos);
+//							un_lock_listas_plataforma_orq(t_h_orq);
+//
+//							if (!strcmp(respuesta_recursos, "")) {
+//								string_append(&respuesta_recursos,
+//										string_from_format("%c;%c",
+//												pers->simbolo,
+//												mensaje[j + 1][0]));
+//							} else {
+//								string_append(&respuesta_recursos,
+//										string_from_format(";%c;%c",
+//												pers->simbolo,
+//												mensaje[j + 1][0]));
+//							}
+//						}
+//					}
 					fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS, respuesta_recursos,
 							&byteEnviados);
 
@@ -139,8 +139,9 @@ void *orequestador_thr(void* p) {
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
 
-					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
-							respuesta)) {
+					if (busca_planificador_2(mensaje[1],
+							t_h_orq->planificadores, respuesta,
+							h_planificador)) {
 						pthread_mutex_lock(t_h_orq->s_listos);
 						pthread_mutex_lock(t_h_orq->s_nuevos);
 						busca_personaje_skc(i, t_h_orq->l_nuevos,
@@ -183,16 +184,63 @@ void *orequestador_thr(void* p) {
 			}
 		}
 
+		//Agrego de nuevo el socket de los niveles que es lo unico que el orquestador tiene que escuchar siempre.
+
+		FD_ZERO(t_h_orq->readfds);
+		int cant_planificadores = list_size(t_h_orq->planificadores);
+		int l;
+		t_h_planificador * plani_aux;
+		for (l = 0; l < cant_planificadores; l++) {
+
+			plani_aux = list_get(t_h_orq->planificadores, l);
+			FD_SET(plani_aux->sck_planificador, t_h_orq->readfds);
+		}
 	}
+
 	pthread_exit(EXIT_SUCCESS);
 }
 
+bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
+		t_h_planificador* h_planificador) {
+
+	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador de nivel: %s \t",
+			desc_nivel);
+
+	int cant_planificadores, i;
+	//t_h_planificador * un_planificador;
+	if (list_is_empty(list_plataforma)) {
+		return false;
+	}
+
+	cant_planificadores = list_size(list_plataforma);
+
+	for (i = 0; i < cant_planificadores; i++) {
+		h_planificador = list_get(list_plataforma, i);
+
+		if (string_equals_ignore_case(h_planificador->desc_nivel, desc_nivel)) {
+
+			sprintf(msj, "%s;%s", h_planificador->ip, h_planificador->puerto);
+
+			log_in_disk_orq(LOG_LEVEL_TRACE,
+					"Los datos del nivel son ip: %s, puerto: %s ",
+					h_planificador->ip, h_planificador->puerto);
+
+			return true;
+
+		}
+
+	}
+	msj = "ERROR: Planificador de Nivel no encontrado";
+	return false;
+
+}
 bool busca_planificador(char *desc_nivel, t_list *list_plataforma, char * msj) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador de nivel: %s \t",
 			desc_nivel);
 
-	if (list_is_empty(list_plataforma) == 1) {
+//if (list_is_empty(list_plataforma) == 1) {
+	if (list_is_empty(list_plataforma)) {
 		return false;
 	}
 
