@@ -98,6 +98,7 @@ typedef struct {
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
 	pthread_mutex_t *s_errores;
+	pthread_mutex_t *s_nuevos;
 
 } t_h_orquestadro;
 

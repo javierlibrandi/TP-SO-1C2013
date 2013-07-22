@@ -31,7 +31,7 @@ void *orequestador_thr(void* p) {
 	//char *aux_char=NULL;
 	int byteEnviados;
 	char respuesta[100];
-	t_h_planificador * h_planificador;
+	t_h_planificador * h_planificador = NULL;
 	t_personaje* pers = NULL;
 	int indice_personaje;
 
@@ -85,7 +85,8 @@ void *orequestador_thr(void* p) {
 				}
 
 				mensaje = string_split(buffer, ";");
-
+				log_in_disk_orq(LOG_LEVEL_ERROR,
+												"rev tipo de mensaje %d", tipo);
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
@@ -140,7 +141,8 @@ void *orequestador_thr(void* p) {
 
 					if (busca_planificador(mensaje[1], t_h_orq->planificadores,
 							respuesta)) {
-
+						pthread_mutex_lock(t_h_orq->s_listos);
+						pthread_mutex_lock(t_h_orq->s_nuevos);
 						busca_personaje_skc(i, t_h_orq->l_nuevos,
 								&indice_personaje);
 						pers = (t_personaje *) list_remove(t_h_orq->l_nuevos,
@@ -151,6 +153,8 @@ void *orequestador_thr(void* p) {
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
 
+						pthread_mutex_unlock(t_h_orq->s_listos);
+						pthread_mutex_unlock(t_h_orq->s_nuevos);
 						pthread_mutex_unlock(t_h_orq->s_lista_plani);
 
 						log_in_disk_orq(LOG_LEVEL_TRACE,

@@ -203,6 +203,7 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 			infoNivel.nombre_nivel, "al orquestador");
 
 	sprintf(mensaje, "%s;%s", personaje->nombre, infoNivel.nombre_nivel);
+	
 
 	fd_mensaje(descriptor, P_TO_O_PROX_NIVEL, mensaje, &bytes_enviados);
 
