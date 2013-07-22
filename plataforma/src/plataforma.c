@@ -417,7 +417,7 @@ void creo_personaje_lista(char crear_orquesador, int sock,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
-
+sleep(5);
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
 
