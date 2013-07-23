@@ -195,10 +195,7 @@ void *orequestador_thr(void* p) {
 						pthread_mutex_lock(t_h_orq->s_listos);
 						pthread_mutex_lock(t_h_orq->s_nuevos);
 
-						busca_personaje_skc(i, t_h_orq->l_nuevos,
-								&indice_personaje);
-
-						mover_personaje_lista(indice_personaje,t_h_orq->l_nuevos,t_h_orq->l_listos);
+						mover_personaje_lista(i,t_h_orq->l_nuevos,t_h_orq->l_listos);
 
 						pthread_mutex_unlock(t_h_orq->s_listos);
 						pthread_mutex_unlock(t_h_orq->s_nuevos);
