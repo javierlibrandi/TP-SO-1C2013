@@ -56,7 +56,9 @@ static pthread_mutex_t s_bloqueados = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_errores = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_nuevos = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_terminados = PTHREAD_MUTEX_INITIALIZER;
+
 static pthread_mutex_t reads_orquestador = PTHREAD_MUTEX_INITIALIZER;
+
 
 int main(void) {
 
@@ -86,11 +88,15 @@ int main(void) {
 	h_orquestador->s_bloquedos = &s_bloqueados;
 	h_orquestador->s_errores = &s_errores;
 	h_orquestador->s_nuevos = &s_nuevos;
+<<<<<<< HEAD
 
 	h_orquestador->s_terminados = &s_terminados;
 
 	h_orquestador->reads_select = &reads_orquestador;
 
+=======
+	h_orquestador->s_terminados = &s_terminados;
+>>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-20131c-gaturro.git
 	//listas
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
@@ -431,8 +437,11 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
 
+<<<<<<< HEAD
 		sleep(2);
 
+=======
+>>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-20131c-gaturro.git
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
 	}

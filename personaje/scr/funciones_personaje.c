@@ -161,7 +161,7 @@ char* determinarProxNivel(Personaje *personaje) {
 		//if ((obtenerNodo(personaje.niveles, personaje.nivelActual))->next == NULL){
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Último nivel para completar el juego. var nivelActual");
-		personaje->nivelActual = -2;
+		personaje->nivelActual = -3;
 		log_in_disk_per(LOG_LEVEL_INFO, "var nivelActual: %d",
 				personaje->nivelActual);
 	}
