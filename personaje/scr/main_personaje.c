@@ -109,7 +109,7 @@ int main(void) {
 				exit(EXIT_FAILURE);
 			}
 
-			//Espero y recibo muerte. VER PORQUE ESTE MENSAJE DEBERÍA ENVIARLO EL NIVEL :S
+			//Espero y recibo muerte del nivel.
 			if (tipo == PL_TO_P_MUERTE) {
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se ha perdido una vida! El personaje fue elegido víctima por deadlock.");
@@ -142,6 +142,9 @@ int main(void) {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
 					personaje->infoNivel.nombre);
+			if(personaje->nivelActual == -3)
+				personaje->nivelActual = -2;
+
 		} else {
 			personaje->nivelActual = -1;
 			log_in_disk_per(LOG_LEVEL_INFO,
