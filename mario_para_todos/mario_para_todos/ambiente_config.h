@@ -98,7 +98,7 @@ typedef struct {
 	pthread_mutex_t *s_bloquedos;
 	pthread_mutex_t *s_errores;
 	pthread_mutex_t *s_nuevos;
-
+	pthread_mutex_t *s_sock_semaforo;
 	pthread_mutex_t *reads_select;
 	pthread_mutex_t *s_terminados;
 } t_h_orquestadro;

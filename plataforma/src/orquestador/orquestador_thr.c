@@ -45,6 +45,8 @@ void *orequestador_thr(void* p) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 	for (;;) {
+
+
 		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
 				== -1) {
 			perror("select");
@@ -164,8 +166,9 @@ void *orequestador_thr(void* p) {
 								"datos del nivel enviados: %s", respuesta);
 
 //						fd_mensaje(i, O_TO_P_DESCONEXTAR_OREQUESTADOR, respuesta,&byteEnviados); //El personaje cierra la conexion si preguntar, esta perfeto aca tambien lo cierro
-
+						pthread_mutex_lock(t_h_orq->reads_select);
 						elimino_sck_lista(i, t_h_orq->readfds);
+						pthread_mutex_unlock(t_h_orq->reads_select);
 
 						log_in_disk_orq(LOG_LEVEL_ERROR,
 								"cierro la conexion con el personaje");
@@ -186,9 +189,12 @@ void *orequestador_thr(void* p) {
 			}
 		}
 
-		//Agrego de nuevo el socket de los niveles que es lo unico que el orquestador tiene que escuchar siempre.
-
+		//limppio la lista de socket y Agrego de nuevo el socket de los niveles y los personajes que estan en la lista de nuevos.
+		pthread_mutex_lock(t_h_orq->reads_select);
+		pthread_mutex_lock(t_h_orq->s_lista_plani);
+		pthread_mutex_lock(t_h_orq->s_nuevos);
 		FD_ZERO(t_h_orq->readfds);
+
 		int cant_planificadores = list_size(t_h_orq->planificadores);
 		int cant_personajes_nuevos = list_size(t_h_orq->l_nuevos);
 		int l, m;
@@ -202,7 +208,10 @@ void *orequestador_thr(void* p) {
 			pers = list_get(t_h_orq->l_nuevos, m);
 			FD_SET(pers->sck, t_h_orq->readfds);
 		}
-	}
+		pthread_mutex_unlock(t_h_orq->reads_select);
+		pthread_mutex_unlock(t_h_orq->s_lista_plani);
+		pthread_mutex_unlock(t_h_orq->s_nuevos);
+	} ///TODO no agregar los socket de personajes o niveles que dieron error.
 
 	pthread_exit(EXIT_SUCCESS);
 }
