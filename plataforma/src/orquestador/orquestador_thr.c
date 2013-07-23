@@ -71,7 +71,7 @@ void *orequestador_thr(void* p) {
 
 		//pthread_mutex_lock(t_h_orq->reads_select);
 
-		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL)
+		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
 				== -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
@@ -167,37 +167,41 @@ void *orequestador_thr(void* p) {
 					log_in_disk_orq(LOG_LEVEL_INFO,
 							"el personaje %s, pide el nivel; %s,", mensaje[0],
 							mensaje[1]);
+
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
 
 					if (busca_planificador_2(mensaje[1],
 							t_h_orq->planificadores, respuesta,
 							h_planificador)) {
-						pthread_mutex_lock(t_h_orq->s_listos);
-						pthread_mutex_lock(t_h_orq->s_nuevos);
-						busca_personaje_skc(i, t_h_orq->l_nuevos,
-								&indice_personaje);
-						pers = (t_personaje *) list_remove(t_h_orq->l_nuevos,
-								indice_personaje);
 
-						list_add(t_h_orq->l_listos, pers);
-						//respuesta = "192.168.2.113;5002";
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
-						log_in_disk_orq(LOG_LEVEL_INFO, "%s", respuesta);
-						pthread_mutex_unlock(t_h_orq->s_listos);
-						pthread_mutex_unlock(t_h_orq->s_nuevos);
+
 						pthread_mutex_unlock(t_h_orq->s_lista_plani);
 
-						log_in_disk_orq(LOG_LEVEL_TRACE,
-								"datos del nivel enviados: %s", respuesta);
+						log_in_disk_orq(LOG_LEVEL_INFO, "%s", respuesta);
 
-//						fd_mensaje(i, O_TO_P_DESCONEXTAR_OREQUESTADOR, respuesta,&byteEnviados); //El personaje cierra la conexion si preguntar, esta perfeto aca tambien lo cierro
+						log_in_disk_orq(LOG_LEVEL_INFO,
+								"elimino el socket del personaje de los reads %s",
+								respuesta);
+
 						pthread_mutex_lock(t_h_orq->reads_select);
 						elimino_sck_lista(i, t_h_orq->readfds);
 						pthread_mutex_unlock(t_h_orq->reads_select);
 
 						log_in_disk_orq(LOG_LEVEL_ERROR,
-								"cierro la conexion con el personaje");
+								"----->Muevo el personaje de NUEVO A LISTO<-----");
+
+						pthread_mutex_lock(t_h_orq->s_listos);
+						pthread_mutex_lock(t_h_orq->s_nuevos);
+
+						busca_personaje_skc(i, t_h_orq->l_nuevos,
+								&indice_personaje);
+
+						mover_personaje_lista(indice_personaje,t_h_orq->l_nuevos,t_h_orq->l_listos);
+
+						pthread_mutex_unlock(t_h_orq->s_listos);
+						pthread_mutex_unlock(t_h_orq->s_nuevos);
 
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);
