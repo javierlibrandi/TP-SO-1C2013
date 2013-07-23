@@ -136,7 +136,9 @@ void *orequestador_thr(void* p) {
 					break;
 
 				case P_TO_O_PROX_NIVEL:
-
+					log_in_disk_orq(LOG_LEVEL_INFO,
+							"el personaje %s, pide el nivel; %s,", mensaje[0],
+							mensaje[1]);
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
 
 					if (busca_planificador_2(mensaje[1],
@@ -188,12 +190,17 @@ void *orequestador_thr(void* p) {
 
 		FD_ZERO(t_h_orq->readfds);
 		int cant_planificadores = list_size(t_h_orq->planificadores);
-		int l;
+		int cant_personajes_nuevos = list_size(t_h_orq->l_nuevos);
+		int l, m;
 		t_h_planificador * plani_aux;
 		for (l = 0; l < cant_planificadores; l++) {
 
 			plani_aux = list_get(t_h_orq->planificadores, l);
 			FD_SET(plani_aux->sck_planificador, t_h_orq->readfds);
+		}
+		for (m = 0; m < cant_personajes_nuevos; m++) {
+			pers = list_get(t_h_orq->l_nuevos, m);
+			FD_SET(pers->sck, t_h_orq->readfds);
 		}
 	}
 
