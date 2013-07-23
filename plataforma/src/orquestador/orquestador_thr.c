@@ -25,7 +25,7 @@
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
 	char *buffer, *respuesta_recursos;
-	int i, j, cant_recu_liberados, k;
+	int i;
 	int tipo;
 	char **mensaje;
 	//char *aux_char=NULL;
@@ -34,7 +34,7 @@ void *orequestador_thr(void* p) {
 	t_h_planificador * h_planificador = NULL;
 	t_personaje* pers = NULL;
 	int indice_personaje;
-	struct timeval tv; //estructura de tiempo para el select
+
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;
@@ -42,7 +42,7 @@ void *orequestador_thr(void* p) {
 
 	 FD_SET(t_h_orq->sock_nivel,t_h_orq->readfds); */
 	FD_SET(0, t_h_orq->readfds); // pongo a escuhcar la entrada estardar para que no se vuelve loco cuando se caen todas las conexiones
-	tv.tv_sec = 10;
+
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 
 	for (;;) {
