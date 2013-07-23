@@ -424,7 +424,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 		strcpy(nuevo_personaje->nivel, mensaje[2]);
 
 		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar.
-
+		nuevo_personaje->sck = sock;
 		//nuevo_personaje->listo_para_planificar = false; //pongo al personane para que no se planifique hasta que pase los datos del nivel
 		pthread_mutex_lock(h_orquestador->s_nuevos);
 		list_add(h_orquestador->l_nuevos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
@@ -434,7 +434,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
-
+		//sleep(3); //TODO sacar sleep.
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
 	}

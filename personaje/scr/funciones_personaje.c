@@ -815,7 +815,7 @@ void moverse(Personaje* personaje) {
 	}
 
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"Mi nueva posición a pedir al nivel: (%d, %d)", nuevaPosicion.x,
+			"soy %s --->Mi nueva posición a pedir al nivel: (%d, %d)", personaje->nombre,nuevaPosicion.x,
 			nuevaPosicion.y);
 
 //Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;xActual;yActual;xNuevo;yNuevo"

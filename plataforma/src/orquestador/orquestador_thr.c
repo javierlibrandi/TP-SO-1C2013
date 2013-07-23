@@ -34,7 +34,7 @@ void *orequestador_thr(void* p) {
 	t_h_planificador * h_planificador = NULL;
 	t_personaje* pers = NULL;
 	int indice_personaje;
-
+	struct timeval tv; //estructura de tiempo para el select
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;
@@ -42,18 +42,44 @@ void *orequestador_thr(void* p) {
 
 	 FD_SET(t_h_orq->sock_nivel,t_h_orq->readfds); */
 	FD_SET(0, t_h_orq->readfds); // pongo a escuhcar la entrada estardar para que no se vuelve loco cuando se caen todas las conexiones
-
+	tv.tv_sec = 10;
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
+
 	for (;;) {
 
+		pthread_mutex_lock(t_h_orq->reads_select);
+		pthread_mutex_lock(t_h_orq->s_lista_plani);
+		pthread_mutex_lock(t_h_orq->s_nuevos);
+		FD_ZERO(t_h_orq->readfds);
+		FD_SET(0, t_h_orq->readfds);
+		int cant_planificadores = list_size(t_h_orq->planificadores);
+		int cant_personajes_nuevos = list_size(t_h_orq->l_nuevos);
+		int l, m;
+		t_h_planificador * plani_aux;
+		for (l = 0; l < cant_planificadores; l++) {
 
-		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
+			plani_aux = list_get(t_h_orq->planificadores, l);
+			FD_SET(plani_aux->sck_planificador, t_h_orq->readfds);
+		}
+		for (m = 0; m < cant_personajes_nuevos; m++) {
+			pers = list_get(t_h_orq->l_nuevos, m);
+			FD_SET(pers->sck, t_h_orq->readfds);
+		}
+		pthread_mutex_unlock(t_h_orq->reads_select);
+		pthread_mutex_unlock(t_h_orq->s_lista_plani);
+		pthread_mutex_unlock(t_h_orq->s_nuevos);
+
+		//pthread_mutex_lock(t_h_orq->reads_select);
+
+		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL)
 				== -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
+		//pthread_mutex_unlock(t_h_orq->reads_select);
 
 		for (i = 0; i <= *(t_h_orq->sock); i++) {
+
 			if (FD_ISSET(i, t_h_orq->readfds)) {
 
 				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
@@ -154,10 +180,10 @@ void *orequestador_thr(void* p) {
 								indice_personaje);
 
 						list_add(t_h_orq->l_listos, pers);
-
+						//respuesta = "192.168.2.113;5002";
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
-
+						log_in_disk_orq(LOG_LEVEL_INFO, "%s", respuesta);
 						pthread_mutex_unlock(t_h_orq->s_listos);
 						pthread_mutex_unlock(t_h_orq->s_nuevos);
 						pthread_mutex_unlock(t_h_orq->s_lista_plani);
@@ -190,27 +216,7 @@ void *orequestador_thr(void* p) {
 		}
 
 		//limppio la lista de socket y Agrego de nuevo el socket de los niveles y los personajes que estan en la lista de nuevos.
-		pthread_mutex_lock(t_h_orq->reads_select);
-		pthread_mutex_lock(t_h_orq->s_lista_plani);
-		pthread_mutex_lock(t_h_orq->s_nuevos);
-		FD_ZERO(t_h_orq->readfds);
 
-		int cant_planificadores = list_size(t_h_orq->planificadores);
-		int cant_personajes_nuevos = list_size(t_h_orq->l_nuevos);
-		int l, m;
-		t_h_planificador * plani_aux;
-		for (l = 0; l < cant_planificadores; l++) {
-
-			plani_aux = list_get(t_h_orq->planificadores, l);
-			FD_SET(plani_aux->sck_planificador, t_h_orq->readfds);
-		}
-		for (m = 0; m < cant_personajes_nuevos; m++) {
-			pers = list_get(t_h_orq->l_nuevos, m);
-			FD_SET(pers->sck, t_h_orq->readfds);
-		}
-		pthread_mutex_unlock(t_h_orq->reads_select);
-		pthread_mutex_unlock(t_h_orq->s_lista_plani);
-		pthread_mutex_unlock(t_h_orq->s_nuevos);
 	} ///TODO no agregar los socket de personajes o niveles que dieron error.
 
 	pthread_exit(EXIT_SUCCESS);
@@ -225,6 +231,7 @@ bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 	int cant_planificadores, i;
 	//t_h_planificador * un_planificador;
 	if (list_is_empty(list_plataforma)) {
+		msj = "ERROR: Planificador de Nivel no encontrado";
 		return false;
 	}
 
