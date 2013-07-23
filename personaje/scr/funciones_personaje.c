@@ -203,7 +203,6 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 			infoNivel.nombre_nivel, "al orquestador");
 
 	sprintf(mensaje, "%s;%s", personaje->nombre, infoNivel.nombre_nivel);
-	
 
 	fd_mensaje(descriptor, P_TO_O_PROX_NIVEL, mensaje, &bytes_enviados);
 
@@ -638,13 +637,15 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		}
 
 		//Espero OK del planifcador de finalización de nivel.
-		 recv_variable(sockPlanif, &tipo);
+		recv_variable(sockPlanif, &tipo);
 
+		while (tipo != OK) {
+			recv_variable(sockPlanif, &tipo);
 
-
-		if (tipo == OK) {
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Se recibió OK de finalización de nivel.");
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Se recibió OK de finalización de nivel.");
+			}
 		}
 
 	} else {
@@ -815,8 +816,8 @@ void moverse(Personaje* personaje) {
 	}
 
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"soy %s --->Mi nueva posición a pedir al nivel: (%d, %d)", personaje->nombre,nuevaPosicion.x,
-			nuevaPosicion.y);
+			"soy %s --->Mi nueva posición a pedir al nivel: (%d, %d)",
+			personaje->nombre, nuevaPosicion.x, nuevaPosicion.y);
 
 //Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;xActual;yActual;xNuevo;yNuevo"
 	sprintf(mensajeMovimiento, "%c;%d;%d;%d;%d", personaje->simbolo,
