@@ -55,6 +55,8 @@ static pthread_mutex_t s_listos = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_bloqueados = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_errores = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_nuevos = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_terminados = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t reads_orquestador = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
 
@@ -67,16 +69,14 @@ int main(void) {
 
 	t_list *list_planificadores = list_create(); //creo lista de hilos
 
-	t_estados lista_estados;
+
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_plataforma = leer_archivo_plataforma_config();
 
-	lista_estados.prj_listo = list_create();
-	lista_estados.prj_bloquedo = list_create();
-	h_orquestador->lista_estados = malloc(sizeof(t_estados));
-	h_orquestador->lista_estados = &lista_estados;
+
+
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	h_orquestador->sock = malloc(sizeof(int));
 	h_orquestador->planificadores = list_planificadores;
@@ -86,11 +86,18 @@ int main(void) {
 	h_orquestador->s_bloquedos = &s_bloqueados;
 	h_orquestador->s_errores = &s_errores;
 	h_orquestador->s_nuevos = &s_nuevos;
+
+	h_orquestador->s_terminados = &s_terminados;
+
+	h_orquestador->reads_select = &reads_orquestador;
+
 	//listas
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
 	h_orquestador->l_nuevos = list_create(); //lista de personajes nuevos que no estan para lanificar.
+	h_orquestador->terminados = list_create();//pongo las visctimas que elige el orquestador
+	h_orquestador->readfds = malloc(sizeof(fd_set));
 	FD_ZERO(h_orquestador->readfds);
 	*(h_orquestador->sock) = 0;
 	//creo los hilos para inotify
@@ -171,7 +178,9 @@ void escucho_conexiones(t_param_plat param_plataforma,
 						&param_plataforma.CUANTUM);
 
 				//Agrego el socket del nivel a la lista que escucha el orquestador
+				pthread_mutex_lock(h_orquestador->reads_select);
 				FD_SET(new_sck, h_orquestador->readfds);
+				pthread_mutex_unlock(h_orquestador->reads_select);
 				if (new_sck > *(h_orquestador->sock)) {
 					*(h_orquestador->sock) = new_sck;
 				}
@@ -394,7 +403,10 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 		return;
 	} else {
 
+		pthread_mutex_lock(h_orquestador->reads_select);
 		FD_SET(sock, h_orquestador->readfds); //Agrego el socket a la lista del select
+		pthread_mutex_unlock(h_orquestador->reads_select);
+
 		if (sock > *(h_orquestador->sock)) {
 			*(h_orquestador->sock) = sock;
 		}
@@ -418,7 +430,9 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
-		//sleep(2);
+
+		sleep(2);
+
 		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
 
 	}

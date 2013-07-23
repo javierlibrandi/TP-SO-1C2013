@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+
 #define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0)
 
 typedef struct h_t_param_plat {
@@ -73,33 +74,32 @@ typedef struct {
 	pthread_mutex_t *s_listos; //personajes listos para planificar
 	pthread_mutex_t *s_bloquedos; //personajes bloqueados
 	pthread_mutex_t *s_errores; //personajes con errores
+	pthread_mutex_t *s_terminados;
 	int segundos_espera;
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
 	bool error_nivel;	//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
+
 } t_h_planificador;
 
-typedef struct{
-	t_list *prj_listo;
-	t_list *prj_bloquedo;
-}t_estados;
 
 typedef struct {
 	int *sock;
 	//int sock_nivel; //esta chanchada es pq nunca conecte el nivel al orquetador y es un lio y no se me ocurre como hacerlo bien :S
 	fd_set *readfds;
-	t_estados *lista_estados;
 	t_list *planificadores;
 	t_list *l_listos;
 	t_list *l_bloquedos;
 	t_list *l_errores;
+	t_list *terminados; //pongo las visctimas que elige el orquestador
 	t_list *l_nuevos;
 	pthread_mutex_t *s_lista_plani;
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
 	pthread_mutex_t *s_errores;
 	pthread_mutex_t *s_nuevos;
-
+	pthread_mutex_t *reads_select;
+	pthread_mutex_t *s_terminados;
 } t_h_orquestadro;
 
 
