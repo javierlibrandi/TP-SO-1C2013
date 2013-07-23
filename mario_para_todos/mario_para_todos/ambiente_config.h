@@ -74,10 +74,12 @@ typedef struct {
 	pthread_mutex_t *s_listos; //personajes listos para planificar
 	pthread_mutex_t *s_bloquedos; //personajes bloqueados
 	pthread_mutex_t *s_errores; //personajes con errores
+	pthread_mutex_t *s_terminados;
 	int segundos_espera;
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
 	bool error_nivel;	//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
+
 } t_h_planificador;
 
 
@@ -89,13 +91,14 @@ typedef struct {
 	t_list *l_listos;
 	t_list *l_bloquedos;
 	t_list *l_errores;
+	t_list *terminados; //pongo las visctimas que elige el orquestador
 	t_list *l_nuevos;
 	pthread_mutex_t *s_lista_plani;
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
 	pthread_mutex_t *s_errores;
 	pthread_mutex_t *s_nuevos;
-
+	pthread_mutex_t *s_terminados;
 } t_h_orquestadro;
 
 
