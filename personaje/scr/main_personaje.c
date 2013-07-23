@@ -138,6 +138,8 @@ int main(void) {
 
 		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
+		personaje->finNivel = false;
+
 		if (personaje->vidas > 0) {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
