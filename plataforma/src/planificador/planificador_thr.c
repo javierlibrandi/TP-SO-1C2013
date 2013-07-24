@@ -246,6 +246,7 @@ static void mover_personaje(t_personaje *personaje,
 			personaje_bloqueado = true;
 
 			break;
+			//TODO AGregar mensaje de que el personaje gano el juego!!
 		case P_TO_N_BLOQUEO:
 
 			lock_listas_plantaforma(h_planificador);

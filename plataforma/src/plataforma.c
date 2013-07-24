@@ -426,7 +426,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 		strcpy(nuevo_personaje->nombre, mensaje[0]);
 		nuevo_personaje->nivel = malloc(strlen(mensaje[2]) + 1);
 		strcpy(nuevo_personaje->nivel, mensaje[2]);
-
+		nuevo_personaje->listo_para_planificar = false;
 		nuevo_personaje->sec_entrada = sec_personaje++; //creo una secuencia para seber cual es el personaje mas viejo y saber cual matar.
 		nuevo_personaje->sck = sock;
 		//nuevo_personaje->listo_para_planificar = false; //pongo al personane para que no se planifique hasta que pase los datos del nivel
@@ -503,6 +503,16 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 //	if (sck > *(h_planificador->sock)) {
 //		*(h_planificador->sock) = sck;
 //	}
+	log_in_disk_plat(LOG_LEVEL_ERROR,
+			"----->Muevo el personaje de NUEVO A LISTO<-----");
+
+	pthread_mutex_lock(h_orquestador->s_listos);
+	pthread_mutex_lock(h_orquestador->s_nuevos);
+
+	mover_personaje_lista(sck, h_orquestador->l_nuevos,
+			h_orquestador->l_listos);
+	pthread_mutex_unlock(h_orquestador->s_listos);
+	pthread_mutex_unlock(h_orquestador->s_nuevos);
 
 }
 

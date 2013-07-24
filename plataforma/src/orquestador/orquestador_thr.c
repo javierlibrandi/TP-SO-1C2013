@@ -63,7 +63,10 @@ void *orequestador_thr(void* p) {
 		}
 		for (m = 0; m < cant_personajes_nuevos; m++) {
 			pers = list_get(t_h_orq->l_nuevos, m);
-			FD_SET(pers->sck, t_h_orq->readfds);
+			if (!pers->listo_para_planificar) {
+				FD_SET(pers->sck, t_h_orq->readfds);
+			}
+
 		}
 		pthread_mutex_unlock(t_h_orq->reads_select);
 		pthread_mutex_unlock(t_h_orq->s_lista_plani);
@@ -184,22 +187,13 @@ void *orequestador_thr(void* p) {
 						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
 								&byteEnviados);
 
-						recv_variable(i,&tipo); //TODO Controlar el error.
+						//recv_variable(i,&tipo); //TODO Controlar el error. // Esperamos
 
 						pthread_mutex_lock(t_h_orq->reads_select);
+						busca_personaje_skc(i,t_h_orq->l_nuevos,&indice_personaje)->listo_para_planificar = true;
 						elimino_sck_lista(i, t_h_orq->readfds);
+
 						pthread_mutex_unlock(t_h_orq->reads_select);
-
-						log_in_disk_orq(LOG_LEVEL_ERROR,
-								"----->Muevo el personaje de NUEVO A LISTO<-----");
-
-						pthread_mutex_lock(t_h_orq->s_listos);
-						pthread_mutex_lock(t_h_orq->s_nuevos);
-
-						mover_personaje_lista(i, t_h_orq->l_nuevos,
-								t_h_orq->l_listos);
-						pthread_mutex_unlock(t_h_orq->s_listos);
-						pthread_mutex_unlock(t_h_orq->s_nuevos);
 
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);

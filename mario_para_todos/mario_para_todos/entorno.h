@@ -53,7 +53,7 @@ typedef struct{
 	unsigned long int sec_entrada;
 	int sck;
 	char prox_recurso;
-	bool listo_para_planificar; //solo planifico los personajes que el orquestador ya paso los datos del nivel.
+	bool listo_para_planificar;
 }t_personaje; // re subido
 
 typedef struct{
