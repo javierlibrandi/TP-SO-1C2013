@@ -76,6 +76,7 @@ int main(void) {
 			flagReiniciarNivel = false;
 		}
 
+
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
