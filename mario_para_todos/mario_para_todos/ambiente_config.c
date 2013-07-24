@@ -258,6 +258,7 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 			">>>>>>Impimo la lista de personajes<<<<<<<<<<<<");
 
 	switch (tipo_estruc) {
+	case 'o':
 	case 'O':
 		h_struc_o = (t_h_orquestadro*) estruc;
 		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
@@ -272,6 +273,7 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 		impimir_lista(h_struc_o->l_koopa);
 
 		break;
+	case 'p':
 	case 'P':
 		h_struc_p = (t_h_planificador*) estruc;
 		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");

@@ -93,7 +93,7 @@ typedef struct {
 	t_list *l_listos;
 	t_list *l_bloquedos;
 	t_list *l_errores;
-	t_list *terminados; //pongo las visctimas que elige el orquestador
+	t_list *l_terminados; //pongo las visctimas que elige el orquestador
 	t_list *l_nuevos;
 	t_list *l_koopa;
 	pthread_mutex_t *s_lista_plani;
