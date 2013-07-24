@@ -33,7 +33,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-static t_personaje *planifico_personaje(t_h_planificador *h_planificador,int *index);
+static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
+		int *index);
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador);
 void eliminar_personaje_termino_nivel(int sck, t_list *l_listos);
@@ -164,7 +165,8 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 	}
 }
 
-static t_personaje *planifico_personaje(t_h_planificador *h_planificador, int *index) {
+static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
+		int *index) {
 
 	int total_elementos;
 	int aux;
@@ -227,7 +229,6 @@ static void mover_personaje(t_personaje *personaje,
 		case P_TO_PL_OBJ_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
 
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
-
 
 			fd_mensaje(personaje->sck, OK, "Me alegro pos vos!!!!",
 					&byteEnviados);
@@ -302,12 +303,12 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 void * hilo_planificador(void * p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 	t_personaje *personaje;
-	int index = 0;
+	static int index = 0;
 	for (;;) {
 
 		sleep(h_planificador->segundos_espera);
 		pthread_mutex_lock(h_planificador->s_listos);
-		personaje = planifico_personaje(h_planificador,&index);
+		personaje = planifico_personaje(h_planificador, &index);
 
 		pthread_mutex_unlock(h_planificador->s_listos);
 
