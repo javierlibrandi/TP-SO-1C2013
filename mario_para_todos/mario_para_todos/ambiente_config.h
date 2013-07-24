@@ -70,11 +70,13 @@ typedef struct {
 	t_list *l_listos;
 	t_list *l_bloquedos;
 	t_list *l_errores;
+	t_list *l_koopa;//guado los personajes que terminan su plan de niveles para matar a koopa
 	pthread_mutex_t *s_lista_plani; //esta no se para que la hice????
 	pthread_mutex_t *s_listos; //personajes listos para planificar
 	pthread_mutex_t *s_bloquedos; //personajes bloqueados
 	pthread_mutex_t *s_errores; //personajes con errores
 	pthread_mutex_t *s_terminados;
+	pthread_mutex_t *s_koopa;
 	int segundos_espera;
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
@@ -93,6 +95,7 @@ typedef struct {
 	t_list *l_errores;
 	t_list *terminados; //pongo las visctimas que elige el orquestador
 	t_list *l_nuevos;
+	t_list *l_koopa;
 	pthread_mutex_t *s_lista_plani;
 	pthread_mutex_t *s_listos;
 	pthread_mutex_t *s_bloquedos;
@@ -101,6 +104,7 @@ typedef struct {
 	pthread_mutex_t *s_sock_semaforo;
 	pthread_mutex_t *reads_select;
 	pthread_mutex_t *s_terminados;
+	pthread_mutex_t *s_koopa;
 } t_h_orquestadro;
 
 
@@ -121,5 +125,10 @@ int mover_personaje_lista(int sck,t_list *origen, t_list *destino);
 void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq);
 
 void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq);
+
+void impimir_lista(t_list *lista);
+
+void imprimir_listas(void *estruc, char tipo_estruc);
+
 
 #endif /* AMBIENTE_CONFIG_H_ */

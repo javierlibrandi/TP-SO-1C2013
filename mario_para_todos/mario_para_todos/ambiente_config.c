@@ -135,10 +135,9 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 		aux_str = string_from_format("%s%d", "CAJA", ++i);
 	}
 
-	param.TiempoChequeoDeadlock = config_get_int_value(config, "TiempoChequeoDeadlock");
+	param.TiempoChequeoDeadlock = config_get_int_value(config,
+			"TiempoChequeoDeadlock");
 	param.Recovery = config_get_int_value(config, "Recovery");
-
-
 
 	return param;
 
@@ -180,11 +179,9 @@ t_param_persoje leer_personaje_config() {
 	i = 0;
 	while (param.PLAN_NIVELES[i] != '\0') {
 
-
 		list_recursos = malloc(sizeof(t_recusos));
 		//sprintf(aux_str, "OBJ[%s]", param.PLAN_NIVELES[i]);
-		aux_str = string_from_format("OBJ[%s]",  param.PLAN_NIVELES[i]);
-
+		aux_str = string_from_format("OBJ[%s]", param.PLAN_NIVELES[i]);
 
 		log_in_disk_per(LOG_LEVEL_TRACE, "Niveles de planificador %s ",
 				param.PLAN_NIVELES[i]);
@@ -204,56 +201,103 @@ t_param_persoje leer_personaje_config() {
 
 }
 
-
-void lock_listas_plantaforma(t_h_planificador *h_planificador){
+void lock_listas_plantaforma(t_h_planificador *h_planificador) {
 	pthread_mutex_lock(h_planificador->s_listos);
 	pthread_mutex_lock(h_planificador->s_bloquedos);
 	pthread_mutex_lock(h_planificador->s_errores);
 
 }
 
-void un_lock_listas_plataforma(t_h_planificador *h_planificador){
+void un_lock_listas_plataforma(t_h_planificador *h_planificador) {
 	pthread_mutex_unlock(h_planificador->s_listos);
 	pthread_mutex_unlock(h_planificador->s_bloquedos);
 	pthread_mutex_unlock(h_planificador->s_errores);
 }
 
-void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq){
+void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_lock(h_orq->s_listos);
 	pthread_mutex_lock(h_orq->s_bloquedos);
 	pthread_mutex_lock(h_orq->s_errores);
 
 }
 
-void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq){
+void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_unlock(h_orq->s_listos);
 	pthread_mutex_unlock(h_orq->s_bloquedos);
 	pthread_mutex_unlock(h_orq->s_errores);
 }
-
 
 /**
  * @Muevo un personaje de una lista a otra
  * de la llista, lo busco por socket
  *
  */
-int mover_personaje_lista(int sck,t_list *origen, t_list *destino){
-	int i,cant_elementos;
+int mover_personaje_lista(int sck, t_list *origen, t_list *destino) {
+	int i, cant_elementos;
 	cant_elementos = list_size(origen);
 	t_personaje *perso;
 
-	log_in_disk_plat(LOG_LEVEL_INFO,
-			"mover_personaje_lista");
+	log_in_disk_plat(LOG_LEVEL_INFO, "mover_personaje_lista");
 
+	for (i = 0; i < cant_elementos; i++) {
+		perso = (t_personaje*) list_get(origen, i);
 
-	for(i=0;i<cant_elementos;i++){
-		perso =(t_personaje*)list_get(origen,i);
-
-		if (perso->sck == sck){
-			list_add(destino,list_remove(origen,i));
+		if (perso->sck == sck) {
+			list_add(destino, list_remove(origen, i));
 			return 1;
 		}
 	}
-return 0;
+	return 0;
+}
+
+void imprimir_listas(void *estruc, char tipo_estruc) {
+	t_h_planificador *h_struc_p=NULL;
+	t_h_orquestadro *h_struc_o=NULL;
+
+	log_in_disk_plat(LOG_LEVEL_INFO,
+			">>>>>>Impimo la lista de personajes<<<<<<<<<<<<");
+
+	switch (tipo_estruc) {
+	case 'O':
+		h_struc_o = (t_h_orquestadro*) estruc;
+		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
+		impimir_lista(h_struc_o->l_listos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "BLOQUEADOS");
+		impimir_lista(h_struc_o->l_bloquedos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "ERRORES");
+		impimir_lista(h_struc_o->l_errores);
+		log_in_disk_plat(LOG_LEVEL_INFO, "NUEVOS");
+		impimir_lista(h_struc_o->l_nuevos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "EPERANDO POR KOOPA");
+		impimir_lista(h_struc_o->l_koopa);
+
+		break;
+	case 'P':
+		h_struc_p = (t_h_planificador*) estruc;
+		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
+		impimir_lista(h_struc_p->l_listos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "BLOQUEADOS");
+		impimir_lista(h_struc_p->l_bloquedos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "ERRORES");
+		impimir_lista(h_struc_p->l_errores);
+		log_in_disk_plat(LOG_LEVEL_INFO, "NUEVOS");
+		log_in_disk_plat(LOG_LEVEL_INFO, "EPERANDO POR KOOPA");
+		impimir_lista(h_struc_p->l_koopa);
+		break;
+	}
+
+}
+
+void impimir_lista(t_list *lista) {
+	int count;
+	int total_personajes = list_size(lista);
+	t_personaje *per;
+
+	for (count = 0; count < total_personajes; count++) {
+		per = list_get(lista, count);
+
+		log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s", per->nombre);
+
+	}
 }
 
