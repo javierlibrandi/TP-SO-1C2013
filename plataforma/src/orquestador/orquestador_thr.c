@@ -109,6 +109,7 @@ void *orequestador_thr(void* p) {
 								t_h_orq->l_errores);
 						mover_personaje_lista(i, t_h_orq->l_bloquedos,
 								t_h_orq->l_errores);
+						impimir_lista(t_h_orq,'o');
 						un_lock_listas_plataforma_orq(t_h_orq);
 
 					}
