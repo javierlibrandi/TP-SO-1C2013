@@ -67,7 +67,7 @@ void* planificador_nivel_thr(void *p) {
 		}
 
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
-				NULL, &tv ) == -1) {
+				NULL, &tv) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
@@ -209,7 +209,7 @@ static void mover_personaje(t_personaje *personaje,
 	int tipo;
 	int movimientos_realizados = 0;
 	bool personaje_bloqueado = false;
-
+	int sock_aux;
 //permito mover al personaje mientras el cuantun no llegue a 0
 	while (*(h_planificador->cuantum) >= ++movimientos_realizados //TODO Revisar condicion del ciclo.
 	&& !personaje_bloqueado) {
@@ -230,15 +230,15 @@ static void mover_personaje(t_personaje *personaje,
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
 
 			lock_listas_plantaforma(h_planificador);
-
+			sock_aux = personaje->sck;
 			eliminar_personaje_termino_nivel(personaje->sck,
 					h_planificador->l_listos);
+
 			elimino_sck_lista(personaje->sck, h_planificador->readfds);
 
 			un_lock_listas_plataforma(h_planificador);
 
-			fd_mensaje(personaje->sck,OK,"Me alegro pos vos!!!!",&byteEnviados);
-
+			fd_mensaje(sock_aux, OK, "Me alegro pos vos!!!!", &byteEnviados);
 			personaje_bloqueado = true;
 
 			break;
@@ -269,6 +269,7 @@ static void mover_personaje(t_personaje *personaje,
 		free(buffer);
 		sleep(h_planificador->segundos_espera);
 	}
+	personaje_bloqueado = false;
 }
 
 void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
@@ -283,7 +284,6 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 
 	liberar_memoria_personaje(personaje);
 }
-
 
 void liberar_memoria_personaje(t_personaje *personaje) {
 	log_in_disk_plat(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
