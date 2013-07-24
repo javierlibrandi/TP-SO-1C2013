@@ -55,7 +55,7 @@ Personaje* nuevoPersonaje() {
 			personaje->nombre, personaje->simbolo, personaje->vidas);
 
 	for (i = 0; param.PLAN_NIVELES[i] != '\0'; i++) { //recorro todos los niveles
-		log_in_disk_per(LOG_LEVEL_INFO, "Estoy en el nivel %s",
+		log_in_disk_per(LOG_LEVEL_INFO, "Estoy en el %s",
 				param.PLAN_NIVELES[i]);
 
 		aux_nivel = param.PLAN_NIVELES[i];
@@ -64,7 +64,7 @@ Personaje* nuevoPersonaje() {
 
 		for (k = 0; recursos->RECURSOS[k] != '\0'; k++) { //recorro todos los recuros del nivel
 
-			log_in_disk_per(LOG_LEVEL_INFO, "Nombre recurso %s ",
+			log_in_disk_per(LOG_LEVEL_INFO, "Nombre: %s ",
 					recursos->RECURSOS[k]);
 
 		}
@@ -144,18 +144,18 @@ char* determinarProxNivel(Personaje *personaje) {
 	personaje->nivelActual++;
 	nivAct = personaje->nivelActual;
 
-	log_in_disk_per(LOG_LEVEL_INFO,
+	/*log_in_disk_per(LOG_LEVEL_INFO,
 			"nivel actual: %d, tamaño lista niveles: %d",
-			personaje->nivelActual, list_size(personaje->niveles));
+			personaje->nivelActual, list_size(personaje->niveles));*/
 
 	if (list_size(personaje->niveles) > nivAct) {
 		proxNivel = list_get(personaje->niveles, nivAct);
-		log_in_disk_per(LOG_LEVEL_INFO, "ProxNivel %s", proxNivel);
+		//log_in_disk_per(LOG_LEVEL_INFO, "ProxNivel -> %s", proxNivel);
 
 	}
 
 	nodoNivelProx = obtenerNodo(personaje->niveles, nivAct + 1);
-	log_in_disk_per(LOG_LEVEL_INFO, "despues de obtener nodo");
+	//log_in_disk_per(LOG_LEVEL_INFO, "despues de obtener nodo");
 
 	if (nodoNivelProx == NULL ) {
 		//if ((obtenerNodo(personaje.niveles, personaje.nivelActual))->next == NULL){
@@ -197,10 +197,10 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 //Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
 	//infoNivel.nombre_nivel = determinarProxNivel(personaje);
 	infoNivel.nombre_nivel = personaje->infoNivel.nombre;
-
+	log_in_disk_per(LOG_LEVEL_INFO, "Próximo Nivel -> %s", infoNivel.nombre_nivel);
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"Voy a enviar solicitud de ubicación del %s",
-			infoNivel.nombre_nivel, "al orquestador");
+			"Voy a enviar solicitud de ubicación del %s al orquestador",
+			infoNivel.nombre_nivel);
 
 	sprintf(mensaje, "%s;%s", personaje->nombre, infoNivel.nombre_nivel);
 
@@ -944,16 +944,16 @@ bool conocePosicionRecurso(char recursoActual) {
 //***** REMPLAZAR esta función 21/7 en REPO
 t_recusos *recursos_nivel(t_list *recursos, char *nivel) {
 	log_in_disk_per(LOG_LEVEL_TRACE,
-			"func recursos_nivel Busco los recursos del nivel: %s", nivel);
+			"Busco los recursos del %s", nivel);
 
 	bool _list_elements(t_recusos *list_recursos) {
 
-		log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
-				list_recursos->NOMBRE, nivel);
+		//log_in_disk_orq(LOG_LEVEL_TRACE, "El elemento %s lo comparo con %s",
+		//		list_recursos->NOMBRE, nivel);
 
 		if (!strcmp(list_recursos->NOMBRE, nivel)) {
 
-			log_in_disk_per(LOG_LEVEL_TRACE, "Devuelvo los recursos del nivel");
+			log_in_disk_per(LOG_LEVEL_TRACE, "Recursos del nivel:");
 
 			return true;
 

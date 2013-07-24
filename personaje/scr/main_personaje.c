@@ -65,7 +65,7 @@ int main(void) {
 
 	//pthread_create(&listener, NULL, (void*) listenerPersonaje, (void*) personaje);
 
-	log_in_disk_per(LOG_LEVEL_INFO, "**** COMIENZA EL JUEGO PARA %s ****",
+	log_in_disk_per(LOG_LEVEL_INFO, "****** COMIENZA EL JUEGO PARA %s ******",
 			personaje->nombre);
 
 	while (!planDeNivelesCumplido(personaje)) {
@@ -93,6 +93,7 @@ int main(void) {
 				flagReiniciarNivel = false;
 			}
 
+			log_in_disk_per(LOG_LEVEL_INFO,"****** INICIO NIVEL ******");
 			//Espero y recibo notificación de movimiento permitido
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Esperando turno para jugar del planificador del %s",
