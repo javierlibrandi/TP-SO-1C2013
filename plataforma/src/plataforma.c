@@ -196,12 +196,15 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 			break;
 		case P_TO_PL_INICIAR_NIVEL: //personaje se conecta a plataforma y solicita jugar en un determinado nivel "nombrePersonaje, nivelNro" Ej. "Mario;nivel2"
+
 			log_in_disk_orq(LOG_LEVEL_TRACE,
 					"Mensaje tip P_TO_PL_INICIAR_NIVEL");
+			lock_listas_plantaforma_orq(h_orquestador);
 
 			agregar_personaje_planificador(new_sck, h_orquestador, buffer);
-
+			un_lock_listas_plataforma_orq(h_orquestador);
 			fd_mensaje(new_sck, OK, "Personaje planificado", &byteEnviados);
+
 			if (byteEnviados == -1)
 				log_in_disk_orq(LOG_LEVEL_TRACE,
 						"Error al enviar mensaje a pesonaje");
@@ -494,11 +497,11 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	}
 
 	agregar_sck_personaje(sck, nom_personaje, h_orquestador->l_listos);
-
-	FD_SET(sck, h_planificador->readfds);
-	if (sck > *(h_planificador->sock)) {
-		*(h_planificador->sock) = sck;
-	}
+//comentado para que no se escuchen en el select del planificador
+//	FD_SET(sck, h_planificador->readfds);
+//	if (sck > *(h_planificador->sock)) {
+//		*(h_planificador->sock) = sck;
+//	}
 
 }
 
