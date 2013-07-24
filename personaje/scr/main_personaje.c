@@ -75,13 +75,17 @@ int main(void) {
 			flagReiniciarJuego = false;
 			flagReiniciarNivel = false;
 		}
+<<<<<<< HEAD
 		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d",
 				descriptor);
+=======
+>>>>>>> 88c9f60e6a5181bdda8015e4f2134753895ca516
 
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
 
+<<<<<<< HEAD
 		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d",
 				descriptor);
 
@@ -90,6 +94,10 @@ int main(void) {
 		log_in_disk_per(LOG_LEVEL_INFO, "Socket despues de iniciar nivel: %d",
 				personaje->sockPlanif);
 
+=======
+		iniciarNivel(personaje, InfoProxNivel);
+
+>>>>>>> 88c9f60e6a5181bdda8015e4f2134753895ca516
 		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
 
@@ -128,9 +136,14 @@ int main(void) {
 				ejecutarTurno(personaje);
 			}
 
+<<<<<<< HEAD
 			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR) {
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"No se recibió un mensaje esperado: %s", buffer);
+=======
+			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR){
+				log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado:%s . TIPO: %d", buffer, tipo);
+>>>>>>> 88c9f60e6a5181bdda8015e4f2134753895ca516
 				exit(EXIT_FAILURE);
 			}
 
