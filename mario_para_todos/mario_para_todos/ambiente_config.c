@@ -16,6 +16,8 @@
 #include <pthread.h>
 #include "entorno.h"
 
+static void impimir_lista(t_list *lista);
+
 t_param_plat leer_archivo_plataforma_config() {
 	t_config* config;
 	t_param_plat param;
@@ -290,7 +292,7 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 
 }
 
-void impimir_lista(t_list *lista) {
+static void impimir_lista(t_list *lista) {
 	int count;
 	int total_personajes = list_size(lista);
 	t_personaje *per;

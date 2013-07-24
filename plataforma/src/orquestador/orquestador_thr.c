@@ -22,6 +22,7 @@
 #include "../planificador/planificador_thr.h"
 #include <stdbool.h>
 
+
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
 	char *buffer, *respuesta_recursos;
@@ -109,6 +110,7 @@ void *orequestador_thr(void* p) {
 								t_h_orq->l_errores);
 						mover_personaje_lista(i, t_h_orq->l_bloquedos,
 								t_h_orq->l_errores);
+						imprimir_listas(t_h_orq,'o');
 						un_lock_listas_plataforma_orq(t_h_orq);
 
 					}

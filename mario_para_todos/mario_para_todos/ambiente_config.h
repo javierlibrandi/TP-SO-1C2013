@@ -126,7 +126,7 @@ void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq);
 
 void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq);
 
-void impimir_lista(t_list *lista);
+
 
 void imprimir_listas(void *estruc, char tipo_estruc);
 
