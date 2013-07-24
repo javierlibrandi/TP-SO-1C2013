@@ -251,8 +251,8 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	int descriptorPlan, tipoP, descriptorNiv, tipoN;
 	;
-	int bytes_enviados_niv, bytes_enviados_pl;
-	char mensaje1[max_len], mensaje2[max_len];
+	int bytes_enviados_niv, bytes_enviados_pl, bytes_enviados_pla;
+	char mensaje1[max_len], mensaje2[max_len], mensaje2a[max_len];
 	char *bufferPla, *bufferNiv;
 	t_recusos *recursos;
 	int k;
@@ -339,6 +339,16 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
 		personaje->sockPlanif = descriptorPlan;
 		//usar semaforos para acceder a listaSelect
+
+		fd_mensaje(personaje->sockPlanif, OK, mensaje2a, &bytes_enviados_pla);
+		if (bytes_enviados_pla == -1) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Hubo un error al enviar el mensaje OK");
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Planificador cerró la conexión. El proceso personaje va a terminar.");
+				exit(EXIT_FAILURE);
+
+			}
 
 	}
 
