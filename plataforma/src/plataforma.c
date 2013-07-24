@@ -199,11 +199,23 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 			log_in_disk_orq(LOG_LEVEL_TRACE,
 					"Mensaje tip P_TO_PL_INICIAR_NIVEL");
+
+			log_in_disk_plat(LOG_LEVEL_ERROR,
+					"cantidad de listos: %d, cantidad de nuevos: %d",
+					list_size(h_orquestador->l_listos),
+					list_size(h_orquestador->l_nuevos));
+
 			lock_listas_plantaforma_orq(h_orquestador);
 			pthread_mutex_lock(&s_lista_plani);
 			agregar_personaje_planificador(new_sck, h_orquestador, buffer);
 			pthread_mutex_unlock(&s_lista_plani);
 			un_lock_listas_plataforma_orq(h_orquestador);
+
+			log_in_disk_plat(LOG_LEVEL_ERROR,
+					"cantidad de listos: %d, cantidad de nuevos: %d",
+					list_size(h_orquestador->l_listos),
+					list_size(h_orquestador->l_nuevos));
+
 			fd_mensaje(new_sck, OK, "Personaje planificado", &byteEnviados);
 
 			if (byteEnviados == -1)
@@ -484,7 +496,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	char *nom_personaje = aux_mjs[0];
 	char *nom_nivel = aux_mjs[1];
 	t_h_planificador *h_planificador = NULL;
-
+	int indice_auxx;
+	Personaje* per_aux;
 	log_in_disk_plat(LOG_LEVEL_TRACE,
 			"agregar_personaje_planificador personaje: %s \t nivel: %s",
 			nom_personaje, nom_nivel);
@@ -496,8 +509,7 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 				"Error al optener la estrucutra del planificador");
 		exit(EXIT_FAILURE);
 	}
-
-	agregar_sck_personaje(sck, nom_personaje, h_orquestador->l_listos);
+	agregar_sck_personaje(sck, nom_personaje, h_orquestador->l_nuevos);
 //comentado para que no se escuchen en el select del planificador
 //	FD_SET(sck, h_planificador->readfds);
 //	if (sck > *(h_planificador->sock)) {
