@@ -233,8 +233,8 @@ void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq){
 
 
 /**
- * Muevo un personaje de una lista a otra
- * de la llista
+ * @Muevo un personaje de una lista a otra
+ * de la llista, lo busco por socket
  *
  */
 int mover_personaje_lista(int sck,t_list *origen, t_list *destino){

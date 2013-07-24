@@ -33,7 +33,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-static t_personaje *planifico_personaje(t_h_planificador *h_planificador);
+static t_personaje *planifico_personaje(t_h_planificador *h_planificador,int *index);
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador);
 void eliminar_personaje_termino_nivel(int sck, t_list *l_listos);
@@ -76,8 +76,6 @@ void* planificador_nivel_thr(void *p) {
 
 			if (FD_ISSET(sck, h_planificador->readfds)) {
 				buffer = recv_variable(sck, &tipo);
-				log_in_disk_plan(LOG_LEVEL_ERROR, "tipoooooooooooooooo, %d,   ",
-						tipo);
 
 				if (!strcmp(buffer, Leido_error)) {
 
@@ -166,39 +164,40 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 	}
 }
 
-static t_personaje *planifico_personaje(t_h_planificador *h_planificador) {
-	static int index = 0; //hago un buffer circular
+static t_personaje *planifico_personaje(t_h_planificador *h_planificador, int *index) {
+
 	int total_elementos;
-	int aux = index;
+	int aux;
 	t_personaje *personaje;
 
 	//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
 
 	total_elementos = list_size(h_planificador->l_listos);
-
+	if (total_elementos > 0) {
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
-	if (index >= total_elementos) {
-		index = 0;
-	}
-	aux = total_elementos;
+		if (*index >= total_elementos) {
+			*index = 0;
+		}
+		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
-	//while (aux != index)
-	while (aux > index) {
+		//while (aux != index)
+		while (aux > *index) {
 
-		//obtengo de a uno los personajes
-		personaje = (t_personaje*) list_get(h_planificador->l_listos, index++);
+			//obtengo de a uno los personajes
+			personaje = (t_personaje*) list_get(h_planificador->l_listos,
+					*index++);
 
-		if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-			log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
-					personaje->nombre);
-			return personaje;
-		}
+			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
+				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
+						personaje->nombre);
+				return personaje;
+			}
 //		else if (index > total_elementos) {
 //			index = 0;
 //		}
+		}
 	}
-
 	return NULL ;
 }
 
@@ -229,6 +228,10 @@ static void mover_personaje(t_personaje *personaje,
 
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
 
+
+			fd_mensaje(personaje->sck, OK, "Me alegro pos vos!!!!",
+					&byteEnviados);
+
 			lock_listas_plantaforma(h_planificador);
 			sock_aux = personaje->sck;
 			eliminar_personaje_termino_nivel(personaje->sck,
@@ -239,6 +242,7 @@ static void mover_personaje(t_personaje *personaje,
 			un_lock_listas_plataforma(h_planificador);
 
 			fd_mensaje(sock_aux, OK, "Me alegro pos vos!!!!", &byteEnviados);
+
 			personaje_bloqueado = true;
 
 			break;
@@ -297,11 +301,13 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 void * hilo_planificador(void * p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 	t_personaje *personaje;
+	int index = 0;
 	for (;;) {
 
 		sleep(h_planificador->segundos_espera);
 		pthread_mutex_lock(h_planificador->s_listos);
-		personaje = planifico_personaje(h_planificador);
+		personaje = planifico_personaje(h_planificador,&index);
+
 		pthread_mutex_unlock(h_planificador->s_listos);
 
 		//si el personaje no es nulo muevo el personaje
