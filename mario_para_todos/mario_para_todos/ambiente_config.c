@@ -16,6 +16,8 @@
 #include <pthread.h>
 #include "entorno.h"
 
+static void impimir_lista(t_list *lista);
+
 t_param_plat leer_archivo_plataforma_config() {
 	t_config* config;
 	t_param_plat param;
@@ -254,12 +256,13 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 	t_h_planificador *h_struc_p=NULL;
 	t_h_orquestadro *h_struc_o=NULL;
 
-	log_in_disk_plat(LOG_LEVEL_INFO,
-			">>>>>>Impimo la lista de personajes<<<<<<<<<<<<");
+
 
 	switch (tipo_estruc) {
 	case 'o':
 	case 'O':
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				">>>>>>Impimo la lista de personajes ORQUESTADOR<<<<<<<<<<<<");
 		h_struc_o = (t_h_orquestadro*) estruc;
 		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
 		impimir_lista(h_struc_o->l_listos);
@@ -275,6 +278,8 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 		break;
 	case 'p':
 	case 'P':
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				">>>>>>Impimo la lista de personajes PANIFICADOR<<<<<<<<<<<<");
 		h_struc_p = (t_h_planificador*) estruc;
 		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
 		impimir_lista(h_struc_p->l_listos);
@@ -290,7 +295,7 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 
 }
 
-void impimir_lista(t_list *lista) {
+static void impimir_lista(t_list *lista) {
 	int count;
 	int total_personajes = list_size(lista);
 	t_personaje *per;
