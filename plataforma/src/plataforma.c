@@ -506,13 +506,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	log_in_disk_plat(LOG_LEVEL_ERROR,
 			"----->Muevo el personaje de NUEVO A LISTO<-----");
 
-	pthread_mutex_lock(h_orquestador->s_listos);
-	pthread_mutex_lock(h_orquestador->s_nuevos);
-
 	mover_personaje_lista(sck, h_orquestador->l_nuevos,
 			h_orquestador->l_listos);
-	pthread_mutex_unlock(h_orquestador->s_listos);
-	pthread_mutex_unlock(h_orquestador->s_nuevos);
 
 }
 
