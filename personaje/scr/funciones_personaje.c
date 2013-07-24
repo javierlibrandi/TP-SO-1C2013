@@ -533,7 +533,7 @@ void ejecutarTurno(Personaje *personaje) {
 //Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
 	if (!conocePosicionRecurso(personaje->recursoActual)) {
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"Desconozco la ubicación del recurso que necesito. Solicito coordenadas al nivel");
+				"Desconozco la ubicación del recurso que necesito. Solicito coordenadas al %s", personaje->infoNivel.nombre);
 		solicitarUbicacionRecurso(personaje);
 	}
 
@@ -546,12 +546,12 @@ void ejecutarTurno(Personaje *personaje) {
 
 	if (evaluarPosicion(personaje->posActual, personaje->posProxRecurso)) {
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"Llegué al recurso. Solicito una instancia del mismo.");
+				"Llegué al recurso. Solicito una instancia de %c.", personaje->recursoActual);
 
 		recursoAdjudicado = solicitarInstanciaRecurso(personaje);
 		if (recursoAdjudicado) {
 			//Se adjudicó el recurso, agregar a la lista de recursos del personaje
-			log_in_disk_per(LOG_LEVEL_INFO, "****** RECURSO CONSEGUIDO ******");
+			log_in_disk_per(LOG_LEVEL_INFO, "****** RECURSO %c CONSEGUIDO ******", personaje->recursoActual);
 			fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
 					mensajeFinTurno, &bytes_enviados);
 
@@ -565,7 +565,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 		} else {
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"Nivel informa que no hay instancias disponibles del recurso solicitado.");
+					"Nivel informa que no hay instancias disponibles de %c", personaje->recursoActual);
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Envío notificación de bloqueo al planificador.");
 
@@ -585,7 +585,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 		//no se llegó al recurso todavía. Enviar mensaje de turno cumplido
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"No se llegó a la posición del recurso aún. Envío notificación de turno cumplido al planificador.");
+				"Envío notificación de turno cumplido al planificador.");
 
 		fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
 				mensajeFinTurno, &bytes_enviados2);
@@ -637,7 +637,7 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 		}
 
 		//Espero OK del planifcador de finalización de nivel.
-		recv_variable(sockPlanif, &tipo);
+		//recv_variable(sockPlanif, &tipo);
 
 		while (tipo != OK) {
 			recv_variable(sockPlanif, &tipo);
@@ -672,6 +672,8 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 			exit(EXIT_FAILURE);
 		}
 	}
+	log_in_disk_per(LOG_LEVEL_INFO, "Cierro sockets del nivel y su planificador");
+
 	close(sockNivel);
 	close(sockPlanif);
 }

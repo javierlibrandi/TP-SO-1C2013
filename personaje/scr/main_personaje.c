@@ -76,18 +76,12 @@ int main(void) {
 			flagReiniciarJuego = false;
 			flagReiniciarNivel = false;
 		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d", descriptor);
 
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
 
-		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d", descriptor);
-
 		iniciarNivel(personaje, InfoProxNivel);
-
-		log_in_disk_per(LOG_LEVEL_INFO, "Socket despues de iniciar nivel: %d", personaje->sockPlanif);
-
 
 		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
@@ -125,6 +119,11 @@ int main(void) {
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"****** TURNO PARA %s ******", personaje->nombre);
 				ejecutarTurno(personaje);
+			}
+
+			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR){
+				log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado:%s . TIPO: %d", buffer, tipo);
+				exit(EXIT_FAILURE);
 			}
 
 			//Aviso si las señales no pudieron capturarse
