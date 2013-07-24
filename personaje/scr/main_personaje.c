@@ -68,7 +68,6 @@ int main(void) {
 	log_in_disk_per(LOG_LEVEL_INFO, "**** COMIENZA EL JUEGO PARA %s ****",
 			personaje->nombre);
 
-
 	while (!planDeNivelesCumplido(personaje)) {
 
 		if (flagReiniciarJuego) {
@@ -76,18 +75,20 @@ int main(void) {
 			flagReiniciarJuego = false;
 			flagReiniciarNivel = false;
 		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d", descriptor);
+		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d",
+				descriptor);
 
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
 
-		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d", descriptor);
+		log_in_disk_per(LOG_LEVEL_INFO, "Socket antes de iniciar nivel: %d",
+				descriptor);
 
 		iniciarNivel(personaje, InfoProxNivel);
 
-		log_in_disk_per(LOG_LEVEL_INFO, "Socket despues de iniciar nivel: %d", personaje->sockPlanif);
-
+		log_in_disk_per(LOG_LEVEL_INFO, "Socket despues de iniciar nivel: %d",
+				personaje->sockPlanif);
 
 		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
@@ -122,9 +123,15 @@ int main(void) {
 			}
 
 			if (tipo == PL_TO_P_TURNO) {
-				log_in_disk_per(LOG_LEVEL_INFO,
-						"****** TURNO PARA %s ******", personaje->nombre);
+				log_in_disk_per(LOG_LEVEL_INFO, "****** TURNO PARA %s ******",
+						personaje->nombre);
 				ejecutarTurno(personaje);
+			}
+
+			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR) {
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"No se recibió un mensaje esperado: %s", buffer);
+				exit(EXIT_FAILURE);
 			}
 
 			//Aviso si las señales no pudieron capturarse
@@ -136,7 +143,7 @@ int main(void) {
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"[SEÑAL]No se pudo capturar la señal SIGTERM para restar una vida");
 
-		}//fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
+		} //fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
 
 		personaje->finNivel = false;
 
@@ -144,7 +151,7 @@ int main(void) {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
 					personaje->infoNivel.nombre);
-			if(personaje->nivelActual == -3)
+			if (personaje->nivelActual == -3)
 				personaje->nivelActual = -2;
 
 		} else {

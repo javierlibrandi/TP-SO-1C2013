@@ -174,9 +174,6 @@ void *orequestador_thr(void* p) {
 							t_h_orq->planificadores, respuesta,
 							h_planificador)) {
 
-						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
-								&byteEnviados);
-
 						pthread_mutex_unlock(t_h_orq->s_lista_plani);
 
 						log_in_disk_orq(LOG_LEVEL_INFO, "%s", respuesta);
@@ -184,6 +181,10 @@ void *orequestador_thr(void* p) {
 						log_in_disk_orq(LOG_LEVEL_INFO,
 								"elimino el socket del personaje de los reads %s",
 								respuesta);
+						fd_mensaje(i, O_TO_P_UBIC_NIVEL, respuesta,
+								&byteEnviados);
+
+						recv_variable(i,&tipo); //TODO Controlar el error.
 
 						pthread_mutex_lock(t_h_orq->reads_select);
 						elimino_sck_lista(i, t_h_orq->readfds);
@@ -195,8 +196,8 @@ void *orequestador_thr(void* p) {
 						pthread_mutex_lock(t_h_orq->s_listos);
 						pthread_mutex_lock(t_h_orq->s_nuevos);
 
-						mover_personaje_lista(i,t_h_orq->l_nuevos,t_h_orq->l_listos);
-
+						mover_personaje_lista(i, t_h_orq->l_nuevos,
+								t_h_orq->l_listos);
 						pthread_mutex_unlock(t_h_orq->s_listos);
 						pthread_mutex_unlock(t_h_orq->s_nuevos);
 
