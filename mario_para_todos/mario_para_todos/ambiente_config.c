@@ -294,6 +294,7 @@ void impimir_lista(t_list *lista) {
 	t_personaje *per;
 
 	for (count = 0; count < total_personajes; count++) {
+
 		per = list_get(lista, count);
 
 		log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s", per->nombre);
