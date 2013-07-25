@@ -76,15 +76,13 @@ int main(void) {
 			flagReiniciarNivel = false;
 		}
 
-
 		descriptor = conectarOrquestador(personaje);
 
 		InfoProxNivel = consultarProximoNivel(descriptor, personaje);
 
-
 		iniciarNivel(personaje, InfoProxNivel);
 
-		log_in_disk_per(LOG_LEVEL_INFO,"****** INICIO NIVEL ******");
+		log_in_disk_per(LOG_LEVEL_INFO, "****** INICIO NIVEL ******");
 
 		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
@@ -124,8 +122,10 @@ int main(void) {
 				ejecutarTurno(personaje);
 			}
 
-			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR){
-				log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado:%s . TIPO: %d", buffer, tipo);
+			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR) {
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"No se recibió un mensaje esperado:%s . TIPO: %d",
+						buffer, tipo);
 
 				exit(EXIT_FAILURE);
 			}
@@ -158,17 +158,17 @@ int main(void) {
 			flagReiniciarJuego = true;
 		}
 
-		//Se informa al nivel y planificador del objetivo cumplido/muerte y se cierra la conexión con los mismos
-		salirDelNivel(personaje->sockNivel, personaje->sockPlanif,
-				personaje->vidas);
-
 		if (personaje->nivelActual == -2) {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Se acaba de completar el último nivel.");
 		}
 
+		//Se informa al nivel y planificador del objetivo cumplido/muerte y se cierra la conexión con los mismos
+		salirDelNivel(personaje);
+
 	}	// fin de while "Mientras haya niveles que completar"
 
+	//Objetivo de último nivel cumplido
 	log_in_disk_per(LOG_LEVEL_INFO, "****** ¡PLAN DE NIVELES CUMPLIDO! ******");
 	log_in_disk_per(LOG_LEVEL_INFO, "El personaje %s ha ganado :)",
 			personaje->nombre);
@@ -176,8 +176,33 @@ int main(void) {
 	//Se informa al orquestador que se terminó el plan de niveles
 	sprintf(mensajeFinJuego, "%c;fin del juego", personaje->simbolo);
 
-	fd_mensaje(personaje->sockPlanif, P_TO_O_JUEGO_GANADO, mensajeFinJuego,
+	fd_mensaje(personaje->sockPlanif, P_TO_PL_JUEGO_GANADO, mensajeFinJuego,
 			&bytes_enviados);
 
-	return EXIT_SUCCESS;
+	if (bytes_enviados == -1) {
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Hubo un error al enviar el mensaje P_TO_PL_JUEGO_GANADO");
+
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Planificador cerró la conexión. El proceso personaje va a terminar.");
+		exit(EXIT_FAILURE);
+	}
+
+	log_in_disk_per(LOG_LEVEL_INFO,
+			"El personaje %s está ansioso por matar a Koopa!",
+			personaje->nombre);
+
+	buffer = recv_variable(personaje->sockPlanif, &tipo);
+
+	if (tipo == PL_TO_P_MATAR_KOOPA) {
+		log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
+		log_in_disk_per(LOG_LEVEL_INFO, "Termina exitosamente el proceso personaje.");
+
+		return EXIT_SUCCESS;
+	}
+	if(tipo != PL_TO_P_MATAR_KOOPA){
+		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado.");
+		exit(EXIT_FAILURE);
+	}
+
 }
