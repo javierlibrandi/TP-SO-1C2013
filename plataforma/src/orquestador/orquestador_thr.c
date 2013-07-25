@@ -15,6 +15,7 @@
 #include <commons/config.h>
 #include <mario_para_todos/comunicacion/FileDescriptors.h>
 #include "orquestador_thr.h"
+#include <netdb.h>
 #include <commons/collections/list.h>
 #include <pthread.h>
 #include <commons/string.h>
@@ -194,7 +195,9 @@ void *orequestador_thr(void* p) {
 						//recv_variable(i,&tipo); //TODO Controlar el error. // Esperamos
 
 						pthread_mutex_lock(t_h_orq->reads_select);
-						busca_personaje_skc(i,t_h_orq->l_nuevos,&indice_personaje)->listo_para_planificar = true;
+						busca_personaje_skc(i, t_h_orq->l_nuevos,
+								&indice_personaje)->listo_para_planificar =
+								true;
 						elimino_sck_lista(i, t_h_orq->readfds);
 
 						pthread_mutex_unlock(t_h_orq->reads_select);
@@ -227,7 +230,7 @@ bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador de nivel: %s \t",
 			desc_nivel);
-
+	struct hostent *dirIP;
 	int cant_planificadores, i;
 	//t_h_planificador * un_planificador;
 	if (list_is_empty(list_plataforma)) {
@@ -242,11 +245,23 @@ bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 
 		if (string_equals_ignore_case(h_planificador->desc_nivel, desc_nivel)) {
 
-			sprintf(msj, "%s;%s", h_planificador->ip, h_planificador->puerto);
+			//PROBAR CON PLATAFORMA Y NIVEL EN UNA TERMINAL Y PERSONAJE EN OTRA
+			if (!strcmp(h_planificador->ip,"127.0.0.1")) {
+				log_in_disk_orq(LOG_LEVEL_INFO, "Se convierte localhost a ip pública");
+				dirIP = gethostbyname(h_planificador->ip);
+				sprintf(msj, "%s;%s", dirIP->h_name, h_planificador->puerto);
+				log_in_disk_orq(LOG_LEVEL_TRACE,
+						"Los datos del nivel son ip: %s, puerto: %s ",
+						dirIP->h_name, h_planificador->puerto);
+			} else {
 
-			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"Los datos del nivel son ip: %s, puerto: %s ",
-					h_planificador->ip, h_planificador->puerto);
+				sprintf(msj, "%s;%s", h_planificador->ip,
+						h_planificador->puerto);
+
+				log_in_disk_orq(LOG_LEVEL_TRACE,
+						"Los datos del nivel son ip: %s, puerto: %s ",
+						h_planificador->ip, h_planificador->puerto);
+			}
 
 			return true;
 

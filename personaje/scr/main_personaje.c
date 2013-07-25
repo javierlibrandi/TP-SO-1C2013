@@ -65,7 +65,7 @@ int main(void) {
 
 	//pthread_create(&listener, NULL, (void*) listenerPersonaje, (void*) personaje);
 
-	log_in_disk_per(LOG_LEVEL_INFO, "**** COMIENZA EL JUEGO PARA %s ****",
+	log_in_disk_per(LOG_LEVEL_INFO, "****** COMIENZA EL JUEGO PARA %s ******",
 			personaje->nombre);
 
 	while (!planDeNivelesCumplido(personaje)) {
@@ -84,6 +84,7 @@ int main(void) {
 
 		iniciarNivel(personaje, InfoProxNivel);
 
+		log_in_disk_per(LOG_LEVEL_INFO,"****** INICIO NIVEL ******");
 
 		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {

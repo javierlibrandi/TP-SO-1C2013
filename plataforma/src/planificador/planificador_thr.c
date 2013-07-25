@@ -249,7 +249,16 @@ static void mover_personaje(t_personaje *personaje,
 
 			break;
 			//TODO AGregar mensaje de que el personaje gano el juego!!
+
+		case P_TO_PL_RECURSO_CONSEGUIDO:
+			log_in_disk_plan(LOG_LEVEL_TRACE, "Se recibió el mensaje P_TO_PL_RECURSO_CONSEGUIDO");
+
+			//PLANIFICAR EL SIGUIENTE PERSONAJE DE LISTOS
+			break;
+
 		case P_TO_N_BLOQUEO:
+
+			log_in_disk_plan(LOG_LEVEL_TRACE, "Se recibió el mensaje P_TO_N_BLOQUEO");
 
 			lock_listas_plantaforma(h_planificador);
 
