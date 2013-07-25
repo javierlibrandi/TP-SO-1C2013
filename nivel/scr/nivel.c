@@ -464,6 +464,9 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 		}
 
 	}
+	log_in_disk_niv(LOG_LEVEL_TRACE, "devuelvo el personaje %c sock del personaje %d",
+					personaje->id_personaje , personaje->sokc);
+
 	*i = j;
 	return personaje;
 }
