@@ -39,7 +39,7 @@ void escucho_conexiones(t_param_plat param_plataforma, t_list *list_plataforma,
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
 bool existe_nivel(const char *desc_nivel, t_list *list_plataforma);
 void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
-		t_h_orquestadro* h_orquestador);
+		t_h_orquestadro* h_orquestador, int * existe_personaje);
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);
 void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
@@ -131,6 +131,8 @@ void escucho_conexiones(t_param_plat param_plataforma,
 	char ip_cliente[16];
 	int byteEnviados;
 	char solo_personaje = 'N';
+	int bool_existe_personaje;
+
 	log_in_disk_plat(LOG_LEVEL_TRACE, "escucho conexiones en el puerto %d",
 			puerto);
 
@@ -147,7 +149,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 			if (solo_personaje == 'N') {
 				//h_orquestador = creo_personaje_lista('N',new_sck, buffer);
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
-						h_orquestador);
+						h_orquestador, &bool_existe_personaje);
 
 				/**
 				 * creo el hilo orquetador
@@ -159,10 +161,20 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 			} else {
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
-						h_orquestador);
+						h_orquestador, &bool_existe_personaje);
 			}
-			break;
 
+			if (bool_existe_personaje == 0) {
+				fd_mensaje(new_sck, ERROR,
+						"Ya existe un personaje con ese nombre o simbolo",
+						&byteEnviados);
+
+			} else {
+
+				fd_mensaje(new_sck, OK, "ok, personaje creado", &byteEnviados);
+			}
+
+			break;
 		case N_TO_O_SALUDO: //creo el planificador del nivel
 			log_in_disk_plat(LOG_LEVEL_TRACE, "Mensaje tip N_TO_O_SALUDO");
 			if (!existe_nivel(buffer, list_planificadores)) {
@@ -178,14 +190,15 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 				//Agrego el socket del nivel a la lista que escucha el orquestador
 				pthread_mutex_lock(h_orquestador->reads_select);
-				FD_SET(new_sck, h_orquestador->readfds);
-				pthread_mutex_unlock(h_orquestador->reads_select);
-
 				pthread_mutex_lock(h_orquestador->s_sock_semaforo);
+
+				FD_SET(new_sck, h_orquestador->readfds);
+
 				if (new_sck > *(h_orquestador->sock)) {
 					*(h_orquestador->sock) = new_sck;
 				}
 				pthread_mutex_unlock(h_orquestador->s_sock_semaforo);
+				pthread_mutex_unlock(h_orquestador->reads_select);
 
 			} else {
 				fd_mensaje(new_sck, ERROR,
@@ -377,12 +390,12 @@ bool existe_nivel(const char *desc_nivel, t_list *list_plataforma) {
  */
 
 void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
-		t_h_orquestadro* h_orquestador) {
+		t_h_orquestadro* h_orquestador, int * existe_personaje_var) {
 
 	t_personaje* nuevo_personaje;
 	char **mensaje;
 
-	int byteEnviados;
+	//int byteEnviados;
 	bool aux_existe_persosaje_listo;
 	bool aux_existe_persojaje_bloquedo;
 	static unsigned long int sec_personaje = 0;
@@ -415,20 +428,19 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 				"Ya existe un personaje con este nombre o simbolo. nombre: %s, Simbolo: %c ",
 				mensaje[0], mensaje[1][0]);
 
-		fd_mensaje(sock, ERROR,
-				"Ya existe un personaje con ese nombre o simbolo",
-				&byteEnviados);
+		*existe_personaje_var = 1;
+
 		return;
 	} else {
 
 		pthread_mutex_lock(h_orquestador->reads_select);
-		FD_SET(sock, h_orquestador->readfds); //Agrego el socket a la lista del select
-		pthread_mutex_unlock(h_orquestador->reads_select);
-
 		pthread_mutex_lock(h_orquestador->s_sock_semaforo);
+		FD_SET(sock, h_orquestador->readfds); //Agrego el socket a la lista del select
+
 		if (sock > *(h_orquestador->sock)) {
 			*(h_orquestador->sock) = sock;
 		}
+		pthread_mutex_unlock(h_orquestador->reads_select);
 		pthread_mutex_unlock(h_orquestador->s_sock_semaforo);
 
 		//Creo el personaje
@@ -450,9 +462,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
-		//sleep(3); //TODO sacar sleep.
-		fd_mensaje(sock, OK, "ok, personaje creado", &byteEnviados);
-
+		existe_personaje_var = 0;
 	}
 }
 
