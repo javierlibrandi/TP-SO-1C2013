@@ -192,17 +192,19 @@ int main(void) {
 			"El personaje %s está ansioso por matar a Koopa!",
 			personaje->nombre);
 
+
 	buffer = recv_variable(personaje->sockPlanif, &tipo);
 
-	if (tipo == PL_TO_P_MATAR_KOOPA) {
-		log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
-		log_in_disk_per(LOG_LEVEL_INFO, "Termina exitosamente el proceso personaje.");
+	while (tipo != PL_TO_P_MATAR_KOOPA) {
+		buffer = recv_variable(personaje->sockPlanif, &tipo);
 
-		return EXIT_SUCCESS;
-	}
-	if(tipo != PL_TO_P_MATAR_KOOPA){
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado.");
-		exit(EXIT_FAILURE);
+		if (tipo == PL_TO_P_MATAR_KOOPA) {
+			log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Termina exitosamente el proceso personaje.");
+
+			return EXIT_SUCCESS;
+		}
 	}
 
 }
