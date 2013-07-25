@@ -30,7 +30,6 @@
 #include "manjo_pantalla/tad_items.h"
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 
-
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
@@ -116,7 +115,8 @@ int main(void) {
 
 	for (;;) {
 
-		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL, NULL, &tv) == -1) {
+		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
+				NULL, &tv) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
@@ -133,7 +133,7 @@ int main(void) {
 				}
 				mensaje = string_split(buffer, ";");
 
-				log_in_disk_niv(LOG_LEVEL_TRACE, "Tipo de mensaje %d ", tipo);
+				log_in_disk_niv(LOG_LEVEL_INFO, "****** Se recibió un tipo de mensaje %d: %s ******", tipo, buffer);
 
 				/*for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
 				 log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
@@ -144,27 +144,29 @@ int main(void) {
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
-					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"Nivel recibe solicitud de ubicación del recurso %c ",
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes, &pos);
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"%s solicita ubicación del recurso %c ",
+							nodo_lista_personaje->nombre_personaje,
 							mensaje[0][0]);
 					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
 
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
 
-					log_in_disk_niv(LOG_LEVEL_TRACE,
+					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se enviaron coordenadas: (%d,%d)", recurso->posX,
 							recurso->posY);
 
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
-					nodo_lista_personaje = busco_personaje(i,
-							t_personaje->l_personajes, &pos); //busco el personaje que me solicita el recurso
+					//busco el personaje que me solicita el recurso
 					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
 
 					break;
 				case P_TO_N_MOVIMIENTO:
-					log_in_disk_niv(LOG_LEVEL_TRACE,
+					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Nivel recibe solicitud de movimiento");
 
 					posX = atoi(mensaje[3]);
@@ -183,9 +185,9 @@ int main(void) {
 
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
-					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"Se envió confirmación de movimiento al personaje a (%d,%d)",
-							posX, posY);
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se envió confirmación de movimiento a %s a (%d,%d)",
+							nodo_lista_personaje->nombre_personaje, posX, posY);
 
 					break;
 
@@ -194,17 +196,17 @@ int main(void) {
 					recursos_personaje = "";
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
-					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"El personaje: %c a completado el nivel ",
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El personaje %c ha completado el nivel ",
 							nodo_lista_personaje->id_personaje);
 
 					listarRecursosPersonaje(
 							nodo_lista_personaje->l_recursos_optenidos,
 							recursos_personaje);
 
-					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"El personaje %c ha completado el nivel y libera estos recursos: %s. Se informa al orquestador.",
-							nodo_lista_personaje->id_personaje,
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El personaje %s ha completado el nivel y libera estos recursos: %s. Se informa al orquestador.",
+							nodo_lista_personaje->nombre_personaje,
 							recursos_personaje);
 					//Informo al orquestador los recursos liberados
 
@@ -212,17 +214,18 @@ int main(void) {
 							recursos_personaje, &tot_enviados);
 
 					//Espero la respuesta del orquestador con los recursos que asigno
-
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se espera respuesta del orquestador...");
 					buffer = recv_variable(sck_plat, &tipo);
 					mensaje = string_split(buffer, ";");
 					if (!strcmp(buffer, Leido_error)) {
-						log_in_disk_niv(LOG_LEVEL_TRACE,
+						log_in_disk_niv(LOG_LEVEL_ERROR,
 								"Hubo un error en la lectura del socket de la plataforma.");
 
 						exit(EXIT_FAILURE);
 					}
 					if (tipo == O_TO_N_ASIGNAR_RECURSOS) {
-						log_in_disk_niv(LOG_LEVEL_TRACE,
+						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se recibieron los recursos asignados desde el orquestador: %s .",
 								mensaje);
 
@@ -234,7 +237,7 @@ int main(void) {
 
 						for (cont_msj = 0; mensaje[cont_msj] != '\0';) {
 
-							log_in_disk_niv(LOG_LEVEL_TRACE,
+							log_in_disk_niv(LOG_LEVEL_INFO,
 									"Se recibieron los recursos asignados desde el orquestador: %s",
 									mensaje[cont_msj]);
 
@@ -290,7 +293,7 @@ int main(void) {
 
 				case P_TO_N_INICIAR_NIVEL:
 
-					log_in_disk_niv(LOG_LEVEL_TRACE,
+					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Nivel recibe solicitud de inicio en su mapa.");
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
@@ -298,14 +301,20 @@ int main(void) {
 							t_personaje);
 					tipo_mensaje = OK;
 
-					fd_mensaje(i, tipo_mensaje, "Nivel iniciado.",
+					fd_mensaje(i, tipo_mensaje, "Nivel iniciado",
 							&tot_enviados);
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"****** El personaje %s inicia el nivel ******",
+							mensaje[0]);
+
 					break;
 
 				case P_TO_N_REINICIAR_NIVEL:
+					//PENDIENTE
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El personaje debe reiniciar el nivel.");
+							"El personaje %c debe reiniciar el nivel.",
+							mensaje[0][0]);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se lo reubica en la posición (1,1) del mapa y se liberan sus recursos.");
 
@@ -317,7 +326,7 @@ int main(void) {
 
 				case P_TO_N_SOLIC_RECURSO:
 
-					log_in_disk_niv(LOG_LEVEL_TRACE,
+					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Nivel recibe solicitud de instancia de recurso");
 
 					pthread_mutex_lock(&s_personaje_recursos);
@@ -332,13 +341,13 @@ int main(void) {
 							nodo_lista_personaje->proximo_recurso->NOMBRE;
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El pesonaje solicita un recurso del tipo %s. L"
-									"a cantidad aCtual es de %d",
+							"El pesonaje %s solicita un recurso del tipo %s. La cantidad actual es de %d.",
+							nodo_lista_personaje->nombre_personaje,
 							nombre_recurso, catidad_recursos);
 
 					if (catidad_recursos > 0) { //si tengo recursos se los doy
 
-						log_in_disk_niv(LOG_LEVEL_TRACE,
+						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Hay instancias disponibles de %s",
 								nombre_recurso);
 
@@ -347,11 +356,12 @@ int main(void) {
 						fd_mensaje(i, tipo_mensaje,
 								"LLEGASTE AL RECURSO, EN HORA BUENA!!!",
 								&tot_enviados);
-						log_in_disk_niv(LOG_LEVEL_TRACE,
+						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se envió N_TO_P_RECURSO_OK");
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"El recurso entregado al personaje %c",
+								"****** El recurso %c es entregado al personaje %c ******",
+								nombre_recurso,
 								nodo_lista_personaje->id_personaje);
 						recurso = busco_recurso(
 								nodo_lista_personaje->proximo_recurso->SIMBOLO,
@@ -369,7 +379,7 @@ int main(void) {
 						}
 
 					} else { // en caso de no tener bloqueo al personaje
-						log_in_disk_niv(LOG_LEVEL_TRACE,
+						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Actualmente no hay instancias disponibles de %s",
 								nombre_recurso);
 
@@ -378,7 +388,7 @@ int main(void) {
 						fd_mensaje(i, tipo_mensaje,
 								"No hay instancias disponibles. Tendrás que esperar :P!!!",
 								&tot_enviados);
-						log_in_disk_niv(LOG_LEVEL_TRACE,
+						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se envió N_TO_P_RECURSO_ERROR");
 
 					}
@@ -423,7 +433,6 @@ int main(void) {
 
 }
 
-
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel) {
 //	libero_recursos_pantalla(param_nivel->recusos);
 //
@@ -449,23 +458,24 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 	int total_personajes;
 	int j;
 
-	log_in_disk_niv(LOG_LEVEL_TRACE, "busco_personaje");
+	log_in_disk_niv(LOG_LEVEL_INFO, "busco_personaje");
 	total_personajes = list_size(l_personajes);
 	for (j = 0; j < total_personajes; j++) {
 
 		personaje = (t_lista_personaje*) list_get(l_personajes, j);
-		log_in_disk_niv(LOG_LEVEL_TRACE, "personaje comparado %c",
+		log_in_disk_niv(LOG_LEVEL_INFO, "personaje comparado %c",
 				personaje->id_personaje);
 
 		if (personaje->sokc == sck) {
-			log_in_disk_niv(LOG_LEVEL_TRACE, "personaje encontrado %c",
+			log_in_disk_niv(LOG_LEVEL_INFO, "personaje encontrado %c",
 					personaje->id_personaje);
 			break;	//salgo de el while
 		}
 
 	}
-	log_in_disk_niv(LOG_LEVEL_TRACE, "devuelvo el personaje %c sock del personaje %d",
-					personaje->id_personaje , personaje->sokc);
+	log_in_disk_niv(LOG_LEVEL_INFO,
+			"devuelvo el personaje %c sock del personaje %d",
+			personaje->id_personaje, personaje->sokc);
 
 	*i = j;
 	return personaje;
@@ -539,7 +549,7 @@ void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos) {
 		string_append(&recursos, recursosAux);
 
 	}
-	log_in_disk_niv(LOG_LEVEL_TRACE, "Los recursos a devolver son: %s ",
+	log_in_disk_niv(LOG_LEVEL_INFO, "Los recursos a devolver son: %s ",
 			recursos);
 
 }

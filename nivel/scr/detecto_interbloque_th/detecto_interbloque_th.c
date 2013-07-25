@@ -228,7 +228,7 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 		struct h_t_recusos *recurso = NULL;
 		struct h_t_recusos *recurso_aux = NULL;
 
-		log_in_disk_niv(LOG_LEVEL_TRACE, "Buesco el recurso %c", id);
+		log_in_disk_niv(LOG_LEVEL_TRACE, "Busco el recurso %c", id);
 
 		tot_elementos = list_size(recusos);
 
