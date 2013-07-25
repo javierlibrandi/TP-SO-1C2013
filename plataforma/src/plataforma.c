@@ -166,7 +166,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
 						h_orquestador, &bool_existe_personaje);
 			}
-
+			sleep(3);
 			if (bool_existe_personaje == 0) {
 				fd_mensaje(new_sck, ERROR,
 						"Ya existe un personaje con ese nombre o simbolo",
@@ -271,7 +271,10 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->l_listos = h_orquestador->l_listos;
 	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
 	h_planificador->l_errores = h_orquestador->l_errores;
+	h_planificador->l_koopa = h_orquestador->l_koopa;
+	h_planificador->s_koopa = h_orquestador->s_koopa;
 	h_planificador->s_listos = h_orquestador->s_listos;
+
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
 	h_planificador->s_errores = h_orquestador->s_errores;
 	h_planificador->segundos_espera = segundos_espera;
@@ -424,13 +427,14 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 	aux_existe_persojaje_bloquedo = existe_personaje(mensaje[0], mensaje[1][0],
 			h_orquestador->l_bloquedos);
 	aux_existe_persojaje_nuevo = existe_personaje(mensaje[0], mensaje[1][0],
-				h_orquestador->l_bloquedos);
+			h_orquestador->l_bloquedos);
 
 	pthread_mutex_unlock(h_orquestador->s_nuevos);
 	pthread_mutex_unlock(h_orquestador->s_bloquedos);
 	pthread_mutex_unlock(h_orquestador->s_listos);
 
-	if (aux_existe_persosaje_listo || aux_existe_persojaje_bloquedo||aux_existe_persojaje_nuevo) {
+	if (aux_existe_persosaje_listo || aux_existe_persojaje_bloquedo
+			|| aux_existe_persojaje_nuevo) {
 
 		log_in_disk_orq(LOG_LEVEL_TRACE,
 				"Ya existe un personaje con este nombre o simbolo. nombre: %s, Simbolo: %c ",
@@ -464,7 +468,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 		//nuevo_personaje->listo_para_planificar = false; //pongo al personane para que no se planifique hasta que pase los datos del nivel
 		pthread_mutex_lock(h_orquestador->s_nuevos);
 		list_add(h_orquestador->l_nuevos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
-		imprimir_listas(h_orquestador,'o');
+		imprimir_listas(h_orquestador, 'o');
 
 		pthread_mutex_unlock(h_orquestador->s_nuevos);
 
@@ -542,6 +546,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 
 	mover_personaje_lista(sck, h_orquestador->l_nuevos,
 			h_orquestador->l_listos);
+
+	imprimir_listas(h_orquestador,'o');
 
 }
 
