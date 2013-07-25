@@ -131,4 +131,6 @@ void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq);
 void imprimir_listas(void *estruc, char tipo_estruc);
 
 
+
+
 #endif /* AMBIENTE_CONFIG_H_ */

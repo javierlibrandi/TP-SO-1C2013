@@ -43,7 +43,7 @@ void *orequestador_thr(void* p) {
 	 }
 
 	 FD_SET(t_h_orq->sock_nivel,t_h_orq->readfds); */
-	FD_SET(0, t_h_orq->readfds); // pongo a escuhcar la entrada estardar para que no se vuelve loco cuando se caen todas las conexiones
+	//FD_SET(0, t_h_orq->readfds); // pongo a escuhcar la entrada estardar para que no se vuelve loco cuando se caen todas las conexiones
 
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 
@@ -112,7 +112,7 @@ void *orequestador_thr(void* p) {
 						mover_personaje_lista(i, t_h_orq->l_bloquedos,
 								t_h_orq->l_errores);
 
-						//	imprimir_listas(t_h_orq,'o');
+						imprimir_listas(t_h_orq,'o');
 
 						un_lock_listas_plataforma_orq(t_h_orq);
 
@@ -123,7 +123,9 @@ void *orequestador_thr(void* p) {
 				mensaje = string_split(buffer, ";");
 				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
 						tipo);
+
 				sleep(3);
+
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
