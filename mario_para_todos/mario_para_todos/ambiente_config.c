@@ -300,7 +300,7 @@ static void impimir_lista(t_list *lista) {
 	int total_personajes = list_size(lista);
 	t_personaje *per;
 
-	for (count = 0; count < total_personajes; count++) {
+	for (count = 0; count < total_personajes && list_size(lista)>0; count++) {
 
 		per = list_get(lista, count);
 
