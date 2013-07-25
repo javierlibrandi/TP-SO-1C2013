@@ -133,10 +133,10 @@ int conectarOrquestador(Personaje* personaje) {
 				buffer);
 
 	if (tipo != ERROR && tipo != OK) {
-			log_in_disk_per(LOG_LEVEL_ERROR, "No se recibió un mensaje esperado: %s",
-					buffer);
-			exit(EXIT_FAILURE);
-		}
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"No se recibió un mensaje esperado: %s", buffer);
+		exit(EXIT_FAILURE);
+	}
 
 	free(buffer);
 	return descriptor;
@@ -151,8 +151,8 @@ char* determinarProxNivel(Personaje *personaje) {
 	nivAct = personaje->nivelActual;
 
 	/*log_in_disk_per(LOG_LEVEL_INFO,
-			"nivel actual: %d, tamaño lista niveles: %d",
-			personaje->nivelActual, list_size(personaje->niveles));*/
+	 "nivel actual: %d, tamaño lista niveles: %d",
+	 personaje->nivelActual, list_size(personaje->niveles));*/
 
 	if (list_size(personaje->niveles) > nivAct) {
 		proxNivel = list_get(personaje->niveles, nivAct);
@@ -203,7 +203,8 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 //Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
 	//infoNivel.nombre_nivel = determinarProxNivel(personaje);
 	infoNivel.nombre_nivel = personaje->infoNivel.nombre;
-	log_in_disk_per(LOG_LEVEL_INFO, "Próximo Nivel -> %s", infoNivel.nombre_nivel);
+	log_in_disk_per(LOG_LEVEL_INFO, "Próximo Nivel -> %s",
+			infoNivel.nombre_nivel);
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Voy a enviar solicitud de ubicación del %s al orquestador",
 			infoNivel.nombre_nivel);
@@ -550,7 +551,8 @@ void ejecutarTurno(Personaje *personaje) {
 //Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
 	if (!conocePosicionRecurso(personaje->recursoActual)) {
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"Desconozco la ubicación del recurso que necesito. Solicito coordenadas al %s", personaje->infoNivel.nombre);
+				"Desconozco la ubicación del recurso que necesito. Solicito coordenadas al %s",
+				personaje->infoNivel.nombre);
 		solicitarUbicacionRecurso(personaje);
 	}
 
@@ -563,12 +565,15 @@ void ejecutarTurno(Personaje *personaje) {
 
 	if (evaluarPosicion(personaje->posActual, personaje->posProxRecurso)) {
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"Llegué al recurso. Solicito una instancia de %c.", personaje->recursoActual);
+				"Llegué al recurso. Solicito una instancia de %c.",
+				personaje->recursoActual);
 
 		recursoAdjudicado = solicitarInstanciaRecurso(personaje);
 		if (recursoAdjudicado) {
 			//Se adjudicó el recurso, agregar a la lista de recursos del personaje
-			log_in_disk_per(LOG_LEVEL_INFO, "****** RECURSO %c CONSEGUIDO ******", personaje->recursoActual);
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"****** RECURSO %c CONSEGUIDO ******",
+					personaje->recursoActual);
 			fd_mensaje(personaje->sockPlanif, P_TO_PL_RECURSO_CONSEGUIDO,
 					mensajeFinTurno, &bytes_enviados);
 
@@ -582,7 +587,8 @@ void ejecutarTurno(Personaje *personaje) {
 
 		} else {
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"Nivel informa que no hay instancias disponibles de %c", personaje->recursoActual);
+					"Nivel informa que no hay instancias disponibles de %c",
+					personaje->recursoActual);
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Envío notificación de bloqueo al planificador.");
 
@@ -618,9 +624,14 @@ void ejecutarTurno(Personaje *personaje) {
 }
 
 //Avisa y se desconecta del planificador y del nivel
-void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
-	char *mensajeFinNivel, *mensajeFinNivelP;
+void salirDelNivel(Personaje *personaje) {
+	char *mensajeFinNivel, *mensajeFinNivelP, *mensajeFinJuego;
+	int vidas, sockNivel, sockPlanif;
 	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4, tipo;
+
+	vidas = personaje->vidas;
+	sockNivel = personaje->sockNivel;
+	sockPlanif = personaje->sockPlanif;
 
 	mensajeFinNivel = "Bye Nivel";
 	mensajeFinNivelP = "Bye Planificador";
@@ -640,32 +651,41 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 					"Nivel cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
 		}
+		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+		close(sockNivel);
 
-		fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
-				&bytes_enviados1);
+		if (personaje->nivelActual != -2) {
+			//Si no es el último nivel
+			fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
+					&bytes_enviados1);
 
-		if (bytes_enviados1 == -1) {
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_PL_OBJ_CUMPLIDO");
+			if (bytes_enviados1 == -1) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Hubo un error al enviar el mensaje P_TO_PL_OBJ_CUMPLIDO");
 
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Planificador cerró la conexión. El proceso personaje va a terminar.");
-			exit(EXIT_FAILURE);
-		}
-
-		//Espero OK del planifcador de finalización de nivel.
-		//recv_variable(sockPlanif, &tipo);
-
-		while (tipo != OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Planificador cerró la conexión. El proceso personaje va a terminar.");
+				exit(EXIT_FAILURE);
+			}
+			//Espero OK del planificador de finalización de nivel.
 			recv_variable(sockPlanif, &tipo);
 
-			if (tipo == OK) {
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Se recibió OK de finalización de nivel.");
+			while (tipo != OK) {
+				recv_variable(sockPlanif, &tipo);
+
+				if (tipo == OK) {
+					log_in_disk_per(LOG_LEVEL_ERROR,
+							"Se recibió OK de finalización de nivel.");
+					log_in_disk_per(LOG_LEVEL_INFO,
+							"Cierro socket del planificador");
+
+					close(sockPlanif);
+				}
 			}
 		}
 
 	} else {
+		//Si sale porque no tiene más vidas se rebe reiniciar el plan de niveles.
 		fd_mensaje(sockNivel, P_TO_N_SALIR, mensajeFinNivel, &bytes_enviados3);
 
 		if (bytes_enviados3 == -1) {
@@ -676,6 +696,8 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 					"Nivel cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
 		}
+		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+		close(sockNivel);
 
 		fd_mensaje(sockPlanif, P_TO_PL_SALIR, mensajeFinNivelP,
 				&bytes_enviados4);
@@ -688,11 +710,10 @@ void salirDelNivel(int sockNivel, int sockPlanif, int vidas) {
 					"Planificador cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
 		}
+		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del planificador");
+		close(sockPlanif);
 	}
-	log_in_disk_per(LOG_LEVEL_INFO, "Cierro sockets del nivel y su planificador");
 
-	close(sockNivel);
-	close(sockPlanif);
 }
 
 // se debe inicializar nuevamente la lista de recursos de determinado nivel. Debe ser igual a la del arch de configuración.
@@ -950,8 +971,7 @@ bool conocePosicionRecurso(char recursoActual) {
 
 //***** REMPLAZAR esta función 21/7 en REPO
 t_recusos *recursos_nivel(t_list *recursos, char *nivel) {
-	log_in_disk_per(LOG_LEVEL_TRACE,
-			"Busco los recursos del %s", nivel);
+	log_in_disk_per(LOG_LEVEL_TRACE, "Busco los recursos del %s", nivel);
 
 	bool _list_elements(t_recusos *list_recursos) {
 

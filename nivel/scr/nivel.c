@@ -140,6 +140,7 @@ int main(void) {
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Nivel recibe solicitud de ubicación del recurso %c ", mensaje[0][0]);
 					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
 
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
@@ -156,6 +157,8 @@ int main(void) {
 
 					break;
 				case P_TO_N_MOVIMIENTO:
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Nivel recibe solicitud de movimiento");
+
 					posX = atoi(mensaje[3]);
 					posY = atoi(mensaje[4]);
 					MoverPersonaje(ListaItems, mensaje[0][0], posX, posY);
@@ -176,6 +179,8 @@ int main(void) {
 					break;
 
 				case P_TO_N_OBJ_CUMPLIDO:
+
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Nivel recibe aviso de Objetivo Cumplido");
 
 					recursos_personaje = "";
 					nodo_lista_personaje = busco_personaje(i,
@@ -274,6 +279,8 @@ int main(void) {
 
 				case P_TO_N_INICIAR_NIVEL:
 
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Nivel recibe solicitud de inicio en su mapa.");
+
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
 							t_personaje);
@@ -297,6 +304,8 @@ int main(void) {
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
+
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Nivel recibe solicitud de instancia de recurso");
 
 					pthread_mutex_lock(&s_personaje_recursos);
 					log_in_disk_niv(LOG_LEVEL_INFO,

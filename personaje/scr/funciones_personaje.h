@@ -73,7 +73,7 @@ bool objetivoNivelCumplido(Personaje* personaje);
 
 bool planDeNivelesCumplido(Personaje* personaje);
 
-void salirDelNivel(int sockNivel, int sockPlanif, int vidas);
+void salirDelNivel(Personaje *personaje);
 
 void reiniciarNivel(Personaje *personaje);
 
