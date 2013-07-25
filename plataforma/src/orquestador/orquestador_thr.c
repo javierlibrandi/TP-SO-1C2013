@@ -22,7 +22,6 @@
 #include "../planificador/planificador_thr.h"
 #include <stdbool.h>
 
-
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
 	char *buffer, *respuesta_recursos;
@@ -111,7 +110,7 @@ void *orequestador_thr(void* p) {
 						mover_personaje_lista(i, t_h_orq->l_bloquedos,
 								t_h_orq->l_errores);
 
-						imprimir_listas(t_h_orq,'o');
+						//	imprimir_listas(t_h_orq,'o');
 
 						un_lock_listas_plataforma_orq(t_h_orq);
 
@@ -122,6 +121,7 @@ void *orequestador_thr(void* p) {
 				mensaje = string_split(buffer, ";");
 				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
 						tipo);
+				sleep (3);
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
@@ -194,7 +194,9 @@ void *orequestador_thr(void* p) {
 						//recv_variable(i,&tipo); //TODO Controlar el error. // Esperamos
 
 						pthread_mutex_lock(t_h_orq->reads_select);
-						busca_personaje_skc(i,t_h_orq->l_nuevos,&indice_personaje)->listo_para_planificar = true;
+						busca_personaje_skc(i, t_h_orq->l_nuevos,
+								&indice_personaje)->listo_para_planificar =
+								true;
 						elimino_sck_lista(i, t_h_orq->readfds);
 
 						pthread_mutex_unlock(t_h_orq->reads_select);
