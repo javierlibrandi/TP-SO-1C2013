@@ -112,7 +112,7 @@ void *recv_variable(const int socketReceptor, int *tipo) {
 		strcpy(buffer, Leido_error);
 	} else {
 		*tipo = (int) header.header_mensaje;
-		log_in_disk_per(LOG_LEVEL_WARNING, "tipo de mensaje:%d",
+		log_in_disk_mensajes(LOG_LEVEL_WARNING, "\t\t tipo de mensaje:%d",
 						*tipo);
 // Segundo: Alocar memoria suficiente para el payload.
 		buffer = malloc(header.payLoadLength);
@@ -131,8 +131,8 @@ void *recv_variable(const int socketReceptor, int *tipo) {
 void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
 		int *env) {
 	t_send t_send;
-	log_in_disk_per(LOG_LEVEL_INFO,
-							"entro an fd_mensaje con el soket %d y tipo de mensaje %d el menaje a enviar es %s." ,socket,header_mensaje,msj);
+	log_in_disk_mensajes(LOG_LEVEL_INFO,
+							" \t\t entro an fd_mensaje con el soket %d y tipo de mensaje %d el menaje a enviar es %s." ,socket,header_mensaje,msj);
 	memset(t_send.mensaje, '\0', max_len);
 	strcpy(t_send.mensaje, msj);
 	t_send.header_mensaje = header_mensaje;
@@ -141,8 +141,8 @@ void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
 	*env = Escribe_Socket(socket, &t_send,
 			sizeof(t_header) + t_send.payLoadLength);
 
-	log_in_disk_per(LOG_LEVEL_INFO,
-								"cantidad de  byts enviados %d." ,*env);
+	log_in_disk_mensajes(LOG_LEVEL_INFO,
+								"\t\t cantidad de  byts enviados %d." ,*env);
 
 }
 

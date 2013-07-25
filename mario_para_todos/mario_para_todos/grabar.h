@@ -26,4 +26,7 @@ void log_in_disk_niv(t_log_level nivel,const char* format, ...);
 /**Grabo log personaje*/
 void log_in_disk_per(t_log_level nivel,const char* format, ...);
 
+/**Grabo log pasaje de mensajes*/
+void log_in_disk_mensajes(t_log_level nivel,const char* format, ...);
+
 #endif /* GRABAR_H_ */
