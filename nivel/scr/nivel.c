@@ -99,7 +99,9 @@ int main(void) {
 	t_personaje->sck_personaje = sck_plat;
 	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
-
+	struct timeval tv;
+	tv.tv_sec = 2;
+	tv.tv_usec = 100;
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
@@ -114,17 +116,7 @@ int main(void) {
 
 	for (;;) {
 
-		FD_ZERO(t_personaje->readfds);
-		FD_SET(sck_plat, t_personaje->readfds);
-		cant_presonajes_conectados = list_size(t_personaje->l_personajes);
-
-		for (j = 0; j < cant_presonajes_conectados; j++) {
-			  un_per = list_get(t_personaje->l_personajes, j);
-			  FD_SET(un_per->sokc, t_personaje->readfds);
-
-		}
-		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
-				NULL, NULL ) == -1) {
+		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL, NULL, &tv) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
@@ -144,10 +136,10 @@ int main(void) {
 				log_in_disk_niv(LOG_LEVEL_TRACE, "Tipo de mensaje %d ", tipo);
 
 				/*for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
-					log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
-							cont_msj, mensaje[cont_msj]);
+				 log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
+				 cont_msj, mensaje[cont_msj]);
 
-				}*/
+				 }*/
 
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
@@ -160,8 +152,9 @@ int main(void) {
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
 
-					log_in_disk_niv(LOG_LEVEL_TRACE, "Se enviaron coordenadas: (%d,%d)",
-							recurso->posX, recurso->posY);
+					log_in_disk_niv(LOG_LEVEL_TRACE,
+							"Se enviaron coordenadas: (%d,%d)", recurso->posX,
+							recurso->posY);
 
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
@@ -190,8 +183,9 @@ int main(void) {
 
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
-					log_in_disk_niv(LOG_LEVEL_TRACE, "Se envió confirmación de movimiento al personaje a (%d,%d)", posX, posY);
-
+					log_in_disk_niv(LOG_LEVEL_TRACE,
+							"Se envió confirmación de movimiento al personaje a (%d,%d)",
+							posX, posY);
 
 					break;
 
@@ -232,7 +226,9 @@ int main(void) {
 								"Se recibieron los recursos asignados desde el orquestador: %s .",
 								mensaje);
 
-						liberar_memoria(nodo_lista_personaje); //TODO Pasarlo a atnes de l if==tipo por si hay problemas con la recepcion.
+						elimino_personaje_lista_nivel(i,
+								t_personaje->l_personajes);
+						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
 						elimino_sck_lista(i, t_personaje->readfds);
 						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje.
 
@@ -337,19 +333,22 @@ int main(void) {
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El pesonaje solicita un recurso del tipo %s. L"
-							"a cantidad aCtual es de %d",
+									"a cantidad aCtual es de %d",
 							nombre_recurso, catidad_recursos);
 
 					if (catidad_recursos > 0) { //si tengo recursos se los doy
 
-						log_in_disk_niv(LOG_LEVEL_TRACE, "Hay instancias disponibles de %s", nombre_recurso);
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"Hay instancias disponibles de %s",
+								nombre_recurso);
 
 						catidad_recursos--;
 						tipo_mensaje = N_TO_P_RECURSO_OK;
 						fd_mensaje(i, tipo_mensaje,
 								"LLEGASTE AL RECURSO, EN HORA BUENA!!!",
 								&tot_enviados);
-						log_in_disk_niv(LOG_LEVEL_TRACE, "Se envió N_TO_P_RECURSO_OK");
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"Se envió N_TO_P_RECURSO_OK");
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"El recurso entregado al personaje %c",
@@ -370,14 +369,17 @@ int main(void) {
 						}
 
 					} else { // en caso de no tener bloqueo al personaje
-						log_in_disk_niv(LOG_LEVEL_TRACE, "Actualmente no hay instancias disponibles de %s", nombre_recurso);
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"Actualmente no hay instancias disponibles de %s",
+								nombre_recurso);
 
 						tipo_mensaje = N_TO_P_RECURSO_ERROR;
 
 						fd_mensaje(i, tipo_mensaje,
 								"No hay instancias disponibles. Tendrás que esperar :P!!!",
 								&tot_enviados);
-						log_in_disk_niv(LOG_LEVEL_TRACE, "Se envió N_TO_P_RECURSO_ERROR");
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"Se envió N_TO_P_RECURSO_ERROR");
 
 					}
 					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
@@ -396,8 +398,17 @@ int main(void) {
 				free(buffer);
 
 			}
-		}
 
+		}
+		FD_ZERO(t_personaje->readfds);
+		FD_SET(sck_plat, t_personaje->readfds);
+		cant_presonajes_conectados = list_size(t_personaje->l_personajes);
+
+		for (j = 0; j < cant_presonajes_conectados; j++) {
+			un_per = list_get(t_personaje->l_personajes, j);
+			FD_SET(un_per->sokc, t_personaje->readfds);
+
+		}
 	}
 
 	pthread_join(escucho_personaje_th, NULL );

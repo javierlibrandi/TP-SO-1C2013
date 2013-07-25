@@ -35,7 +35,8 @@ void *orequestador_thr(void* p) {
 	t_h_planificador * h_planificador = NULL;
 	t_personaje* pers = NULL;
 	int indice_personaje;
-
+	struct timeval tv;
+	tv.tv_sec = 2;
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;
@@ -75,7 +76,7 @@ void *orequestador_thr(void* p) {
 
 		//pthread_mutex_lock(t_h_orq->reads_select);
 
-		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, NULL )
+		if (select(*(t_h_orq->sock) + 1, t_h_orq->readfds, NULL, NULL, &tv)
 				== -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
@@ -122,7 +123,7 @@ void *orequestador_thr(void* p) {
 				mensaje = string_split(buffer, ";");
 				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
 						tipo);
-				sleep (3);
+				sleep(3);
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
@@ -246,8 +247,9 @@ bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 		if (string_equals_ignore_case(h_planificador->desc_nivel, desc_nivel)) {
 
 			//PROBAR CON PLATAFORMA Y NIVEL EN UNA TERMINAL Y PERSONAJE EN OTRA
-			if (!strcmp(h_planificador->ip,"127.0.0.1")) {
-				log_in_disk_orq(LOG_LEVEL_INFO, "Se convierte localhost a ip pública");
+			if (!strcmp(h_planificador->ip, "127.0.0.1")) {
+				log_in_disk_orq(LOG_LEVEL_INFO,
+						"Se convierte localhost a ip pública");
 				dirIP = gethostbyname(h_planificador->ip);
 				sprintf(msj, "%s;%s", dirIP->h_name, h_planificador->puerto);
 				log_in_disk_orq(LOG_LEVEL_TRACE,
