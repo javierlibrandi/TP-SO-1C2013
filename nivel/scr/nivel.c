@@ -131,11 +131,11 @@ int main(void) {
 
 				log_in_disk_niv(LOG_LEVEL_TRACE, "Tipo de mensaje %d ", tipo);
 
-				for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
+				/*for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
 					log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
 							cont_msj, mensaje[cont_msj]);
 
-				}
+				}*/
 
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
@@ -146,7 +146,7 @@ int main(void) {
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
 
-					log_in_disk_niv(LOG_LEVEL_TRACE, "se envio recursos %d, %d",
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Se enviaron coordenadas: (%d,%d)",
 							recurso->posX, recurso->posY);
 
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
@@ -175,18 +175,18 @@ int main(void) {
 
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Se envió confirmación de movimiento al personaje a (%d,%d)", posX, posY);
+
 
 					break;
 
 				case P_TO_N_OBJ_CUMPLIDO:
 
-					log_in_disk_niv(LOG_LEVEL_TRACE, "Nivel recibe aviso de Objetivo Cumplido");
-
 					recursos_personaje = "";
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
 					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"el personaje: %c a completado el nivel ",
+							"El personaje: %c a completado el nivel ",
 							nodo_lista_personaje->id_personaje);
 
 					listarRecursosPersonaje(
@@ -194,7 +194,7 @@ int main(void) {
 							recursos_personaje);
 
 					log_in_disk_niv(LOG_LEVEL_TRACE,
-							"el personaje: %c a completado el nivel y libera estos recursos: %s y se informa al orquestador, ",
+							"El personaje %c ha completado el nivel y libera estos recursos: %s. Se informa al orquestador.",
 							nodo_lista_personaje->id_personaje,
 							recursos_personaje);
 					//Informo al orquestador los recursos liberados
@@ -319,16 +319,20 @@ int main(void) {
 							nodo_lista_personaje->proximo_recurso->NOMBRE;
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El pesonaje solicita un recurso del tipo %s, la cantidad atual es de %d",
+							"El pesonaje solicita un recurso del tipo %s. L"
+							"a cantidad aCtual es de %d",
 							nombre_recurso, catidad_recursos);
 
 					if (catidad_recursos > 0) { //si tengo recursos se los doy
 
+						log_in_disk_niv(LOG_LEVEL_TRACE, "Hay instancias disponibles de %s", nombre_recurso);
+
 						catidad_recursos--;
 						tipo_mensaje = N_TO_P_RECURSO_OK;
 						fd_mensaje(i, tipo_mensaje,
-								"LEGASTE AL RECURSO, EN HORA BUENA!!!",
+								"LLEGASTE AL RECURSO, EN HORA BUENA!!!",
 								&tot_enviados);
+						log_in_disk_niv(LOG_LEVEL_TRACE, "Se envió N_TO_P_RECURSO_OK");
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"El recurso entregado al personaje %c",
@@ -340,7 +344,7 @@ int main(void) {
 						restarRecurso(ListaItems,
 								nodo_lista_personaje->proximo_recurso->SIMBOLO);
 
-						if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
+						if (recurso != NULL ) { //agrego a la lista de recursos asignados al personaje
 							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 						} else {
 							add_recurso_personaje(
@@ -349,14 +353,15 @@ int main(void) {
 						}
 
 					} else { // en caso de no tener bloqueo al personaje
+						log_in_disk_niv(LOG_LEVEL_TRACE, "Actualmente no hay instancias disponibles de %s", nombre_recurso);
+
 						tipo_mensaje = N_TO_P_RECURSO_ERROR;
-						log_in_disk_niv(LOG_LEVEL_INFO,
-								"El recurso insuficientes para entregar el personaje %c",
-								nodo_lista_personaje->id_personaje);
 
 						fd_mensaje(i, tipo_mensaje,
 								"No hay instancias disponibles. Tendrás que esperar :P!!!",
 								&tot_enviados);
+						log_in_disk_niv(LOG_LEVEL_TRACE, "Se envió N_TO_P_RECURSO_ERROR");
+
 					}
 					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
 							catidad_recursos);

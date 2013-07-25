@@ -199,8 +199,7 @@ int main(void) {
 		log_in_disk_per(LOG_LEVEL_INFO, "Termina exitosamente el proceso personaje.");
 
 		return EXIT_SUCCESS;
-	}
-	if(tipo != PL_TO_P_MATAR_KOOPA){
+	}else{
 		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado.");
 		exit(EXIT_FAILURE);
 	}
