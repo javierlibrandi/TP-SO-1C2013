@@ -258,8 +258,8 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	int descriptorPlan, tipoP, descriptorNiv, tipoN;
 
-	int bytes_enviados_niv, bytes_enviados_pl, bytes_enviados_pla;
-	char mensaje1[max_len], mensaje2[max_len], mensaje2a[max_len];
+	int bytes_enviados_niv, bytes_enviados_pl;
+	char mensaje1[max_len], mensaje2[max_len];
 	char *bufferPla, *bufferNiv;
 	t_recusos *recursos;
 	int k;
@@ -364,41 +364,45 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 				bufferPla);
 		exit(EXIT_FAILURE);
 	}
-
-	bufferNiv = recv_variable(descriptorNiv, &tipoN);
-	if (tipoN == ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
-				bufferNiv);
-		exit(EXIT_FAILURE);
-	}
-
-	if (tipoN == OK) {
-		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
-				infoNivel.nombre_nivel);
-		personaje->infoNivel.nombre = infoNivel.nombre_nivel;
-		personaje->sockNivel = descriptorNiv;
-		personaje->posActual.x = 1;
-		personaje->posActual.y = 1;
-
-		log_in_disk_per(LOG_LEVEL_INFO, "Inicializo recursos del %s",
-				infoNivel.nombre_nivel);
-		recursos = recursos_nivel(personaje->niveles, infoNivel.nombre_nivel);
-
-		for (k = 0; recursos->RECURSOS[k] != '\0'; k++) { //recorro todos los recuros del nivel
-
-			log_in_disk_per(LOG_LEVEL_INFO, "Recurso %d: %s ", k,
-					recursos->RECURSOS[k]);
-
+	tipoN = 0;
+	while (tipoN != OK) {
+		bufferNiv = recv_variable(descriptorNiv, &tipoN);
+		if (tipoN == ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
+					bufferNiv);
+			exit(EXIT_FAILURE);
 		}
-		personaje->infoNivel.recursos = recursos->RECURSOS;
-	}
 
-	if (tipoN != OK && tipoN != ERROR) {
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
-				bufferNiv);
-		exit(EXIT_FAILURE);
-	}
+		if (tipoN == OK) {
+			log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del %s",
+					infoNivel.nombre_nivel);
+			personaje->infoNivel.nombre = infoNivel.nombre_nivel;
+			personaje->sockNivel = descriptorNiv;
+			personaje->posActual.x = 1;
+			personaje->posActual.y = 1;
 
+			log_in_disk_per(LOG_LEVEL_INFO, "Inicializo recursos del %s",
+					infoNivel.nombre_nivel);
+			recursos = recursos_nivel(personaje->niveles,
+					infoNivel.nombre_nivel);
+
+			for (k = 0; recursos->RECURSOS[k] != '\0'; k++) { //recorro todos los recuros del nivel
+
+				log_in_disk_per(LOG_LEVEL_INFO, "Recurso %d: %s ", k,
+						recursos->RECURSOS[k]);
+
+			}
+			personaje->infoNivel.recursos = recursos->RECURSOS;
+		}
+
+		if (tipoN != OK && tipoN != ERROR) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
+					tipoN, bufferNiv);
+			//exit(EXIT_FAILURE);
+		}
+
+	}
 	free(bufferNiv);
 	free(bufferPla);
 }
@@ -472,32 +476,35 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Espero respuesta del Nivel...");
 
-	buffer = recv_variable(personaje->sockNivel, &tipo);
+	tipo = 0;
+	while (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
+		buffer = recv_variable(personaje->sockNivel, &tipo);
 
-	if (tipo == ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
-				buffer);
-		exit(EXIT_FAILURE);
+		if (tipo == ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
+					buffer);
+			exit(EXIT_FAILURE);
+		}
+
+		if (tipo == N_TO_P_UBIC_RECURSO) {
+			log_in_disk_per(LOG_LEVEL_INFO, "Se recibió la información %s:",
+					buffer);
+
+			aux_msj = string_split(buffer, ";");
+
+			personaje->posProxRecurso.x = atoi(aux_msj[0]);
+			personaje->posProxRecurso.y = atoi(aux_msj[1]);
+
+			personaje->recursoActual = *recurso;
+		}
+
+		if (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
+					tipo, buffer);
+			//exit(EXIT_FAILURE);
+		}
 	}
-
-	if (tipo == N_TO_P_UBIC_RECURSO) {
-		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió la información %s:",
-				buffer);
-
-		aux_msj = string_split(buffer, ";");
-
-		personaje->posProxRecurso.x = atoi(aux_msj[0]);
-		personaje->posProxRecurso.y = atoi(aux_msj[1]);
-
-		personaje->recursoActual = *recurso;
-	}
-
-	if (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
-				buffer);
-		exit(EXIT_FAILURE);
-	}
-
 	free(buffer);
 	free(aux_msj);
 }
@@ -592,7 +599,7 @@ void ejecutarTurno(Personaje *personaje) {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Envío notificación de bloqueo al planificador.");
 
-			fd_mensaje(personaje->sockPlanif, P_TO_N_BLOQUEO, mensajeBloqueo,
+			fd_mensaje(personaje->sockPlanif, P_TO_PL_BLOQUEO, mensajeBloqueo,
 					&bytes_enviados1);
 
 			if (bytes_enviados1 == -1) {
@@ -625,7 +632,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 //Avisa y se desconecta del planificador y del nivel
 void salirDelNivel(Personaje *personaje) {
-	char *mensajeFinNivel, *mensajeFinNivelP, *mensajeFinJuego;
+	char *mensajeFinNivel, *mensajeFinNivelP;
 	int vidas, sockNivel, sockPlanif;
 	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4, tipo;
 
@@ -668,8 +675,7 @@ void salirDelNivel(Personaje *personaje) {
 				exit(EXIT_FAILURE);
 			}
 			//Espero OK del planificador de finalización de nivel.
-			recv_variable(sockPlanif, &tipo);
-
+			tipo = 0;
 			while (tipo != OK) {
 				recv_variable(sockPlanif, &tipo);
 
@@ -876,23 +882,29 @@ void moverse(Personaje* personaje) {
 		exit(EXIT_FAILURE);
 	}
 
-	buffer = recv_variable(personaje->sockNivel, &tipo);
+	tipo = 0;
+	while (tipo != N_TO_P_MOVIDO) {
+		buffer = recv_variable(personaje->sockNivel, &tipo);
 
-	if (tipo == N_TO_P_MOVIDO) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "Se movió a la posición solicitada:%s",
-				buffer);
-		personaje->posActual.x = nuevaPosicion.x;
-		personaje->posActual.y = nuevaPosicion.y;
-		free(buffer);
-	}
+		if (tipo == N_TO_P_MOVIDO) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Se movió a la posición solicitada:%s", buffer);
+			personaje->posActual.x = nuevaPosicion.x;
+			personaje->posActual.y = nuevaPosicion.y;
+		}
 
-	if (tipo == ERROR) {
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Hubo un error al mover el personaje. Respuesta del Nivel: %s",
-				buffer);
-		//hacer ciclo para volver a mandar solicitud de movimiento si falla
-		free(buffer);
+		if (tipo == ERROR) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Hubo un error al mover el personaje. Respuesta del Nivel: %s",
+					buffer);
+		}
+		if (tipo != ERROR && tipo != N_TO_P_MOVIDO) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"No se recibió un mensaje esperado. Tipo: %d. Buffer:%s", tipo, buffer);
+		}
+
 	}
+	free(buffer);
 }
 
 // ******** 21/7 REEMPLAZAR TODA FUNCIÓN solicitarInstanciaRecurso 21/7 EN REPO
@@ -922,7 +934,8 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 				"Nivel cerró la conexión. El proceso personaje va a terminar.");
 		exit(EXIT_FAILURE);
 	}
-
+	tipo = 0;
+	while(tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR){
 	buffer = recv_variable(personaje->sockNivel, &tipo);
 
 	if (tipo == N_TO_P_RECURSO_ERROR) {
@@ -950,9 +963,11 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 	}
 
 	if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado: %s",
-				buffer);
-	exit(EXIT_FAILURE);
+		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
+	//return false;
+	//exit(EXIT_FAILURE);
+
+	}
 
 	free(buffer);
 

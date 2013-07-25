@@ -2,3 +2,7 @@ export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Debug/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Debug/
 
 export LD_LIBRARY_PATH="/home/utnso/git/tp-20131c-gaturro/commons/Debug:/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Debug"
+
+
+export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Release/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Release/

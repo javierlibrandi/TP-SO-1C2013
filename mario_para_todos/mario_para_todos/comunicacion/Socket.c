@@ -150,7 +150,7 @@ void fd_mensaje(const int socket, const int header_mensaje, const char *msj,
 			sizeof(t_header) + t_send.payLoadLength);
 
 	log_in_disk_mensajes(LOG_LEVEL_INFO,
-								" \t\t entro an fd_mensaje con el soket %d y tipo de mensaje %d el menaje a enviar es %s byts enviados %d" ,socket,header_mensaje,msj,*env);
+								" \t\t entro an fd_mensaje con el socket %d y tipo de mensaje %d el mensaje a enviar es %s byts enviados %d" ,socket,header_mensaje,msj,*env);
 
 }
 

@@ -274,7 +274,7 @@ static void mover_personaje(t_personaje *personaje,
 			//PLANIFICAR EL SIGUIENTE PERSONAJE DE LISTOS
 			break;
 
-		case P_TO_N_BLOQUEO:
+		case P_TO_PL_BLOQUEO:
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,
 					"Se recibió el mensaje P_TO_N_BLOQUEO");
