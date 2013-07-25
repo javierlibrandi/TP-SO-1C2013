@@ -46,6 +46,8 @@ void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 		char *msj);
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
+t_h_orquestadro *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+		int *indice_personaje);
 
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
@@ -166,7 +168,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
 						h_orquestador, &bool_existe_personaje);
 			}
-			sleep(3);
+			//sleep(3);
 			if (bool_existe_personaje == 0) {
 				fd_mensaje(new_sck, ERROR,
 						"Ya existe un personaje con ese nombre o simbolo",
@@ -175,6 +177,17 @@ void escucho_conexiones(t_param_plat param_plataforma,
 			} else {
 
 				fd_mensaje(new_sck, OK, "ok, personaje creado", &byteEnviados);
+
+				pthread_mutex_lock(h_orquestador->reads_select);
+				pthread_mutex_lock(h_orquestador->s_sock_semaforo);
+				FD_SET(new_sck, h_orquestador->readfds); //Agrego el socket a la lista del select
+
+				if (new_sck > *(h_orquestador->sock)) {
+					*(h_orquestador->sock) = new_sck;
+				}
+				pthread_mutex_unlock(h_orquestador->reads_select);
+				pthread_mutex_unlock(h_orquestador->s_sock_semaforo);
+
 			}
 
 			break;
@@ -195,6 +208,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				pthread_mutex_lock(h_orquestador->reads_select);
 				pthread_mutex_lock(h_orquestador->s_sock_semaforo);
 
+				FD_ZERO(h_orquestador->readfds);
 				FD_SET(new_sck, h_orquestador->readfds);
 
 				if (new_sck > *(h_orquestador->sock)) {
@@ -445,16 +459,6 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 		return;
 	} else {
 
-		pthread_mutex_lock(h_orquestador->reads_select);
-		pthread_mutex_lock(h_orquestador->s_sock_semaforo);
-		FD_SET(sock, h_orquestador->readfds); //Agrego el socket a la lista del select
-
-		if (sock > *(h_orquestador->sock)) {
-			*(h_orquestador->sock) = sock;
-		}
-		pthread_mutex_unlock(h_orquestador->reads_select);
-		pthread_mutex_unlock(h_orquestador->s_sock_semaforo);
-
 		//Creo el personaje
 		nuevo_personaje = malloc(sizeof(t_personaje));
 		nuevo_personaje->simbolo = mensaje[1][0];
@@ -485,34 +489,30 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje) {
 
+	int i;
 	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el personaje: %s \t",
 			nombre_personaje);
 
-	if (list_is_empty(list_personaje) == 1) {
+	if (list_is_empty(list_personaje) != 0) {
 		return false;
 	}
 
-	bool _list_elements(t_personaje *h_personaje) {
+	if (busca_personaje_simbolo_pla(simbolo, list_personaje, &i) == NULL ) {
+		log_in_disk_orq(LOG_LEVEL_TRACE,
+				"El siguiente personaje o simbolo ya existen personaje: %s, Simbolo: %c ",
+				nombre_personaje, simbolo);
 
-		if ((!strcmp(h_personaje->nombre, nombre_personaje))
-				|| (h_personaje->simbolo == simbolo)) {
+		return false;
 
-			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"El siguiente personaje o simbolo ya existen personaje: %s, Simbolo: %c ",
-					h_personaje->nombre, h_personaje->simbolo);
+	} else {
+		log_in_disk_orq(LOG_LEVEL_TRACE,
+				"El personaje :%s, con simbolo: %c sera creado ",
+				nombre_personaje, simbolo);
 
-			return true;
+		return true;
 
-		} else {
-			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"El personaje :%s, con simbolo: %c sera creado ",
-					h_personaje->nombre, h_personaje->simbolo);
-
-			return false;
-		}
 	}
 
-	return (bool*) list_find(list_personaje, (void*) _list_elements);
 }
 
 void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
@@ -547,7 +547,7 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	mover_personaje_lista(sck, h_orquestador->l_nuevos,
 			h_orquestador->l_listos);
 
-	imprimir_listas(h_orquestador,'o');
+	imprimir_listas(h_orquestador, 'o');
 
 }
 
@@ -629,3 +629,28 @@ t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
 
 	return NULL ;
 }
+
+t_h_orquestadro *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+		int *indice_personaje) {
+	int count;
+	int total_personajes = list_size(l_personajes);
+	t_personaje *per;
+
+	log_in_disk_niv(LOG_LEVEL_INFO, "busca_personaje_simbolo: %c", id);
+
+	for (count = 0; count < total_personajes; count++) {
+		per = list_get(l_personajes, count);
+
+		if (per->simbolo == id) {
+
+			log_in_disk_niv(LOG_LEVEL_INFO, "Retorno el personaje %s",
+					per->nombre);
+
+			*indice_personaje = count;
+			return per;
+		}
+	}
+
+	return NULL ;
+}
+
