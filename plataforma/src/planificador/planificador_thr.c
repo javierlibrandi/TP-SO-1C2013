@@ -227,6 +227,22 @@ static void mover_personaje(t_personaje *personaje,
 
 		switch (tipo) {
 
+		case P_TO_PL_JUEGO_GANADO: //cuando el nivel esta complido saco el personaje de las listas
+
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"el personaje:  %s a completado su plan de niveles. ",
+					personaje->nombre);
+
+			lock_listas_plantaforma(h_planificador);
+
+			imprimir_listas(h_planificador, 'p');
+			un_lock_listas_plataforma(h_planificador);
+
+			mover_personaje_lista(personaje->sck, h_planificador->l_listos, h_planificador->l_koopa);
+			personaje_bloqueado = true;
+
+			break;
+
 		case P_TO_PL_OBJ_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
 
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
@@ -251,14 +267,16 @@ static void mover_personaje(t_personaje *personaje,
 			//TODO AGregar mensaje de que el personaje gano el juego!!
 
 		case P_TO_PL_RECURSO_CONSEGUIDO:
-			log_in_disk_plan(LOG_LEVEL_TRACE, "Se recibió el mensaje P_TO_PL_RECURSO_CONSEGUIDO");
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"Se recibió el mensaje P_TO_PL_RECURSO_CONSEGUIDO");
 
 			//PLANIFICAR EL SIGUIENTE PERSONAJE DE LISTOS
 			break;
 
 		case P_TO_N_BLOQUEO:
 
-			log_in_disk_plan(LOG_LEVEL_TRACE, "Se recibió el mensaje P_TO_N_BLOQUEO");
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"Se recibió el mensaje P_TO_N_BLOQUEO");
 
 			lock_listas_plantaforma(h_planificador);
 
