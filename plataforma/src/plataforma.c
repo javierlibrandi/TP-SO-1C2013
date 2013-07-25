@@ -271,7 +271,10 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->l_listos = h_orquestador->l_listos;
 	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
 	h_planificador->l_errores = h_orquestador->l_errores;
+	h_planificador->l_koopa = h_orquestador->l_koopa;
+	h_planificador->s_koopa = h_orquestador->s_koopa;
 	h_planificador->s_listos = h_orquestador->s_listos;
+
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
 	h_planificador->s_errores = h_orquestador->s_errores;
 	h_planificador->segundos_espera = segundos_espera;
@@ -543,6 +546,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 
 	mover_personaje_lista(sck, h_orquestador->l_nuevos,
 			h_orquestador->l_listos);
+
+	imprimir_listas(h_orquestador,'o');
 
 }
 
