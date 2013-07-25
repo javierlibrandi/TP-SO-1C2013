@@ -124,7 +124,7 @@ void *orequestador_thr(void* p) {
 				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
 						tipo);
 
-				sleep(3);
+				sleep(1);
 
 				switch (tipo) {
 

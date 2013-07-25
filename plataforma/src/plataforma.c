@@ -168,7 +168,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
 						h_orquestador, &bool_existe_personaje);
 			}
-			//sleep(3);
+			sleep(1);
 			if (bool_existe_personaje == 0) {
 				fd_mensaje(new_sck, ERROR,
 						"Ya existe un personaje con ese nombre o simbolo",
