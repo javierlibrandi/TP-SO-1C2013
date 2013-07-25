@@ -253,10 +253,8 @@ int mover_personaje_lista(int sck, t_list *origen, t_list *destino) {
 }
 
 void imprimir_listas(void *estruc, char tipo_estruc) {
-	t_h_planificador *h_struc_p=NULL;
-	t_h_orquestadro *h_struc_o=NULL;
-
-
+	t_h_planificador *h_struc_p = NULL;
+	t_h_orquestadro *h_struc_o = NULL;
 
 	switch (tipo_estruc) {
 	case 'o':
@@ -297,15 +295,19 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 
 static void impimir_lista(t_list *lista) {
 	int count;
-	int total_personajes = list_size(lista);
+	int total_personajes;
 	t_personaje *per;
 
-	for (count = 0; count < total_personajes && list_size(lista)>0; count++) {
+	if (list_size(lista) > 0) {
+		total_personajes = list_size(lista);
+		for (count = 0; count < total_personajes; count++) {
 
-		per = list_get(lista, count);
+			per = list_get(lista, count);
 
-		log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s", per->nombre);
+			log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s",
+					per->nombre);
 
+		}
 	}
 }
 
