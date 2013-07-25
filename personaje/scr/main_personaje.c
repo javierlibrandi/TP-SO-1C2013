@@ -198,6 +198,7 @@ int main(void) {
 	while (tipo != PL_TO_P_MATAR_KOOPA) {
 		buffer = recv_variable(personaje->sockPlanif, &tipo);
 
+
 		if (tipo == PL_TO_P_MATAR_KOOPA) {
 			log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
 			log_in_disk_per(LOG_LEVEL_INFO,
@@ -205,6 +206,7 @@ int main(void) {
 
 			return EXIT_SUCCESS;
 		}
-	}
 
+
+}
 }
