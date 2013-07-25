@@ -132,6 +132,12 @@ int conectarOrquestador(Personaje* personaje) {
 		log_in_disk_per(LOG_LEVEL_INFO, "Respuesta del orquestador: %s",
 				buffer);
 
+	if (tipo != ERROR && tipo != OK) {
+			log_in_disk_per(LOG_LEVEL_ERROR, "No se recibió un mensaje esperado: %s",
+					buffer);
+			exit(EXIT_FAILURE);
+		}
+
 	free(buffer);
 	return descriptor;
 }
@@ -511,6 +517,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 	//Me fijo si el anterior turno estuve bloqueado par asignarme el recurso correspondiente.
 	if (personaje->bloqueado && personaje->indexRecurso == -1) {
+		//Entra por acá cuando justo el recurso por el que se bloqueó era el último para completar el nivel
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Se da como asignado el recurso por el que había quedado bloqueado. Index: %d",
 				personaje->indexRecurso);
@@ -562,7 +569,7 @@ void ejecutarTurno(Personaje *personaje) {
 		if (recursoAdjudicado) {
 			//Se adjudicó el recurso, agregar a la lista de recursos del personaje
 			log_in_disk_per(LOG_LEVEL_INFO, "****** RECURSO %c CONSEGUIDO ******", personaje->recursoActual);
-			fd_mensaje(personaje->sockPlanif, P_TO_PL_TURNO_CUMPLIDO,
+			fd_mensaje(personaje->sockPlanif, P_TO_PL_RECURSO_CONSEGUIDO,
 					mensajeFinTurno, &bytes_enviados);
 
 			if (bytes_enviados == -1) {

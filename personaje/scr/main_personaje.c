@@ -84,6 +84,7 @@ int main(void) {
 
 		iniciarNivel(personaje, InfoProxNivel);
 
+		log_in_disk_per(LOG_LEVEL_INFO,"****** INICIO NIVEL ******");
 
 		//mientras no se complete el nivel y el personaje tenga vidas
 		while (!objetivoNivelCumplido(personaje) && personaje->vidas > 0) {
@@ -93,7 +94,6 @@ int main(void) {
 				flagReiniciarNivel = false;
 			}
 
-			log_in_disk_per(LOG_LEVEL_INFO,"****** INICIO NIVEL ******");
 			//Espero y recibo notificación de movimiento permitido
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Esperando turno para jugar del planificador del %s",
