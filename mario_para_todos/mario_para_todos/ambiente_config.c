@@ -256,40 +256,40 @@ void imprimir_listas(void *estruc, char tipo_estruc) {
 	t_h_planificador *h_struc_p = NULL;
 	t_h_orquestadro *h_struc_o = NULL;
 
-//	switch (tipo_estruc) {
-//	case 'o':
-//	case 'O':
-//		log_in_disk_plat(LOG_LEVEL_INFO,
-//				">>>>>>Impimo la lista de personajes ORQUESTADOR<<<<<<<<<<<<");
-//		h_struc_o = (t_h_orquestadro*) estruc;
-//		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
-//		impimir_lista(h_struc_o->l_listos);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "BLOQUEADOS");
-//		impimir_lista(h_struc_o->l_bloquedos);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "ERRORES");
-//		impimir_lista(h_struc_o->l_errores);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "NUEVOS");
-//		impimir_lista(h_struc_o->l_nuevos);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "EPERANDO POR KOOPA");
-//		impimir_lista(h_struc_o->l_koopa);
-//
-//		break;
-//	case 'p':
-//	case 'P':
-//		log_in_disk_plat(LOG_LEVEL_INFO,
-//				">>>>>>Impimo la lista de personajes PANIFICADOR<<<<<<<<<<<<");
-//		h_struc_p = (t_h_planificador*) estruc;
-//		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
-//		impimir_lista(h_struc_p->l_listos);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "BLOQUEADOS");
-//		impimir_lista(h_struc_p->l_bloquedos);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "ERRORES");
-//		impimir_lista(h_struc_p->l_errores);
-//		log_in_disk_plat(LOG_LEVEL_INFO, "NUEVOS");
-//		log_in_disk_plat(LOG_LEVEL_INFO, "EPERANDO POR KOOPA");
-//		impimir_lista(h_struc_p->l_koopa);
-//		break;
-//	}
+	switch (tipo_estruc) {
+	case 'o':
+	case 'O':
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				">>>>>>Impimo la lista de personajes ORQUESTADOR<<<<<<<<<<<<");
+		h_struc_o = (t_h_orquestadro*) estruc;
+		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
+		impimir_lista(h_struc_o->l_listos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "BLOQUEADOS");
+		impimir_lista(h_struc_o->l_bloquedos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "ERRORES");
+		impimir_lista(h_struc_o->l_errores);
+		log_in_disk_plat(LOG_LEVEL_INFO, "NUEVOS");
+		impimir_lista(h_struc_o->l_nuevos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "EPERANDO POR KOOPA");
+		impimir_lista(h_struc_o->l_koopa);
+
+		break;
+	case 'p':
+	case 'P':
+		log_in_disk_plat(LOG_LEVEL_INFO,
+				">>>>>>Impimo la lista de personajes PANIFICADOR<<<<<<<<<<<<");
+		h_struc_p = (t_h_planificador*) estruc;
+		log_in_disk_plat(LOG_LEVEL_INFO, "LISTOS");
+		impimir_lista(h_struc_p->l_listos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "BLOQUEADOS");
+		impimir_lista(h_struc_p->l_bloquedos);
+		log_in_disk_plat(LOG_LEVEL_INFO, "ERRORES");
+		impimir_lista(h_struc_p->l_errores);
+		log_in_disk_plat(LOG_LEVEL_INFO, "NUEVOS");
+		log_in_disk_plat(LOG_LEVEL_INFO, "EPERANDO POR KOOPA");
+		impimir_lista(h_struc_p->l_koopa);
+		break;
+	}
 
 }
 
