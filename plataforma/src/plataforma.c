@@ -272,7 +272,7 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
 	h_planificador->l_errores = h_orquestador->l_errores;
 	h_planificador->l_koopa = h_orquestador->l_koopa;
-	h_planificador->s_koopa = h_orquestaor->s_koopa;
+	h_planificador->s_koopa = h_orquestador->s_koopa;
 	h_planificador->s_listos = h_orquestador->s_listos;
 
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
