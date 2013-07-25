@@ -58,6 +58,7 @@ static pthread_mutex_t s_nuevos = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_terminados = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_sock_orquestador = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t reads_orquestador = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_koopa = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
 
@@ -89,13 +90,15 @@ int main(void) {
 
 	h_orquestador->reads_select = &reads_orquestador;
 	h_orquestador->s_sock_semaforo = &s_sock_orquestador;
+	h_orquestador->s_koopa = &s_koopa;
 
 	//listas
 	h_orquestador->l_bloquedos = list_create(); //lista de personajes bloquedos
 	h_orquestador->l_listos = list_create(); //lista de personajes listos
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
 	h_orquestador->l_nuevos = list_create(); //lista de personajes nuevos que no estan para lanificar.
-	h_orquestador->terminados = list_create(); //pongo las visctimas que elige el orquestador
+	h_orquestador->l_terminados = list_create(); //pongo las visctimas que elige el orquestador
+	h_orquestador->l_koopa = list_create();
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	FD_ZERO(h_orquestador->readfds);
 	*(h_orquestador->sock) = 0;
@@ -398,6 +401,7 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 	//int byteEnviados;
 	bool aux_existe_persosaje_listo;
 	bool aux_existe_persojaje_bloquedo;
+	bool aux_existe_persojaje_nuevo;
 	static unsigned long int sec_personaje = 0;
 
 	/* ESTO NO VA MAS POR QUE AHORA LA LISTA DE SOCKETS SE INICIALIZA AFUERA, EN EL MAIN.
@@ -413,16 +417,20 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 
 	pthread_mutex_lock(h_orquestador->s_listos);
 	pthread_mutex_lock(h_orquestador->s_bloquedos);
+	pthread_mutex_lock(h_orquestador->s_nuevos);
 
 	aux_existe_persosaje_listo = existe_personaje(mensaje[0], mensaje[1][0],
 			h_orquestador->l_listos);
 	aux_existe_persojaje_bloquedo = existe_personaje(mensaje[0], mensaje[1][0],
 			h_orquestador->l_bloquedos);
+	aux_existe_persojaje_nuevo = existe_personaje(mensaje[0], mensaje[1][0],
+				h_orquestador->l_bloquedos);
 
+	pthread_mutex_unlock(h_orquestador->s_nuevos);
 	pthread_mutex_unlock(h_orquestador->s_bloquedos);
 	pthread_mutex_unlock(h_orquestador->s_listos);
 
-	if (aux_existe_persosaje_listo || aux_existe_persojaje_bloquedo) {
+	if (aux_existe_persosaje_listo || aux_existe_persojaje_bloquedo||aux_existe_persojaje_nuevo) {
 
 		log_in_disk_orq(LOG_LEVEL_TRACE,
 				"Ya existe un personaje con este nombre o simbolo. nombre: %s, Simbolo: %c ",
@@ -456,13 +464,17 @@ void creo_personaje_lista(char crear_orquesador, int sock, char *aux_char,
 		//nuevo_personaje->listo_para_planificar = false; //pongo al personane para que no se planifique hasta que pase los datos del nivel
 		pthread_mutex_lock(h_orquestador->s_nuevos);
 		list_add(h_orquestador->l_nuevos, nuevo_personaje); //Agrego el nuevo personaje a la cola de listos
+		imprimir_listas(h_orquestador,'o');
+
 		pthread_mutex_unlock(h_orquestador->s_nuevos);
 
 		log_in_disk_plat(LOG_LEVEL_TRACE,
 				"creo el personaje %s de simbolo: %c y su nro de sec es: %d",
 				nuevo_personaje->nombre, nuevo_personaje->simbolo,
 				nuevo_personaje->sec_entrada);
+
 		existe_personaje_var = 0;
+
 	}
 }
 
@@ -506,7 +518,7 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	char *nom_personaje = aux_mjs[0];
 	char *nom_nivel = aux_mjs[1];
 	t_h_planificador *h_planificador = NULL;
-	int indice_auxx;
+	int indice_aux;
 	Personaje* per_aux;
 	log_in_disk_plat(LOG_LEVEL_TRACE,
 			"agregar_personaje_planificador personaje: %s \t nivel: %s",

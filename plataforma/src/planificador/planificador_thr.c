@@ -91,6 +91,7 @@ void* planificador_nivel_thr(void *p) {
 							h_planificador->l_errores);
 					mover_personaje_lista(sck, h_planificador->l_bloquedos,
 							h_planificador->l_errores);
+					imprimir_listas(h_planificador, 'p');
 					un_lock_listas_plataforma(h_planificador);
 
 					elimino_sck_lista(sck, h_planificador->readfds);
@@ -110,7 +111,7 @@ void* planificador_nivel_thr(void *p) {
 						eliminar_personaje_termino_nivel(sck,
 								h_planificador->l_listos);
 						elimino_sck_lista(sck, h_planificador->readfds);
-
+						imprimir_listas(h_planificador, 'p');
 						un_lock_listas_plataforma(h_planificador);
 
 						free(buffer); // TODO Donde se hace el malloc??
@@ -239,7 +240,7 @@ static void mover_personaje(t_personaje *personaje,
 					h_planificador->l_listos);
 
 			elimino_sck_lista(personaje->sck, h_planificador->readfds);
-
+			imprimir_listas(h_planificador, 'p');
 			un_lock_listas_plataforma(h_planificador);
 
 			fd_mensaje(sock_aux, OK, "Me alegro pos vos!!!!", &byteEnviados);
@@ -254,7 +255,7 @@ static void mover_personaje(t_personaje *personaje,
 
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_bloquedos);
-
+			imprimir_listas(h_planificador, 'p');
 			un_lock_listas_plataforma(h_planificador);
 
 			personaje_bloqueado = true;
@@ -267,10 +268,13 @@ static void mover_personaje(t_personaje *personaje,
 
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_errores);
+			imprimir_listas(h_planificador, 'p');
 
 			un_lock_listas_plataforma(h_planificador);
 			elimino_sck_lista(personaje->sck, h_planificador->readfds); //creo que este el esl socket que tengo que eliminar
+
 			personaje_bloqueado = true;
+
 		}
 		free(buffer);
 		sleep(h_planificador->segundos_espera);
