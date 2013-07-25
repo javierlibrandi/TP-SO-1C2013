@@ -546,6 +546,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	mover_personaje_lista(sck, h_orquestador->l_nuevos,
 			h_orquestador->l_listos);
 
+	imprimir_listas(h_orquestador,'o');
+
 }
 
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores) {
