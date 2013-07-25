@@ -11,6 +11,7 @@
 #include <semaphore.h>
 #include <commons/collections/list.h>
 #include <stdbool.h>
+#include "../manjo_pantalla/nivel_p.h"
 
 typedef struct{
 	char *nomb_nivel;
@@ -19,6 +20,7 @@ typedef struct{
 	fd_set *readfds;
 	pthread_mutex_t *s_personaje_conectado;
 	t_list *l_personajes;
+	ITEM_NIVEL* ListaItemss;
 } t_h_personaje;
 
 typedef struct{

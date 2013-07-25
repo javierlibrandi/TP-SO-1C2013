@@ -30,8 +30,7 @@
 #include "manjo_pantalla/tad_items.h"
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 
-void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
-		t_h_personaje *t_personaje);
+
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
@@ -83,6 +82,7 @@ int main(void) {
 	t_personaje->nomb_nivel = param_nivel.nom_nivel;
 	t_personaje->pueto = param_nivel.PUERTO;
 	t_personaje->l_personajes = list_create();
+	t_personaje->ListaItemss = ListaItems;
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	if (B_DIBUJAR) {
@@ -423,26 +423,7 @@ int main(void) {
 
 }
 
-void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
-		t_h_personaje *t_personaje) {
 
-	t_lista_personaje *list_personajes;
-
-	log_in_disk_niv(LOG_LEVEL_TRACE, "funcion add_personaje_lista ");
-
-	list_personajes = malloc(sizeof(t_lista_personaje));
-	list_personajes->id_personaje = id_personaje;
-	list_personajes->nombre_personaje = nombre_personaje;
-	list_personajes->sokc = i;
-	list_personajes->l_recursos_optenidos = list_create();
-
-	list_add(t_personaje->l_personajes, list_personajes);
-
-	log_in_disk_niv(LOG_LEVEL_TRACE,
-			"Agrego a la lista el personaje con  id_personaje %c el nombre %s socket %d",
-			list_personajes->id_personaje, list_personajes->nombre_personaje,
-			list_personajes->sokc);
-}
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel) {
 //	libero_recursos_pantalla(param_nivel->recusos);
 //
