@@ -236,9 +236,10 @@ static void mover_personaje(t_personaje *personaje,
 			lock_listas_plantaforma(h_planificador);
 
 			imprimir_listas(h_planificador, 'p');
-			un_lock_listas_plataforma(h_planificador);
 
-			mover_personaje_lista(personaje->sck, h_planificador->l_listos, h_planificador->l_koopa);
+			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
+					h_planificador->l_koopa);
+			un_lock_listas_plataforma(h_planificador);
 			personaje_bloqueado = true;
 
 			break;
@@ -247,8 +248,8 @@ static void mover_personaje(t_personaje *personaje,
 
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
 
-			fd_mensaje(personaje->sck, OK, "Me alegro pos vos!!!!",
-					&byteEnviados);
+//			fd_mensaje(personaje->sck, OK, "Me alegro pos vos!!!!",
+//					&byteEnviados);
 
 			lock_listas_plantaforma(h_planificador);
 			sock_aux = personaje->sck;

@@ -30,7 +30,6 @@
 #include "manjo_pantalla/tad_items.h"
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 
-
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
@@ -116,7 +115,8 @@ int main(void) {
 
 	for (;;) {
 
-		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL, NULL, &tv) == -1) {
+		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
+				NULL, &tv) == -1) {
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
@@ -390,6 +390,11 @@ int main(void) {
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
+
+				default:
+					log_in_disk_plat(LOG_LEVEL_ERROR,
+							"opcion en el switch no implementada", tipo);
+					//exit(1);
 				}
 
 				if (B_DIBUJAR) {
@@ -422,7 +427,6 @@ int main(void) {
 	return EXIT_SUCCESS;
 
 }
-
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel) {
 //	libero_recursos_pantalla(param_nivel->recusos);
@@ -464,8 +468,9 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 		}
 
 	}
-	log_in_disk_niv(LOG_LEVEL_TRACE, "devuelvo el personaje %c sock del personaje %d",
-					personaje->id_personaje , personaje->sokc);
+	log_in_disk_niv(LOG_LEVEL_TRACE,
+			"devuelvo el personaje %c sock del personaje %d",
+			personaje->id_personaje, personaje->sokc);
 
 	*i = j;
 	return personaje;
