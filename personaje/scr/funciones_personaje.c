@@ -667,9 +667,11 @@ void salirDelNivel(Personaje *personaje) {
 
 			if (tipo == OK) {
 				log_in_disk_per(LOG_LEVEL_ERROR,
+
 						"Se recibió OK de finalización de nivel del planificador.");
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Cierro socket del planificador");
+
 
 				close(sockPlanif);
 			} else {
