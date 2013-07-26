@@ -38,16 +38,14 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.2040315533" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.other.1835912839" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other"/>
 								<option id="gnu.c.link.option.libs.1516810475" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lib_mario"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="mario_para_todos"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="commons"/>
 									<listOptionValue builtIn="false" value="ncurses"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1093589910" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.917858475" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -93,7 +91,7 @@
 				<externalSettings containerId="commons;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/commons"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/commons/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/commons/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="commons" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -101,8 +99,8 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/lib_mario"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/mario_para_todos"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lib_mario/Release"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/mario_para_todos/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lib_mario/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/mario_para_todos/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="lib_mario" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="mario_para_todos" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
