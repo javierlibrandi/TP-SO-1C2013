@@ -2,7 +2,7 @@
  * main_personaje.c
  *
  *  Created on: 25/05/2013
- *      Author: utnso
+ *      Author: Jazmin
  */
 
 #include <stdio.h>
@@ -201,13 +201,15 @@ int main(void) {
 
 
 		if (tipo == PL_TO_P_MATAR_KOOPA) {
-			log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
+			//log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"Termina exitosamente el proceso personaje.");
+			close(personaje->sockPlanif);
 
 			return EXIT_SUCCESS;
 		}else{
 			log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
+			sleep(1);
 		}
 }
 }

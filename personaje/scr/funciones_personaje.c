@@ -500,9 +500,9 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 		if (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
-					"No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
+					" UbicRecurso: No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
 					tipo, buffer);
-			//exit(EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 	}
 	free(buffer);
@@ -644,80 +644,78 @@ void salirDelNivel(Personaje *personaje) {
 	mensajeFinNivelP = "Bye Planificador";
 
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"Me desconecto del nivel y su planificador.");
+			"Me desconecto del planificador.");
 
-	if (vidas > 0) {
-		fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
-				&bytes_enviados);
+	if (personaje->nivelActual != -2) {
+		//Si no es el último nivel
+		fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
+				&bytes_enviados1);
 
-		if (bytes_enviados == -1) {
+		if (bytes_enviados1 == -1) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_N_OBJ_CUMPLIDO");
-
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Nivel cerró la conexión. El proceso personaje va a terminar.");
-			exit(EXIT_FAILURE);
-		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
-		close(sockNivel);
-
-		if (personaje->nivelActual != -2) {
-			//Si no es el último nivel
-			fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
-					&bytes_enviados1);
-
-			if (bytes_enviados1 == -1) {
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Hubo un error al enviar el mensaje P_TO_PL_OBJ_CUMPLIDO");
-
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Planificador cerró la conexión. El proceso personaje va a terminar.");
-				exit(EXIT_FAILURE);
-			}
-			//Espero OK del planificador de finalización de nivel.
-			tipo = 0;
-			while (tipo != OK) {
-				recv_variable(sockPlanif, &tipo);
-
-				if (tipo == OK) {
-					log_in_disk_per(LOG_LEVEL_ERROR,
-							"Se recibió OK de finalización de nivel.");
-					log_in_disk_per(LOG_LEVEL_INFO,
-							"Cierro socket del planificador");
-
-					close(sockPlanif);
-				}
-			}
-		}
-
-	} else {
-		//Si sale porque no tiene más vidas se rebe reiniciar el plan de niveles.
-		fd_mensaje(sockNivel, P_TO_N_SALIR, mensajeFinNivel, &bytes_enviados3);
-
-		if (bytes_enviados3 == -1) {
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_N_SALIR");
-
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Nivel cerró la conexión. El proceso personaje va a terminar.");
-			exit(EXIT_FAILURE);
-		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
-		close(sockNivel);
-
-		fd_mensaje(sockPlanif, P_TO_PL_SALIR, mensajeFinNivelP,
-				&bytes_enviados4);
-
-		if (bytes_enviados4 == -1) {
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_PL_SALIR");
+					"Hubo un error al enviar el mensaje P_TO_PL_OBJ_CUMPLIDO");
 
 			log_in_disk_per(LOG_LEVEL_ERROR,
 					"Planificador cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
 		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del planificador");
-		close(sockPlanif);
+		//Espero OK del planificador de finalización de nivel.
+		tipo = 0;
+		while (tipo != OK) {
+
+			recv_variable(sockPlanif, &tipo);
+
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+
+						"Se recibió OK de finalización de nivel del planificador.");
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Cierro socket del planificador");
+
+
+				close(sockPlanif);
+			} else {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ", tipo);
+				sleep(3);
+
+			}
+
+		}
+	} // fin IF si no es último nivel
+
+	log_in_disk_per(LOG_LEVEL_INFO,
+				"Me desconecto del nivel.");
+
+	fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
+			&bytes_enviados);
+
+	if (bytes_enviados == -1) {
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Hubo un error al enviar el mensaje P_TO_N_OBJ_CUMPLIDO");
+
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Nivel cerró la conexión. El proceso personaje va a terminar.");
+		exit(EXIT_FAILURE);
+	}
+
+	tipo = 0;
+	while (tipo != OK) {
+		recv_variable(sockNivel, &tipo);
+
+		if (tipo == OK) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Se recibió OK de finalización de nivel.");
+			log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+			close(sockNivel);
+
+		} else {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"No se recibió un mensaje esperado. Tipo:%d ", tipo);
+			sleep(1);
+
+		}
+
 	}
 
 }
@@ -900,7 +898,8 @@ void moverse(Personaje* personaje) {
 		}
 		if (tipo != ERROR && tipo != N_TO_P_MOVIDO) {
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"No se recibió un mensaje esperado. Tipo: %d. Buffer:%s", tipo, buffer);
+					"No se recibió un mensaje esperado. Tipo: %d. Buffer:%s",
+					tipo, buffer);
 		}
 
 	}
@@ -935,37 +934,39 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 		exit(EXIT_FAILURE);
 	}
 	tipo = 0;
-	while(tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR){
-	buffer = recv_variable(personaje->sockNivel, &tipo);
+	while (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR) {
+		buffer = recv_variable(personaje->sockNivel, &tipo);
 
-	if (tipo == N_TO_P_RECURSO_ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR,
-				"No hay instancias disponibles del recurso:%s", buffer);
-		//Lo adjudico para el siguiente turno pero quedo bloqueado
+		if (tipo == N_TO_P_RECURSO_ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"No hay instancias disponibles del recurso:%s", buffer);
+			//Lo adjudico para el siguiente turno pero quedo bloqueado
 
-		personaje->bloqueado = true;
-		return false;
-	}
-
-	if (tipo == N_TO_P_RECURSO_OK) {
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Hay instancias disponibles. Se adjudicó correctamente el recurso: %s",
-				buffer);
-		//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
-		personaje->recursoActual = '-';
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Valor index: %d. Si es -1 deberia salir del nivel",
-				personaje->indexRecurso);
-		if (personaje->indexRecurso == -1) {
-			personaje->finNivel = true;
+			personaje->bloqueado = true;
+			return false;
 		}
-		return true;
-	}
 
-	if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
-	//return false;
-	//exit(EXIT_FAILURE);
+		if (tipo == N_TO_P_RECURSO_OK) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Hay instancias disponibles. Se adjudicó correctamente el recurso: %s",
+					buffer);
+			//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
+			personaje->recursoActual = '-';
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Valor index: %d. Si es -1 deberia salir del nivel",
+					personaje->indexRecurso);
+			if (personaje->indexRecurso == -1) {
+				personaje->finNivel = true;
+			}
+			return true;
+		}
+
+		if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"No se recibió un mensaje esperado. Tipo:%d. Buffer:%s",
+					tipo, buffer);
+		//return false;
+		//exit(EXIT_FAILURE);
 
 	}
 
