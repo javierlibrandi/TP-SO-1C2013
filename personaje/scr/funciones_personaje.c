@@ -667,6 +667,7 @@ void salirDelNivel(Personaje *personaje) {
 				log_in_disk_per(LOG_LEVEL_ERROR,
 						"Se recibió OK de finalización de nivel.");
 				log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+				sleep(1);
 				close(sockNivel);
 
 			} else {
