@@ -44,10 +44,6 @@
 									<listOptionValue builtIn="false" value="pthread"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1093589910" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-<<<<<<< HEAD
-=======
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario/Debug}&quot;"/>
->>>>>>> 65256f168db77648120e3f72771fbd85ce66e78f
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
 								</option>
@@ -59,7 +55,6 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1301460744" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1536459225" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.568251795" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 								</option>

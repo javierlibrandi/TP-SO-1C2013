@@ -1,0 +1,5 @@
+echo 'lenvata_mario'
+
+personaje/Release/personaje
+
+more /home/utnso/git/tp-20131c-gaturro/personaje/resources/mario_properties.cfg > /home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg 

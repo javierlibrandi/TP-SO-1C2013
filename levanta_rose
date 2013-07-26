@@ -1,0 +1,5 @@
+echo 'lenvata_rose'
+
+
+personaje/Release/personaje
+more  /home/utnso/git/tp-20131c-gaturro/personaje/resources/rose_properties.cfg > /home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg 

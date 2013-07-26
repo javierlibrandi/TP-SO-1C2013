@@ -1,0 +1,3 @@
+echo 'levanta plataforma'
+
+plataforma/Release/plataforma
