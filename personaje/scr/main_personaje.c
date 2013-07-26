@@ -208,6 +208,7 @@ int main(void) {
 			return EXIT_SUCCESS;
 		}else{
 			log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
+			sleep(3);
 		}
 }
 }

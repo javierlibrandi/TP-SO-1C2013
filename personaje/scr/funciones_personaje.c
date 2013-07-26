@@ -500,7 +500,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 
 		if (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
-					"No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
+					" UbicRecurso: No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
 					tipo, buffer);
 			//exit(EXIT_FAILURE);
 		}
@@ -658,8 +658,25 @@ void salirDelNivel(Personaje *personaje) {
 					"Nivel cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
 		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
-		close(sockNivel);
+
+		tipo = 0;
+		while (tipo != OK) {
+			recv_variable(sockNivel, &tipo);
+
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Se recibió OK de finalización de nivel.");
+				log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+				close(sockNivel);
+
+			} else {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"No se recibió un mensaje esperado. Tipo:%d ", tipo);
+				sleep(1);
+
+			}
+
+		}
 
 		if (personaje->nivelActual != -2) {
 			//Si no es el último nivel
@@ -677,6 +694,7 @@ void salirDelNivel(Personaje *personaje) {
 			//Espero OK del planificador de finalización de nivel.
 			tipo = 0;
 			while (tipo != OK) {
+
 				recv_variable(sockPlanif, &tipo);
 
 				if (tipo == OK) {
@@ -686,7 +704,14 @@ void salirDelNivel(Personaje *personaje) {
 							"Cierro socket del planificador");
 
 					close(sockPlanif);
+				} else {
+					log_in_disk_per(LOG_LEVEL_ERROR,
+							"No se recibió un mensaje esperado. Tipo:%d ",
+							tipo);
+					sleep(3);
+
 				}
+
 			}
 		}
 
@@ -900,7 +925,8 @@ void moverse(Personaje* personaje) {
 		}
 		if (tipo != ERROR && tipo != N_TO_P_MOVIDO) {
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"No se recibió un mensaje esperado. Tipo: %d. Buffer:%s", tipo, buffer);
+					"No se recibió un mensaje esperado. Tipo: %d. Buffer:%s",
+					tipo, buffer);
 		}
 
 	}
@@ -935,37 +961,39 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 		exit(EXIT_FAILURE);
 	}
 	tipo = 0;
-	while(tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR){
-	buffer = recv_variable(personaje->sockNivel, &tipo);
+	while (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR) {
+		buffer = recv_variable(personaje->sockNivel, &tipo);
 
-	if (tipo == N_TO_P_RECURSO_ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR,
-				"No hay instancias disponibles del recurso:%s", buffer);
-		//Lo adjudico para el siguiente turno pero quedo bloqueado
+		if (tipo == N_TO_P_RECURSO_ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"No hay instancias disponibles del recurso:%s", buffer);
+			//Lo adjudico para el siguiente turno pero quedo bloqueado
 
-		personaje->bloqueado = true;
-		return false;
-	}
-
-	if (tipo == N_TO_P_RECURSO_OK) {
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Hay instancias disponibles. Se adjudicó correctamente el recurso: %s",
-				buffer);
-		//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
-		personaje->recursoActual = '-';
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Valor index: %d. Si es -1 deberia salir del nivel",
-				personaje->indexRecurso);
-		if (personaje->indexRecurso == -1) {
-			personaje->finNivel = true;
+			personaje->bloqueado = true;
+			return false;
 		}
-		return true;
-	}
 
-	if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
-	//return false;
-	//exit(EXIT_FAILURE);
+		if (tipo == N_TO_P_RECURSO_OK) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Hay instancias disponibles. Se adjudicó correctamente el recurso: %s",
+					buffer);
+			//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
+			personaje->recursoActual = '-';
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"Valor index: %d. Si es -1 deberia salir del nivel",
+					personaje->indexRecurso);
+			if (personaje->indexRecurso == -1) {
+				personaje->finNivel = true;
+			}
+			return true;
+		}
+
+		if (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR)
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"No se recibió un mensaje esperado. Tipo:%d. Buffer:%s",
+					tipo, buffer);
+		//return false;
+		//exit(EXIT_FAILURE);
 
 	}
 

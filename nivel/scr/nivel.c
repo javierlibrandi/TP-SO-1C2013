@@ -17,7 +17,6 @@
 #include <mario_para_todos/comunicacion/Socket.h>
 #include <mario_para_todos/ambiente_config.h>
 #include "conect_plataforma/conect_plataforma.h"
-#include <pthread.h>
 #include "escuchar_personaje/personaje_thr.h"
 #include <mario_para_todos/grabar.h>
 #include <mario_para_todos/comunicacion/Socket.h>
@@ -197,8 +196,8 @@ int main(void) {
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El personaje %c ha completado el nivel ",
-							nodo_lista_personaje->id_personaje);
+							"Notificación de objetivo de nivel cumplido de %s",
+							nodo_lista_personaje->nombre_personaje);
 
 					listarRecursosPersonaje(
 							nodo_lista_personaje->l_recursos_optenidos,
@@ -208,6 +207,9 @@ int main(void) {
 							"El personaje %s ha completado el nivel y libera estos recursos: %s. Se informa al orquestador.",
 							nodo_lista_personaje->nombre_personaje,
 							recursos_personaje);
+
+					fd_mensaje(i, OK, "Fin de nivel", &tot_enviados);
+					log_in_disk_niv(LOG_LEVEL_INFO, "Se envió OK de fin de nivel al personaje");
 					//Informo al orquestador los recursos liberados
 
 					fd_mensaje(sck_plat, N_TO_O_PERSONAJE_TERMINO_NIVEL,
@@ -289,12 +291,14 @@ int main(void) {
 
 					//free(recursos_personaje);
 
+
+
 					break;
 
 				case P_TO_N_INICIAR_NIVEL:
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Nivel recibe solicitud de inicio en su mapa.");
+							"Nivel recibe solicitud de inicio en su mapa de %s.", mensaje[0]);
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
