@@ -241,7 +241,10 @@ static void mover_personaje(t_personaje *personaje,
 					h_planificador->l_koopa);
 			un_lock_listas_plataforma(h_planificador);
 			personaje_bloqueado = true;
-
+			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio", &byteEnviados);
+			close (personaje->sck);
+			//TODO Ejecutar koopa si las listas estan vacias.
+			//TODO Libera la lista de koopa, o eliminarlos personajes en lugar de moverlos a koopa.
 			break;
 
 		case P_TO_PL_OBJ_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
