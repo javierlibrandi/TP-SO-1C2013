@@ -1,0 +1,27 @@
+echo 'comienzo con la compilacion de los proyectos'
+make clean
+echo '------commons------'
+cd commons/Release/
+make clean
+make
+echo '------mario_para_todos------'
+cd ../../mario_para_todos/Release/
+make clean
+make
+echo '------nivel------'
+cd ../../nivel/Release/
+make clean
+make
+echo '------personaje------'
+cd ../../personaje/Release/
+make clean
+make
+echo '------plataforma------'
+cd ../../plataforma/Release/
+make clean
+make
+
+echo 'exporto las PATH'
+export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Release/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Release/
+echo '$LD_LIBRARY_PATH'
