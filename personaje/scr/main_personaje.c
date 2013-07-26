@@ -193,9 +193,10 @@ int main(void) {
 			personaje->nombre);
 
 
-	buffer = recv_variable(personaje->sockPlanif, &tipo);
-
+	tipo=0;
 	while (tipo != PL_TO_P_MATAR_KOOPA) {
+		log_in_disk_per(LOG_LEVEL_INFO, "Espero por Koopa...");
+
 		buffer = recv_variable(personaje->sockPlanif, &tipo);
 
 
@@ -205,8 +206,8 @@ int main(void) {
 					"Termina exitosamente el proceso personaje.");
 
 			return EXIT_SUCCESS;
+		}else{
+			log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
 		}
-
-
 }
 }

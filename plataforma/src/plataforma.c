@@ -168,7 +168,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 				creo_personaje_lista(solo_personaje, new_sck, buffer,
 						h_orquestador, &bool_existe_personaje);
 			}
-			sleep(1);
+
 			if (bool_existe_personaje == 0) {
 				fd_mensaje(new_sck, ERROR,
 						"Ya existe un personaje con ese nombre o simbolo",
@@ -176,17 +176,17 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 			} else {
 
-				fd_mensaje(new_sck, OK, "ok, personaje creado", &byteEnviados);
-
 				pthread_mutex_lock(h_orquestador->reads_select);
 				pthread_mutex_lock(h_orquestador->s_sock_semaforo);
-				FD_SET(new_sck, h_orquestador->readfds); //Agrego el socket a la lista del select
-
 				if (new_sck > *(h_orquestador->sock)) {
 					*(h_orquestador->sock) = new_sck;
 				}
+				FD_SET(new_sck, h_orquestador->readfds); //Agrego el socket a la lista del select
+
 				pthread_mutex_unlock(h_orquestador->reads_select);
 				pthread_mutex_unlock(h_orquestador->s_sock_semaforo);
+				sleep(1);//Darle un poco mas de tiempo
+				fd_mensaje(new_sck, OK, "ok, personaje creado", &byteEnviados);
 
 			}
 

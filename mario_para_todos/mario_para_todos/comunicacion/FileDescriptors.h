@@ -23,7 +23,7 @@
 #define	PL_TO_P_TURNO 8
 #define	P_TO_PL_TURNO_CUMPLIDO 9
 #define	P_TO_N_SOLIC_RECURSO 10 //personaje solicita instancia de un recurso al nivel "simbolo;recurso" Ej. "mario;F"
-#define	P_TO_N_BLOQUEO 11 //el personaje se bloquea pq no tiene el recurso
+#define	P_TO_PL_BLOQUEO 11 //el personaje se bloquea pq no tiene el recurso
 #define	P_TO_N_MUERTE 12
 #define	P_TO_N_OBJ_CUMPLIDO 13
 #define P_TO_PL_OBJ_CUMPLIDO 14
