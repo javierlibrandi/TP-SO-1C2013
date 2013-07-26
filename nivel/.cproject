@@ -38,14 +38,12 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.2040315533" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.other.1835912839" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other"/>
 								<option id="gnu.c.link.option.libs.1516810475" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lib_mario"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="mario_para_todos"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="commons"/>
 									<listOptionValue builtIn="false" value="ncurses"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1093589910" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
 								</option>
@@ -57,7 +55,6 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1301460744" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1536459225" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.568251795" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 								</option>
