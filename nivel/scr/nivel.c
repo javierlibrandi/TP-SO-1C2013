@@ -39,6 +39,7 @@ void liberar_recursos(t_list *recursos_otenido,ITEM_NIVEL *item);
 void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos);
 t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 		int *indice_personaje);
+void imprimir_recursos(t_list * lista_Recursos);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
@@ -286,6 +287,7 @@ int main(void) {
 
 						//Recibir del nivel los recursos que se asignaron y a que personajes se le asignaron.
 
+
 					} else {
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"No se recibió el mensaje esperado desde el orquestador con los recursos asignados %s:",
@@ -299,7 +301,7 @@ int main(void) {
 					}
 
 					//free(recursos_personaje);
-
+					imprimir_recursos(param_nivel.recusos);
 					break;
 
 				case P_TO_N_INICIAR_NIVEL:
@@ -543,6 +545,7 @@ void add_recurso_personaje(t_list *l_recursos_optenidos,
 	recurso->ref_recuso = recurso_actual;
 
 	list_add(l_recursos_optenidos, recurso);
+
 }
 
 void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,ITEM_NIVEL *item) {
@@ -626,4 +629,15 @@ t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 	}
 
 	return NULL ;
+}
+void imprimir_recursos(t_list * lista_Recursos){
+	int tot_recusos = list_size(lista_Recursos);
+	int count;
+	struct h_t_recusos *recurso;
+
+	for(count=0; count < tot_recusos ; count++){
+		recurso =(struct h_t_recusos *)list_get(lista_Recursos,count);
+		log_in_disk_niv(LOG_LEVEL_INFO,"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d", count,recurso->SIMBOLO,recurso->cantidad);
+	}
+
 }
