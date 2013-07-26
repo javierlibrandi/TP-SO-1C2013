@@ -284,6 +284,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	log_in_disk_per(LOG_LEVEL_INFO,
 			"Me voy a conectar con plataforma para que me asocie al planificador del %s",
 			infoNivel.nombre_nivel);
+
 	descriptorPlan = Abre_Conexion_Inet(personaje->ip_orquestador,
 			personaje->puerto_orquestador);
 
@@ -313,57 +314,9 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		exit(EXIT_FAILURE);
 	}
 
-//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
-
-// Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"
-	sprintf(mensaje2, "%s;%s", personaje->nombre, infoNivel.nombre_nivel);
-
-	fd_mensaje(descriptorPlan, P_TO_PL_INICIAR_NIVEL, mensaje2,
-			&bytes_enviados_pl);
-
-	if (bytes_enviados_pl == -1) {
-		log_in_disk_per(LOG_LEVEL_ERROR,
-				"Hubo un error al enviar el mensaje P_TO_PL_INICIAR_NIVEL");
-		log_in_disk_per(LOG_LEVEL_ERROR,
-				"Planificador cerró la conexión. El proceso personaje va a terminar.");
-		exit(EXIT_FAILURE);
-
-	}
-//HACER CICLO PARA VOLVER A MANDAR MENSAJE si falla
-
-//Recibe OK de nivel y plataforma
-
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"Espero OKEYS del nivel y de su planificador...");
-	bufferPla = recv_variable(descriptorPlan, &tipoP);
-	if (tipoP == ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del planificador:%s",
-				bufferPla);
-		exit(EXIT_FAILURE);
-	}
+				"Espero OKEY del nivel...");
 
-	if (tipoP == OK) {
-		log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
-		personaje->sockPlanif = descriptorPlan;
-		//usar semaforos para acceder a listaSelect
-
-		//fd_mensaje(personaje->sockPlanif, OK, mensaje2a, &bytes_enviados_pla);
-//		if (bytes_enviados_pla == -1) {
-//				log_in_disk_per(LOG_LEVEL_ERROR,
-//						"Hubo un error al enviar el mensaje OK");
-//				log_in_disk_per(LOG_LEVEL_ERROR,
-//						"Planificador cerró la conexión. El proceso personaje va a terminar.");
-//				exit(EXIT_FAILURE);
-//
-//			}
-
-	}
-
-	if (tipoP != OK && tipoP != ERROR) {
-		log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado %s:",
-				bufferPla);
-		exit(EXIT_FAILURE);
-	}
 	tipoN = 0;
 	while (tipoN != OK) {
 		bufferNiv = recv_variable(descriptorNiv, &tipoN);
@@ -400,6 +353,43 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 					"No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
 					tipoN, bufferNiv);
 			//exit(EXIT_FAILURE);
+		}
+
+// Envía a Plataforma P_TO_PL_INICIAR_NIVEL para que lo asocie al planificador del nivel "nombre;nivelNro"
+		sprintf(mensaje2, "%s;%s", personaje->nombre, infoNivel.nombre_nivel);
+
+		fd_mensaje(descriptorPlan, P_TO_PL_INICIAR_NIVEL, mensaje2,
+				&bytes_enviados_pl);
+
+		if (bytes_enviados_pl == -1) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Hubo un error al enviar el mensaje P_TO_PL_INICIAR_NIVEL");
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Planificador cerró la conexión. El proceso personaje va a terminar.");
+			exit(EXIT_FAILURE);
+
+		}
+
+		log_in_disk_per(LOG_LEVEL_INFO,
+				"Espero OKEY del planificador...");
+		bufferPla = recv_variable(descriptorPlan, &tipoP);
+		if (tipoP == ERROR) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Falló. Respuesta del planificador:%s", bufferPla);
+			exit(EXIT_FAILURE);
+		}
+
+		if (tipoP == OK) {
+			log_in_disk_per(LOG_LEVEL_INFO, "Se recibió OK del planificador.");
+			personaje->sockPlanif = descriptorPlan;
+			//usar semaforos para acceder a listaSelect
+
+		}
+
+		if (tipoP != OK && tipoP != ERROR) {
+			log_in_disk_per(LOG_LEVEL_INFO,
+					"No se recibió un mensaje esperado %s:", bufferPla);
+			exit(EXIT_FAILURE);
 		}
 
 	}
@@ -643,8 +633,7 @@ void salirDelNivel(Personaje *personaje) {
 	mensajeFinNivel = "Bye Nivel";
 	mensajeFinNivelP = "Bye Planificador";
 
-	log_in_disk_per(LOG_LEVEL_INFO,
-			"Me desconecto del planificador.");
+	log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del planificador.");
 
 	if (personaje->nivelActual != -2) {
 		//Si no es el último nivel
@@ -668,15 +657,15 @@ void salirDelNivel(Personaje *personaje) {
 			if (tipo == OK) {
 				log_in_disk_per(LOG_LEVEL_ERROR,
 
-						"Se recibió OK de finalización de nivel del planificador.");
+				"Se recibió OK de finalización de nivel del planificador.");
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Cierro socket del planificador");
-
 
 				close(sockPlanif);
 			} else {
 				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ", tipo);
+						"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ",
+						tipo);
 				sleep(3);
 
 			}
@@ -684,8 +673,7 @@ void salirDelNivel(Personaje *personaje) {
 		}
 	} // fin IF si no es último nivel
 
-	log_in_disk_per(LOG_LEVEL_INFO,
-				"Me desconecto del nivel.");
+	log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del nivel.");
 
 	fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
 			&bytes_enviados);

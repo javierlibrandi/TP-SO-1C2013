@@ -19,4 +19,5 @@
     void liberar_memoria(t_memoria segmento);
     t_list* particiones(t_memoria segmento);
     int esID(char id, t_particion* particion);
+    void libero_memoria(t_list* list_particiones);
 #endif /* LIBMEMORIA_H_ */
