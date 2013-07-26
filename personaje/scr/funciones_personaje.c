@@ -644,105 +644,76 @@ void salirDelNivel(Personaje *personaje) {
 	mensajeFinNivelP = "Bye Planificador";
 
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"Me desconecto del nivel y su planificador.");
+			"Me desconecto del planificador.");
 
-	if (vidas > 0) {
-		fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
-				&bytes_enviados);
+	if (personaje->nivelActual != -2) {
+		//Si no es el último nivel
+		fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
+				&bytes_enviados1);
 
-		if (bytes_enviados == -1) {
+		if (bytes_enviados1 == -1) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_N_OBJ_CUMPLIDO");
-
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Nivel cerró la conexión. El proceso personaje va a terminar.");
-			exit(EXIT_FAILURE);
-		}
-
-		tipo = 0;
-		while (tipo != OK) {
-			recv_variable(sockNivel, &tipo);
-
-			if (tipo == OK) {
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Se recibió OK de finalización de nivel.");
-				log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
-				close(sockNivel);
-
-			} else {
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"No se recibió un mensaje esperado. Tipo:%d ", tipo);
-				sleep(1);
-
-			}
-
-		}
-
-		if (personaje->nivelActual != -2) {
-			//Si no es el último nivel
-			fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
-					&bytes_enviados1);
-
-			if (bytes_enviados1 == -1) {
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Hubo un error al enviar el mensaje P_TO_PL_OBJ_CUMPLIDO");
-
-				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Planificador cerró la conexión. El proceso personaje va a terminar.");
-				exit(EXIT_FAILURE);
-			}
-			//Espero OK del planificador de finalización de nivel.
-			tipo = 0;
-			while (tipo != OK) {
-
-				recv_variable(sockPlanif, &tipo);
-
-				if (tipo == OK) {
-					log_in_disk_per(LOG_LEVEL_ERROR,
-							"Se recibió OK de finalización de nivel.");
-					log_in_disk_per(LOG_LEVEL_INFO,
-							"Cierro socket del planificador");
-
-					close(sockPlanif);
-				} else {
-					log_in_disk_per(LOG_LEVEL_ERROR,
-							"No se recibió un mensaje esperado. Tipo:%d ",
-							tipo);
-					sleep(3);
-
-				}
-
-			}
-		}
-
-	} else {
-		//Si sale porque no tiene más vidas se rebe reiniciar el plan de niveles.
-		fd_mensaje(sockNivel, P_TO_N_SALIR, mensajeFinNivel, &bytes_enviados3);
-
-		if (bytes_enviados3 == -1) {
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_N_SALIR");
-
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Nivel cerró la conexión. El proceso personaje va a terminar.");
-			exit(EXIT_FAILURE);
-		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
-		close(sockNivel);
-
-		fd_mensaje(sockPlanif, P_TO_PL_SALIR, mensajeFinNivelP,
-				&bytes_enviados4);
-
-		if (bytes_enviados4 == -1) {
-			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Hubo un error al enviar el mensaje P_TO_PL_SALIR");
+					"Hubo un error al enviar el mensaje P_TO_PL_OBJ_CUMPLIDO");
 
 			log_in_disk_per(LOG_LEVEL_ERROR,
 					"Planificador cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
 		}
-		log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del planificador");
-		close(sockPlanif);
+		//Espero OK del planificador de finalización de nivel.
+		tipo = 0;
+		while (tipo != OK) {
+
+			recv_variable(sockPlanif, &tipo);
+
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Se recibió OK de finalización de nivel del planificador.");
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Cierro socket del planificador");
+
+				close(sockPlanif);
+			} else {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ", tipo);
+				sleep(3);
+
+			}
+
+		}
+	} // fin IF si no es último nivel
+
+	log_in_disk_per(LOG_LEVEL_INFO,
+				"Me desconecto del nivel.");
+
+	fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
+			&bytes_enviados);
+
+	if (bytes_enviados == -1) {
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Hubo un error al enviar el mensaje P_TO_N_OBJ_CUMPLIDO");
+
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Nivel cerró la conexión. El proceso personaje va a terminar.");
+		exit(EXIT_FAILURE);
+	}
+
+	tipo = 0;
+	while (tipo != OK) {
+		recv_variable(sockNivel, &tipo);
+
+		if (tipo == OK) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Se recibió OK de finalización de nivel.");
+			log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+			close(sockNivel);
+
+		} else {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"No se recibió un mensaje esperado. Tipo:%d ", tipo);
+			sleep(1);
+
+		}
+
 	}
 
 }
