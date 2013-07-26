@@ -250,7 +250,11 @@ struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
 
 	for (i = 0; i < tot_elementos; i++) {
 		recurso_aux = (struct h_t_recusos*) list_get(recusos, i);
+
 		log_in_disk_niv(LOG_LEVEL_INFO, "después de list_get(recusos_posicion, %d) el recurso es:%c .", i, recurso_aux->SIMBOLO);
+
+		log_in_disk_per(LOG_LEVEL_INFO, "después de list_get(recusos, %d)= %c", i, recurso_aux->SIMBOLO);
+
 
 		if (id == recurso_aux->SIMBOLO) {
 			recurso = recurso_aux;

@@ -17,12 +17,12 @@
 #include <commons/process.h>
 #include "entorno.h"
 
-static void grabar_log(t_log_level nivel, t_log* logger, const char* message_template,
-		va_list list_arguments);
+static void grabar_log(t_log_level nivel, t_log* logger,
+		const char* message_template, va_list list_arguments);
 
 /** funcio privada */
-static void grabar_log(t_log_level nivel, t_log* logger, const char* message_template,
-		va_list list_arguments) {
+static void grabar_log(t_log_level nivel, t_log* logger,
+		const char* message_template, va_list list_arguments) {
 	char *message = string_from_vformat(message_template, list_arguments);
 	switch (nivel) {
 	case LOG_LEVEL_TRACE:
@@ -40,6 +40,12 @@ static void grabar_log(t_log_level nivel, t_log* logger, const char* message_tem
 	default:
 		log_error(logger, message);
 	}
+}
+
+static void iniciar_log(char* file) {
+	FILE *fichero;
+	fichero = fopen(file, "w");
+	fclose(fichero);
 }
 
 /**Grabo log orquestador*/
@@ -60,8 +66,13 @@ void log_in_disk_orq(t_log_level nivel, const char* format, ...) {
 }
 
 void log_in_disk_plat(t_log_level nivel, const char* format, ...) {
-
+	static bool borrar = true;
 	t_log* logger;
+
+	if (borrar)
+		iniciar_log(PATH_PLATAFORMA_LOG);
+	borrar = false;
+
 	logger = log_create(PATH_PLATAFORMA_LOG, "PLATAFORMA", true, LOG_NIVEL);
 
 	va_list arguments;
@@ -92,7 +103,8 @@ void log_in_disk_plan(t_log_level nivel, const char* format, ...) {
 void log_in_disk_niv(t_log_level nivel, const char* format, ...) {
 
 	t_log* logger;
-	logger = log_create(PATH_PLATAFORMA_LOG_NIVEL, "NIVEL", !B_DIBUJAR, LOG_NIVEL);
+	logger = log_create(PATH_PLATAFORMA_LOG_NIVEL, "NIVEL", !B_DIBUJAR,
+			LOG_NIVEL);
 
 	va_list arguments;
 	va_start(arguments, format);
@@ -118,8 +130,6 @@ void log_in_disk_per(t_log_level nivel, const char* format, ...) {
 
 	log_destroy(logger);
 }
-
-
 
 void log_in_disk_mensajes(t_log_level nivel, const char* format, ...) {
 
