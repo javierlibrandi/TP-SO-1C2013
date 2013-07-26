@@ -44,6 +44,10 @@
 									<listOptionValue builtIn="false" value="pthread"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1093589910" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+<<<<<<< HEAD
+=======
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario/Debug}&quot;"/>
+>>>>>>> 65256f168db77648120e3f72771fbd85ce66e78f
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
 								</option>

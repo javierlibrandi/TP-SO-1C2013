@@ -38,10 +38,18 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1811421521" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.paths.1756035656" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+<<<<<<< HEAD
+=======
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario/Debug}&quot;"/>
+>>>>>>> 65256f168db77648120e3f72771fbd85ce66e78f
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.448582899" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+<<<<<<< HEAD
+=======
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lib_mario"/>
+>>>>>>> 65256f168db77648120e3f72771fbd85ce66e78f
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="mario_para_todos"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="commons"/>
 								</option>
@@ -53,6 +61,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1207556960" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1724172245" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.1796353192" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_mario}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 								</option>

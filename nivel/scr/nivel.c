@@ -400,6 +400,11 @@ int main(void) {
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
+
+				default:
+					log_in_disk_plat(LOG_LEVEL_ERROR,
+							"opcion en el switch no implementada", tipo);
+					//exit(1);
 				}
 
 				if (B_DIBUJAR) {
@@ -473,7 +478,9 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 		}
 
 	}
+
 	log_in_disk_niv(LOG_LEVEL_INFO,
+
 			"devuelvo el personaje %c sock del personaje %d",
 			personaje->id_personaje, personaje->sokc);
 
