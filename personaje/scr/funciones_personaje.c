@@ -502,7 +502,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
 					" UbicRecurso: No se recibió un mensaje esperado. Tipo:%d Buffer:%s",
 					tipo, buffer);
-			//exit(EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 	}
 	free(buffer);
