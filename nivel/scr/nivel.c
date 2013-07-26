@@ -322,7 +322,7 @@ int main(void) {
 							"El personaje %c reinicia el nivel.",
 							mensaje[0][0]);
 
-					pthread_mutex_lock(t_personaje.s_personaje_recursos);
+					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
 
@@ -332,7 +332,7 @@ int main(void) {
 					}
 					liberar_recursos(
 							nodo_lista_personaje->l_recursos_optenidos);
-					pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+					pthread_mutex_unlock(&s_personaje_recursos);
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,

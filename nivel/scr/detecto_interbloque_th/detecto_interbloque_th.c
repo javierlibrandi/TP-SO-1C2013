@@ -142,8 +142,8 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 					for(cont_recursos_personaje=0;cont_recursos_personaje<tot_personajes_personaje;cont_recursos_personaje++){ // recorro todos los recursos del presonaje
 
 						l_recursos_personaje = list_get(recursos, cont_recursos_personaje);// obtengo el primer recurso del personaje
-
-						aux_recurso = busco_recurso(l_recursos_personaje->SIMBOLO,recursos); // bueco en la lista de recurso por el ID del recuros del personaje
+						char id = l_recursos_personaje->SIMBOLO;
+						aux_recurso = busco_recurso(id,recursos); // bueco en la lista de recurso por el ID del recuros del personaje
 
 						aux_recurso->recursos_disponibles += l_recursos_personaje->cantidad; //suma la cantidad de recuros que tiene el personaje
 						l_personaje->recusos_sumados = true; //lo pongo en true para no sumar 2 vesces los recursos de un personaje
