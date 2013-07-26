@@ -100,8 +100,8 @@ int main(void) {
 	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
-	tv.tv_sec = 2;
-	tv.tv_usec = 100;
+	tv.tv_sec = 8;
+//	tv.tv_usec = 100;
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
