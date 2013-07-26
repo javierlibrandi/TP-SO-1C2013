@@ -24,9 +24,9 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	log_in_disk_plat(LOG_LEVEL_TRACE,
 			"comienzo lectura archivo de configuracion plataforma en el %s ",
-			PATH_CONFIG);
+			PATH_CONFIG_PLATAFORMA);
 
-	config = config_create(PATH_CONFIG);
+	config = config_create(PATH_CONFIG_PLATAFORMA);
 
 	param.PUERTO = config_get_int_value(config, "PUERTO");
 
@@ -56,9 +56,9 @@ t_param_plan leer_archivo_plan_config(char *nivel) {
 
 	log_in_disk_plat(LOG_LEVEL_TRACE,
 			"comienzo lectura archivo de configuracion panificador nivel en el path %s ",
-			PATH_CONFIG);
+			PATH_CONFIG_PLATAFORMA);
 
-	config = config_create(PATH_CONFIG);
+	config = config_create(PATH_CONFIG_PLATAFORMA);
 
 	param.PUERTO = config_get_int_value(config, nivel);
 
@@ -79,7 +79,7 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"comienzo lectura archivo de configuracion del nivel en el %s ",
-			PATH_CONFIG);
+			PATH_CONFIG_NIVEL);
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "limites de pantalla x = %d ,y = %d", rows,
 			cols);
