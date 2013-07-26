@@ -1,0 +1,22 @@
+echo 'comienzo con la compilacion de los proyectos'
+make clean
+echo '------commons------'
+cd commons/Release/
+make clean
+
+echo '------mario_para_todos------'
+cd ../../mario_para_todos/Release/
+make clean
+
+echo '------nivel------'
+cd ../../nivel/Release/
+make clean
+
+echo '------personaje------'
+cd ../../personaje/Release/
+make clean
+
+echo '------plataforma------'
+cd ../../plataforma/Release/
+make clean
+
