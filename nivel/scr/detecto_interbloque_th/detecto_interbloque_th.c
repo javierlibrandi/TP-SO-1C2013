@@ -246,19 +246,18 @@ struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
 	log_in_disk_niv(LOG_LEVEL_TRACE, "Busco el recurso %c", id);
 
 	tot_elementos = list_size(recusos);
-	log_in_disk_per(LOG_LEVEL_INFO, "después de list_size(recusos)");
+	log_in_disk_niv(LOG_LEVEL_INFO, "después de list_size(recusos)");
 
 	for (i = 0; i < tot_elementos; i++) {
 		recurso_aux = (struct h_t_recusos*) list_get(recusos, i);
-		log_in_disk_per(LOG_LEVEL_INFO, "después de list_get(recusos, %d)", i);
+		log_in_disk_niv(LOG_LEVEL_INFO, "después de list_get(recusos_posicion, %d) el recurso es:%c .", i, recurso_aux->SIMBOLO);
 
 		if (id == recurso_aux->SIMBOLO) {
 			recurso = recurso_aux;
-			log_in_disk_per(LOG_LEVEL_INFO, "entro en if",i);
+			log_in_disk_per(LOG_LEVEL_INFO, "entro en if, posicion: %d y recurso: %c, recurso buscado: %c",i, recurso_aux->SIMBOLO, id);
 
 		}
 	}
-	log_in_disk_per(LOG_LEVEL_INFO, "antes de return recurso ",i);
 
 	return recurso;
 }

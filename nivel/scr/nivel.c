@@ -33,16 +33,17 @@
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
-void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,ITEM_NIVEL *item);
-void liberar_memoria(t_lista_personaje *personaje,ITEM_NIVEL *item);
-void liberar_recursos(t_list *recursos_otenido,ITEM_NIVEL *item);
+void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,
+		ITEM_NIVEL *item);
+void liberar_memoria(t_lista_personaje *personaje, ITEM_NIVEL *item);
+void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item);
 void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos);
 t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 		int *indice_personaje);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
 void sig_handler(int signo);
-
+void imprmir_recursos_nivel(t_list * recursos);
 static pthread_mutex_t s_personaje_conectado = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_personaje_recursos = PTHREAD_MUTEX_INITIALIZER;
 
@@ -113,7 +114,7 @@ int main(void) {
 	//creo el hilo para la deteccion de interbloqueo
 	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
 	//	(void*) &h_interbloqueo);
-
+	imprmir_recursos_nivel(param_nivel.recusos);
 	for (;;) {
 
 		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
@@ -128,7 +129,8 @@ int main(void) {
 				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
 				if (!strcmp(buffer, Leido_error)) {
 
-					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,ListaItems);
+					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
+							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
 
 				}
@@ -153,14 +155,19 @@ int main(void) {
 							"%s solicita ubicación del recurso %c ",
 							nodo_lista_personaje->nombre_personaje,
 							mensaje[0][0]);
+					//para pruebas
+					imprmir_recursos_nivel(param_nivel.recusos);
 					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
+					//para pruebas
+					imprmir_recursos_nivel(param_nivel.recusos);
 
-					log_in_disk_niv(LOG_LEVEL_INFO,
-												"encontro recurso: %c ", recurso);
+					log_in_disk_niv(LOG_LEVEL_INFO, "encontro recurso: %c ",
+							recurso->SIMBOLO);
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
 
-					log_in_disk_niv(LOG_LEVEL_INFO, "despues de string from format");
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"despues de string from format");
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se enviaron coordenadas: (%d,%d)", recurso->posX,
@@ -241,7 +248,7 @@ int main(void) {
 								mensaje);
 
 						elimino_personaje_lista_nivel(i,
-								t_personaje->l_personajes,ListaItems);
+								t_personaje->l_personajes, ListaItems);
 						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
 						elimino_sck_lista(i, t_personaje->readfds);
 						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje.
@@ -255,10 +262,12 @@ int main(void) {
 							nodo_lista_personaje = busca_personaje_simbolo(
 									buffer[cont_msj], t_personaje->l_personajes,
 									&pos);
-
+							//para pruebas
+							imprmir_recursos_nivel(param_nivel.recusos);
 							recurso = busco_recurso(mensaje[cont_msj + 1],
 									nodo_lista_personaje->l_recursos_optenidos);
-
+							//para pruebas
+							imprmir_recursos_nivel(param_nivel.recusos);
 							if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
 								recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 							} else {
@@ -334,8 +343,8 @@ int main(void) {
 						BorrarItem(nodo_lista_personaje->id_personaje,
 								ListaItems);
 					}
-					liberar_recursos(
-							nodo_lista_personaje->l_recursos_optenidos,ListaItems);
+					liberar_recursos(nodo_lista_personaje->l_recursos_optenidos,
+							ListaItems);
 					pthread_mutex_unlock(&s_personaje_recursos);
 
 					nodo_lista_personaje->l_recursos_optenidos = list_create();
@@ -397,13 +406,16 @@ int main(void) {
 								"Se envió N_TO_P_RECURSO_OK");
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"****** El recurso %c es entregado al personaje %c ******",
+								"****** El recurso %s es entregado al personaje %c ******",
 								nombre_recurso,
 								nodo_lista_personaje->id_personaje);
+						//para pruebas
+						imprmir_recursos_nivel(param_nivel.recusos);
 						recurso = busco_recurso(
 								nodo_lista_personaje->proximo_recurso->SIMBOLO,
 								nodo_lista_personaje->l_recursos_optenidos);
-
+						//para pruebas
+						imprmir_recursos_nivel(param_nivel.recusos);
 						restarRecurso(ListaItems,
 								nodo_lista_personaje->proximo_recurso->SIMBOLO);
 
@@ -545,24 +557,25 @@ void add_recurso_personaje(t_list *l_recursos_optenidos,
 	list_add(l_recursos_optenidos, recurso);
 }
 
-void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,ITEM_NIVEL *item) {
+void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,
+		ITEM_NIVEL *item) {
 	int pos;
 
 	pthread_mutex_lock(&s_personaje_recursos);
 	t_lista_personaje *personaje;
 	busco_personaje(sck, l_personajes, &pos);
 	personaje = (t_lista_personaje *) list_remove(l_personajes, pos);
-	liberar_memoria(personaje,item);
+	liberar_memoria(personaje, item);
 	pthread_mutex_unlock(&s_personaje_recursos);
 }
 
-void liberar_memoria(t_lista_personaje *personaje,ITEM_NIVEL *item) {
-	liberar_recursos(personaje->l_recursos_optenidos,item);
+void liberar_memoria(t_lista_personaje *personaje, ITEM_NIVEL *item) {
+	liberar_recursos(personaje->l_recursos_optenidos, item);
 	free(personaje->nombre_personaje);
 	free(personaje->proximo_recurso);
 }
 
-void liberar_recursos(t_list *recursos_otenido,ITEM_NIVEL *item) {
+void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 	int total_recursos;
 	int i;
 	t_recusos *recurso_aux;
@@ -574,8 +587,8 @@ void liberar_recursos(t_list *recursos_otenido,ITEM_NIVEL *item) {
 
 		//si esta puesta la forma grafiaca y la tantidad de recursos es mayor o
 		//sumo recurosos a la pantalla
-		while(B_DIBUJAR && recurso_aux->cantidad--){
-			sumarRecurso(item,recurso_aux->SIMBOLO);
+		while (B_DIBUJAR && recurso_aux->cantidad--) {
+			sumarRecurso(item, recurso_aux->SIMBOLO);
 		}
 	}
 	list_destroy(recursos_otenido);
@@ -626,4 +639,18 @@ t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 	}
 
 	return NULL ;
+}
+
+void imprmir_recursos_nivel(t_list * recursos) {
+
+	int cant_elemmm = 0;
+	t_recusos * recuss;
+	int j = 0;
+	cant_elemmm = list_size(recursos);
+	for (j = 0; j < cant_elemmm; j++) {
+		recuss = list_get(recursos, j);
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"recursos del nivel (indice--> Recurso) %d --> %c", j,
+				recuss->SIMBOLO);
+	}
 }
