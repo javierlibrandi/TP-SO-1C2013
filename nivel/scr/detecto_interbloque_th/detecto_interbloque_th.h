@@ -9,10 +9,13 @@
 #define DETECTO_INTERBLOQUE_TH_H_
 
 #include "../escuchar_personaje/personaje_thr.h"
+#include <pthread.h>
+#include <semaphore.h>
 
 typedef struct {
 	t_h_personaje t_personaje;
 	struct h_t_param_nivel param_nivel;
+
 }t_h_interbloqueo;
 
 

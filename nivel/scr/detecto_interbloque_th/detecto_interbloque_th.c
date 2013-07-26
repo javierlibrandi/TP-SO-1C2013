@@ -20,6 +20,9 @@
 #include <stdbool.h>
 #include <commons/string.h>
 #include <unistd.h>
+#include "../conect_plataforma/conect_plataforma.h"
+#include <pthread.h>
+#include <semaphore.h>
 
 int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
@@ -48,6 +51,7 @@ void *detecto_interbloque(void *p) {
 			param_nivel.nom_nivel);
 	for (;;) {
 		usleep(param_nivel.TiempoChequeoDeadlock);
+		pthread_mutex_lock(t_personaje.s_personaje_recursos);
 		if (marcar_personajes_s_recursos(t_personaje.l_personajes) != 0) { // paso 1
 			otnego_vector_diponibles(param_nivel.recusos, NULL );//paso 2
 
@@ -56,7 +60,7 @@ void *detecto_interbloque(void *p) {
 				otnego_vector_diponibles(param_nivel.recusos, t_personaje.l_personajes); //paso 4
 			}
 		}
-
+		pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 		if(cantidad_interbloquedos(t_personaje.l_personajes,personaje_bloquedos)!=0){
 			//TODO imprimo lista de interbloquedos
 			if (param_nivel.Recovery) {
@@ -66,6 +70,8 @@ void *detecto_interbloque(void *p) {
 			personaje_bloquedos = NULL;
 		}
 	}
+
+	return NULL;
 }
 
 /**
@@ -116,8 +122,8 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 	int tot_recursos = list_size(recursos);
 	int tot_personajes, tot_personajes_personaje;
 	int cont_recursos,cont_personajes,cont_recursos_personaje;
-	t_recusos *l_recurso,*l_recursos_personaje;
-	t_lista_personaje *l_personaje;
+	t_recusos *l_recurso=NULL,*l_recursos_personaje=NULL;
+	t_lista_personaje *l_personaje=NULL;
 	struct h_t_recusos *aux_recurso;
 
 	for (cont_recursos = 0; cont_recursos < tot_recursos; cont_recursos++) {

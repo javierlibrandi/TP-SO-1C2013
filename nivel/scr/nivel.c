@@ -28,6 +28,7 @@
 #include <commons/collections/list.h>
 #include "manjo_pantalla/tad_items.h"
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
+#include <pthread.h>
 
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
@@ -81,6 +82,7 @@ int main(void) {
 	t_personaje->pueto = param_nivel.PUERTO;
 	t_personaje->l_personajes = list_create();
 	t_personaje->ListaItemss = ListaItems;
+	t_personaje->s_personaje_recursos = &s_personaje_recursos;
 	recusos_pantalla(param_nivel.recusos, &ListaItems);
 
 	if (B_DIBUJAR) {
@@ -132,7 +134,9 @@ int main(void) {
 				}
 				mensaje = string_split(buffer, ";");
 
-				log_in_disk_niv(LOG_LEVEL_INFO, "****** Se recibió un tipo de mensaje %d: %s ******", tipo, buffer);
+				log_in_disk_niv(LOG_LEVEL_INFO,
+						"****** Se recibió un tipo de mensaje %d: %s ******",
+						tipo, buffer);
 
 				/*for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
 				 log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
@@ -209,7 +213,8 @@ int main(void) {
 							recursos_personaje);
 
 					fd_mensaje(i, OK, "Fin de nivel", &tot_enviados);
-					log_in_disk_niv(LOG_LEVEL_INFO, "Se envió OK de fin de nivel al personaje");
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se envió OK de fin de nivel al personaje");
 					//Informo al orquestador los recursos liberados
 
 					fd_mensaje(sck_plat, N_TO_O_PERSONAJE_TERMINO_NIVEL,
@@ -291,14 +296,13 @@ int main(void) {
 
 					//free(recursos_personaje);
 
-
-
 					break;
 
 				case P_TO_N_INICIAR_NIVEL:
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Nivel recibe solicitud de inicio en su mapa de %s.", mensaje[0]);
+							"Nivel recibe solicitud de inicio en su mapa de %s.",
+							mensaje[0]);
 
 					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
 					add_personaje_lista(mensaje[1][0], mensaje[0], i,
@@ -314,7 +318,30 @@ int main(void) {
 					break;
 
 				case P_TO_N_REINICIAR_NIVEL:
-					//PENDIENTE
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El personaje %c reinicia el nivel.",
+							mensaje[0][0]);
+
+					pthread_mutex_lock(t_personaje.s_personaje_recursos);
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes, &pos);
+
+					if (B_DIBUJAR) {
+						BorrarItem(nodo_lista_personaje->id_personaje,
+								ListaItems);
+					}
+					liberar_recursos(
+							nodo_lista_personaje->l_recursos_optenidos);
+					pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+
+					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
+					add_personaje_lista(mensaje[1][0], mensaje[0], i,
+							t_personaje);
+					tipo_mensaje = OK;
+
+					fd_mensaje(i, tipo_mensaje, "Nivel re-iniciado.",
+							&tot_enviados);
+					break;
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El personaje %c debe reiniciar el nivel.",
@@ -485,8 +512,8 @@ t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i) {
 
 	log_in_disk_niv(LOG_LEVEL_INFO,
 
-			"devuelvo el personaje %c sock del personaje %d",
-			personaje->id_personaje, personaje->sokc);
+	"devuelvo el personaje %c sock del personaje %d", personaje->id_personaje,
+			personaje->sokc);
 
 	*i = j;
 	return personaje;
