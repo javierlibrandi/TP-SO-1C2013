@@ -26,7 +26,7 @@
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
 	char *buffer, *respuesta_recursos;
-	int i,j,k;
+	int i, j, k;
 	int tipo;
 	char **mensaje;
 	//char *aux_char=NULL;
@@ -45,7 +45,6 @@ void *orequestador_thr(void* p) {
 
 	 FD_SET(t_h_orq->sock_nivel,t_h_orq->readfds); */
 	//FD_SET(0, t_h_orq->readfds); // pongo a escuhcar la entrada estardar para que no se vuelve loco cuando se caen todas las conexiones
-
 	log_in_disk_orq(LOG_LEVEL_TRACE, "creo el orquestador");
 
 	for (;;) {
@@ -113,7 +112,7 @@ void *orequestador_thr(void* p) {
 						mover_personaje_lista(i, t_h_orq->l_bloquedos,
 								t_h_orq->l_errores);
 
-						imprimir_listas(t_h_orq,'o');
+						imprimir_listas(t_h_orq, 'o');
 
 						un_lock_listas_plataforma_orq(t_h_orq);
 
@@ -130,57 +129,67 @@ void *orequestador_thr(void* p) {
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
-					log_in_disk_orq(LOG_LEVEL_ERROR, "El pesonaje termina el nivel y libero los recuros");
+//					log_in_disk_orq(LOG_LEVEL_ERROR,
+//							"El pesonaje termina el nivel y libero los recuros");
+//
+//					for (j = 0; mensaje[j] != '\0';) {
+//
+//						log_in_disk_orq(LOG_LEVEL_ERROR,
+//								"Linero el recuros %s con la cantidad %d",
+//								mensaje[j + 1], mensaje[j]);
+//						pthread_mutex_lock(h_planificador->s_lista_plani);
+//						busca_planificador_socket(i, t_h_orq->planificadores,
+//								h_planificador); // necesitmos el nombre del nivel
+//						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+//
+//						buscar_bloqueados_recurso(mensaje[j + 1],
+//								h_planificador->desc_nivel,
+//								t_h_orq->l_bloquedos, pers);
+//
+//						for (k = 0;
+//								(pers != NULL )&& (k < atoi(mensaje[j])); k++){
+//
+//								lock_listas_plantaforma_orq(t_h_orq);
+//								buscar_bloqueados_recurso(mensaje[j + 1],
+//										h_planificador->desc_nivel,
+//										t_h_orq->l_bloquedos, pers);
+//
+//								mover_personaje_lista(pers->sck,
+//										t_h_orq->l_bloquedos, t_h_orq->l_listos);
+//
+//								imprimir_listas(t_h_orq,'o');
+//
+//								un_lock_listas_plataforma_orq(t_h_orq);
+//
+//								if (!strcmp(respuesta_recursos, "")) {
+//									string_append(&respuesta_recursos,
+//											string_from_format("%c;%c",
+//													pers->simbolo,
+//													mensaje[j + 1][0]));
+//								} else {
+//									string_append(&respuesta_recursos,
+//											string_from_format(";%c;%c",
+//													pers->simbolo,
+//													mensaje[j + 1][0]));
+//								}
+//							}
+//
+//						j = j + 2;
+//					}
+//
+//					log_in_disk_orq(LOG_LEVEL_ERROR,
+//							"Lo recuros liberados son los siguientes %s",
+//							respuesta_recursos);
+//
 
-					for (j = 0;  mensaje[j]!='\0';) {
-
-						log_in_disk_orq(LOG_LEVEL_ERROR, "Linero el recuros %s con la cantidad %d", mensaje[j+1],mensaje[j]);
-						pthread_mutex_lock(h_planificador->s_lista_plani);
-						busca_planificador_socket(i, t_h_orq->planificadores,
-								h_planificador); // necesitmos el nombre del nivel
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
-
-
-
-						buscar_bloqueados_recurso(mensaje[j+1],
-								h_planificador->desc_nivel,
-								t_h_orq->l_bloquedos, pers);
-
-						for (k = 0;
-								(pers != NULL )&& (k < atoi(mensaje[j])); k++)
-								{
-
-							lock_listas_plantaforma_orq(t_h_orq);
-							buscar_bloqueados_recurso(mensaje[j + 1],
-									h_planificador->desc_nivel,
-									t_h_orq->l_bloquedos, pers);
-
-							mover_personaje_lista(pers->sck,
-									t_h_orq->l_bloquedos, t_h_orq->l_listos);
-
-							imprimir_listas(t_h_orq,'o');
-
-							un_lock_listas_plataforma_orq(t_h_orq);
-
-							if (!strcmp(respuesta_recursos, "")) {
-								string_append(&respuesta_recursos,
-										string_from_format("%c;%c",
-												pers->simbolo,
-												mensaje[j + 1][0]));
-							} else {
-								string_append(&respuesta_recursos,
-										string_from_format(";%c;%c",
-												pers->simbolo,
-												mensaje[j + 1][0]));
-							}
-						}
-
-						j=j+2;
+					respuesta_recursos = "";
+					if (!strcmp(respuesta_recursos, "")) {
+						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS_null,
+								"ESO YA LO HABLAMOS", &byteEnviados);
+					} else {
+						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS,
+								respuesta_recursos, &byteEnviados);
 					}
-
-					log_in_disk_orq(LOG_LEVEL_ERROR, "Lo recuros liberados son los siguientes %s",respuesta_recursos);
-					fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS, respuesta_recursos,
-							&byteEnviados);
 
 					break;
 
