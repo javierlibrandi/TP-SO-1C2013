@@ -103,7 +103,7 @@ int main(void) {
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
 	tv.tv_sec = 8;
-//	tv.tv_usec = 100;
+    tv.tv_usec = 0;
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
@@ -648,7 +648,7 @@ void imprmir_recursos_nivel(t_list * recursos) {
 
 	int cant_elemmm = 0;
 	t_recusos * recuss;
-	int j = 0;
+	int j;
 	cant_elemmm = list_size(recursos);
 	for (j = 0; j < cant_elemmm; j++) {
 		recuss = list_get(recursos, j);
@@ -656,6 +656,9 @@ void imprmir_recursos_nivel(t_list * recursos) {
 				"recursos del nivel (indice--> Recurso) %d --> %c", j,
 				recuss->SIMBOLO);
 	}
+
+}
+
 void imprimir_recursos(t_list * lista_Recursos){
 	int tot_recusos = list_size(lista_Recursos);
 	int count;
@@ -668,3 +671,4 @@ void imprimir_recursos(t_list * lista_Recursos){
 
 
 }
+
