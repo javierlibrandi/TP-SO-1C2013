@@ -683,7 +683,7 @@ void imprmir_recursos_nivel(t_list * recursos) {
 		recuss = list_get(recursos, j);
 		log_in_disk_niv(LOG_LEVEL_INFO,
 
-		"recursos del nivel (indice--> Recurso) %d --> %c", j, recuss->SIMBOLO);
+		"recursos del nivel (indice--> Recurso-->Cantidad: %d) %d --> %d", j, recuss->SIMBOLO, recuss->cantidad);
 	}
 
 }
