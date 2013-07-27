@@ -103,6 +103,7 @@ int main(void) {
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
 	tv.tv_sec = 2;
+	tv.tv_usec = 50;
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
@@ -237,14 +238,18 @@ int main(void) {
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se espera respuesta del orquestador...");
 					buffer = recv_variable(sck_plat, &tipo);
-					mensaje = string_split(buffer, ";");
+
 					if (!strcmp(buffer, Leido_error)) {
 						log_in_disk_niv(LOG_LEVEL_ERROR,
 								"Hubo un error en la lectura del socket de la plataforma.");
 
 						exit(EXIT_FAILURE);
 					}
-					if (tipo == O_TO_N_ASIGNAR_RECURSOS) {
+
+					switch (tipo) {
+
+					case O_TO_N_ASIGNAR_RECURSOS:
+						mensaje = string_split(buffer, ";");
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se recibieron los recursos asignados desde el orquestador: %s .",
 								mensaje);
@@ -302,12 +307,21 @@ int main(void) {
 
 						//Recibir del nivel los recursos que se asignaron y a que personajes se le asignaron.
 
-					} else {
+						break;
+
+					case O_TO_N_ASIGNAR_RECURSOS_null:
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"No se recibió el mensaje esperado desde el orquestador con los recursos asignados %s:",
-								buffer);
-						//exit(EXIT_FAILURE);
+								"Se recibieron los recursos asignados desde el orquestador pero no se desbloqueo ningun personaje");
+
+						elimino_personaje_lista_nivel(i,
+								t_personaje->l_personajes, ListaItems);
+
+						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
+						elimino_sck_lista(i, t_personaje->readfds);
+
+						break;
 					}
+
 					if (B_DIBUJAR) {
 						BorrarItem(ListaItems,
 								nodo_lista_personaje->id_personaje);
@@ -665,25 +679,23 @@ void imprmir_recursos_nivel(t_list * recursos) {
 	for (j = 0; j < cant_elemmm; j++) {
 
 		recuss = list_get(recursos, j);
-	log_in_disk_niv(LOG_LEVEL_INFO,
+		log_in_disk_niv(LOG_LEVEL_INFO,
 
-	"recursos del nivel (indice--> Recurso) %d --> %c", j,
-	recuss->SIMBOLO);
+		"recursos del nivel (indice--> Recurso) %d --> %c", j, recuss->SIMBOLO);
 	}
-
 
 }
 
 void imprimir_recursos(t_list * lista_Recursos) {
-int tot_recusos = list_size(lista_Recursos);
-int count;
-struct h_t_recusos *recurso;
+	int tot_recusos = list_size(lista_Recursos);
+	int count;
+	struct h_t_recusos *recurso;
 
-for (count = 0; count < tot_recusos; count++) {
-recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
-log_in_disk_niv(LOG_LEVEL_INFO,
-	"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
-	count, recurso->SIMBOLO, recurso->cantidad);
-}
+	for (count = 0; count < tot_recusos; count++) {
+		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
+				count, recurso->SIMBOLO, recurso->cantidad);
+	}
 
 }
