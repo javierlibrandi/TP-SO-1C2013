@@ -20,8 +20,7 @@
 #include <string.h>
 #include <commons/string.h>
 
-void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
-		t_h_personaje *t_personaje);
+
 
 void *escucho_personaje(void *p) {
 	int sck, new_sck;

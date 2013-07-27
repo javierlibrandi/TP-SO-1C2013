@@ -102,8 +102,7 @@ int main(void) {
 	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
-	tv.tv_sec = 8;
-	tv.tv_usec = 100;
+	tv.tv_sec = 2;
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
@@ -116,6 +115,7 @@ int main(void) {
 	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
 	//	(void*) &h_interbloqueo);
 	imprmir_recursos_nivel(param_nivel.recusos);
+
 	for (;;) {
 
 		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
@@ -164,6 +164,7 @@ int main(void) {
 
 					log_in_disk_niv(LOG_LEVEL_INFO, "encontro recurso: %c ",
 							recurso->SIMBOLO);
+
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
 
@@ -393,7 +394,7 @@ int main(void) {
 							nodo_lista_personaje->proximo_recurso->NOMBRE;
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El pesonaje %s solicita un recurso del tipo %s. La cantidad actual es de %d.",
+							"El personaje %s solicita un recurso del tipo %s. La cantidad actual es de %d.",
 							nodo_lista_personaje->nombre_personaje,
 							nombre_recurso, catidad_recursos);
 
@@ -420,7 +421,10 @@ int main(void) {
 						recurso = busco_recurso(
 								nodo_lista_personaje->proximo_recurso->SIMBOLO,
 								nodo_lista_personaje->l_recursos_optenidos);
-						//para pruebas
+
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Cantidad de recursos después de asignar uno al personaje: %d",
+								catidad_recursos);
 						imprmir_recursos_nivel(param_nivel.recusos);
 
 						if (B_DIBUJAR) {
@@ -450,11 +454,12 @@ int main(void) {
 								"Se envió N_TO_P_RECURSO_ERROR");
 
 					}
-					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
-							catidad_recursos);
 
 					nodo_lista_personaje->proximo_recurso->cantidad =
 							catidad_recursos;
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Cantidad de recursos después de la solicitud: %d",
+							nodo_lista_personaje->proximo_recurso->cantidad);
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
@@ -660,21 +665,25 @@ void imprmir_recursos_nivel(t_list * recursos) {
 	for (j = 0; j < cant_elemmm; j++) {
 
 		recuss = list_get(recursos, j);
-		log_in_disk_niv(LOG_LEVEL_INFO,
-				"recursos del nivel (indice--> Recurso) %d --> %c, cantidad:%d ",
-				j, recuss->SIMBOLO, recuss->cantidad);
-	}
-}
-void imprimir_recursos(t_list * lista_Recursos) {
-	int tot_recusos = list_size(lista_Recursos);
-	int count;
-	struct h_t_recusos *recurso;
+	log_in_disk_niv(LOG_LEVEL_INFO,
 
-	for (count = 0; count < tot_recusos; count++) {
-		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
-		log_in_disk_niv(LOG_LEVEL_INFO,
-				"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
-				count, recurso->SIMBOLO, recurso->cantidad);
+	"recursos del nivel (indice--> Recurso) %d --> %c", j,
+	recuss->SIMBOLO);
 	}
+
+
+}
+
+void imprimir_recursos(t_list * lista_Recursos) {
+int tot_recusos = list_size(lista_Recursos);
+int count;
+struct h_t_recusos *recurso;
+
+for (count = 0; count < tot_recusos; count++) {
+recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
+log_in_disk_niv(LOG_LEVEL_INFO,
+	"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
+	count, recurso->SIMBOLO, recurso->cantidad);
+}
 
 }
