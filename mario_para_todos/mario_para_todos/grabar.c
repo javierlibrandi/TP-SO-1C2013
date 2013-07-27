@@ -134,7 +134,7 @@ void log_in_disk_per(t_log_level nivel, const char* format, ...) {
 void log_in_disk_mensajes(t_log_level nivel, const char* format, ...) {
 
 	t_log* logger;
-	logger = log_create(PATH_PERSONAJE_LOG, "MENSAJE", true, LOG_NIVEL);
+	logger = log_create(PATH_PERSONAJE_LOG, "MENSAJE", false, LOG_NIVEL);
 
 	va_list arguments;
 	va_start(arguments, format);
