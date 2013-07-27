@@ -37,6 +37,7 @@ void *orequestador_thr(void* p) {
 	int indice_personaje;
 	struct timeval tv;
 	tv.tv_sec = 2;
+	tv.tv_usec=0;
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;

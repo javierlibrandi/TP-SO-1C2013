@@ -112,19 +112,19 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1144317432" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.1547099360" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.exe.release.option.debugging.level.1293376968" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.460360228" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.460360228" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.351781826" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1257911744" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
-								<option id="gnu.c.link.option.libs.1635657152" superClass="gnu.c.link.option.libs" valueType="libs">
+								<option id="gnu.c.link.option.libs.1635657152" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="mario_para_todos"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="commons"/>
 								</option>
-								<option id="gnu.c.link.option.paths.2115796178" superClass="gnu.c.link.option.paths" valueType="libPaths">
+								<option id="gnu.c.link.option.paths.2115796178" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Release}&quot;"/>
 								</option>
@@ -135,7 +135,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1864137391" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1484119849" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
-								<option id="gnu.both.asm.option.include.paths.1604120868" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.1604120868" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mario_para_todos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons}&quot;"/>
 								</option>
@@ -167,10 +167,10 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.395881079;cdt.managedbuild.config.gnu.exe.debug.395881079.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.863618587;cdt.managedbuild.tool.gnu.c.compiler.input.1277586526">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1482706666;cdt.managedbuild.config.gnu.exe.release.1482706666.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1144317432;cdt.managedbuild.tool.gnu.c.compiler.input.351781826">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1482706666;cdt.managedbuild.config.gnu.exe.release.1482706666.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1144317432;cdt.managedbuild.tool.gnu.c.compiler.input.351781826">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.395881079;cdt.managedbuild.config.gnu.exe.debug.395881079.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.863618587;cdt.managedbuild.tool.gnu.c.compiler.input.1277586526">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>

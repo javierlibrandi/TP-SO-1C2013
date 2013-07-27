@@ -54,7 +54,7 @@ void* planificador_nivel_thr(void *p) {
 			h_planificador->desc_nivel);
 
 	tv.tv_sec = h_planificador->segundos_espera;
-
+	tv.tv_usec = 0;
 	h_planificador->error_nivel = false; //Inicializo al bandera del error en el planificador.
 
 	pthread_create(&_planificador_t_h, NULL, (void*) hilo_planificador,
@@ -172,28 +172,37 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	int total_elementos;
 	int aux;
 	t_personaje *personaje;
+	int index_aux = *index;
 
 	//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
 
 	total_elementos = list_size(h_planificador->l_listos);
 	if (total_elementos > 0) {
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
-		if (*index >= total_elementos) {
-			*index = 0;
+		if (index_aux >= total_elementos) {
+			index_aux= 0;
 		}
+
+		log_in_disk_plat(LOG_LEVEL_INFO, "Indice en la planificacion %d",
+								*index);
 		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
 		//while (aux != index)
-		while (aux > *index) {
+		while (aux > index_aux) {
 
 			//obtengo de a uno los personajes
 			personaje = (t_personaje*) list_get(h_planificador->l_listos,
-					*index++);
+					index_aux);
+
+			index_aux++;
+
+			log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elijido para la planificacion %c, nivel del personaje %s, indice %d",personaje->simbolo,personaje->nivel,*index);
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
 				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
 						personaje->nombre);
+				*index = index_aux;
 				return personaje;
 			}
 //		else if (index > total_elementos) {
@@ -201,6 +210,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 //		}
 		}
 	}
+	*index = index_aux;
 	return NULL ;
 }
 

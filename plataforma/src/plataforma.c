@@ -46,7 +46,7 @@ void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 		char *msj);
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
-t_h_orquestadro *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
 		int *indice_personaje);
 
 /* Declaración del objeto atributo */
@@ -522,8 +522,8 @@ void agregar_personaje_planificador(int sck, t_h_orquestadro *h_orquestador,
 	char *nom_personaje = aux_mjs[0];
 	char *nom_nivel = aux_mjs[1];
 	t_h_planificador *h_planificador = NULL;
-	int indice_aux;
-	Personaje* per_aux;
+//	int indice_aux;
+//	Personaje* per_aux;
 	log_in_disk_plat(LOG_LEVEL_TRACE,
 			"agregar_personaje_planificador personaje: %s \t nivel: %s",
 			nom_personaje, nom_nivel);
@@ -630,7 +630,7 @@ t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
 	return NULL ;
 }
 
-t_h_orquestadro *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
 		int *indice_personaje) {
 	int count;
 	int total_personajes = list_size(l_personajes);

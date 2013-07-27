@@ -102,8 +102,10 @@ int main(void) {
 	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
+
 	tv.tv_sec = 2;
-	tv.tv_usec = 50;
+	tv.tv_usec = 0;
+
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
@@ -674,7 +676,7 @@ void imprmir_recursos_nivel(t_list * recursos) {
 
 	int cant_elemmm = 0;
 	t_recusos * recuss;
-	int j = 0;
+	int j;
 	cant_elemmm = list_size(recursos);
 	for (j = 0; j < cant_elemmm; j++) {
 
@@ -699,3 +701,4 @@ void imprimir_recursos(t_list * lista_Recursos) {
 	}
 
 }
+
