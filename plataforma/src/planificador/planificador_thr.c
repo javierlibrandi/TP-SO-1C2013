@@ -145,7 +145,7 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 
 //		if (*(h_planificador->sock) == sck) {
 		if (h_planificador->sck_planificador == sck) { //Este es el socket que hay que comparar.
-			log_in_disk_plat(LOG_LEVEL_INFO,
+			log_in_disk_plan(LOG_LEVEL_INFO,
 					"Elimino el planificador %s de la lista",
 					h_planificador->desc_nivel);
 
@@ -183,7 +183,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			index_aux= 0;
 		}
 
-		log_in_disk_plat(LOG_LEVEL_INFO, "Indice en la planificacion %d",
+		log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
 								*index);
 		aux = total_elementos;
 
@@ -197,11 +197,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 
 			index_aux++;
 
-			log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elijido para la planificacion %c, nivel del personaje %s, indice %d",personaje->simbolo,personaje->nivel,*index);
+			//log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elijido para la planificacion %c, nivel del personaje %s, indice %d",personaje->simbolo,personaje->nivel,*index);
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
-						personaje->nombre);
+//				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
+//						personaje->nombre);
 				*index = index_aux;
 				return personaje;
 			}
@@ -226,7 +226,7 @@ static void mover_personaje(t_personaje *personaje,
 	while (*(h_planificador->cuantum) >= ++movimientos_realizados //TODO Revisar condicion del ciclo.
 	&& !personaje_bloqueado) {
 
-		log_in_disk_plat(LOG_LEVEL_INFO,
+		log_in_disk_plan(LOG_LEVEL_INFO,
 				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
 				personaje->nombre, movimientos_realizados);
 
@@ -328,7 +328,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 	t_personaje *personaje;
 	int indice_personaje;
 
-	log_in_disk_plat(LOG_LEVEL_INFO, "eliminar_personaje_termino_nivel");
+	log_in_disk_plan(LOG_LEVEL_INFO, "eliminar_personaje_termino_nivel");
 
 	busca_personaje_skc(sck, l_listos, &indice_personaje);
 
@@ -338,7 +338,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 }
 
 void liberar_memoria_personaje(t_personaje *personaje) {
-	log_in_disk_plat(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
+	log_in_disk_plan(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
 			personaje->nombre);
 	free(personaje->nivel);
 	free(personaje->nombre);
