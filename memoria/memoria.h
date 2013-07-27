@@ -9,7 +9,7 @@
         char id;
         int inicio;
         int tamanio;
-        char* dato;
+        t_memoria dato;
         bool libre;
     } t_particion;
 
@@ -19,5 +19,5 @@
     void liberar_memoria(t_memoria segmento);
     t_list* particiones(t_memoria segmento);
     int esID(char id, t_particion* particion);
-    void libero_memoria(t_list* list_particiones);
+    void libero_memoria(t_particion* list_particiones);
 #endif /* LIBMEMORIA_H_ */
