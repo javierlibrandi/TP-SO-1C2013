@@ -511,7 +511,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 void ejecutarTurno(Personaje *personaje) {
 	int bytes_enviados, bytes_enviados1, bytes_enviados2, recursoAdjudicado;
 	char *mensajeFinTurno;
-	char *mensajeBloqueo;
+	char mensajeBloqueo[max_len];
 
 	//Me fijo si el anterior turno estuve bloqueado par asignarme el recurso correspondiente.
 	if (personaje->bloqueado && personaje->indexRecurso == -1) {
@@ -538,8 +538,7 @@ void ejecutarTurno(Personaje *personaje) {
 //Armo mensaje de turno cumplido y bloqueo. Ver con Planif. qué info mandar
 	mensajeFinTurno = personaje->nombre;
 
-	mensajeBloqueo = string_from_format("%c", personaje->recursoActual);
-	//sprintf(mensajeBloqueo, "%c", personaje->recursoActual);
+	sprintf(mensajeBloqueo, "%c", personaje->recursoActual);
 
 //Espero y recibo notificación de movimiento permitido
 
