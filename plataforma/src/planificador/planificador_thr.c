@@ -197,11 +197,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 
 			index_aux++;
 
-			log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elijido para la planificacion %c, nivel del personaje %s, indice %d",personaje->simbolo,personaje->nivel,*index);
+			//log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elegido para la planificación: %c. Nivel del personaje: %s, Indice: %d",personaje->simbolo,personaje->nivel,*index);
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
-						personaje->nombre);
+				//log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
+					//	personaje->nombre);
 				*index = index_aux;
 				return personaje;
 			}
@@ -227,7 +227,7 @@ static void mover_personaje(t_personaje *personaje,
 	&& !personaje_bloqueado) {
 
 		log_in_disk_plat(LOG_LEVEL_INFO,
-				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
+				"Permito el movimiento del personaje %s. Cantidad de movimientos realizados por el personaje: %d",
 				personaje->nombre, movimientos_realizados);
 
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
@@ -240,7 +240,7 @@ static void mover_personaje(t_personaje *personaje,
 		case P_TO_PL_JUEGO_GANADO: //cuando el nivel esta complido saco el personaje de las listas
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"el personaje:  %s a completado su plan de niveles. ",
+					"El personaje %s ha completado su plan de niveles. ",
 					personaje->nombre);
 
 			lock_listas_plantaforma(h_planificador);

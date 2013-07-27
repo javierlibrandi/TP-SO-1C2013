@@ -400,7 +400,7 @@ int main(void) {
 
 					pthread_mutex_lock(&s_personaje_recursos);
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El pesonaje solicita un recurso");
+							"El personaje solicita un recurso");
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
 
