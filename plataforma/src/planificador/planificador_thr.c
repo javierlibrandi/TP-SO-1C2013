@@ -22,7 +22,6 @@
 #include <stdbool.h>
 #include <sys/select.h>
 #include "../planificador/planificador_thr.h"
-#include <commons/string.h>
 
 /* According to earlier standards */
 #include <sys/time.h>
@@ -146,7 +145,7 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 
 //		if (*(h_planificador->sock) == sck) {
 		if (h_planificador->sck_planificador == sck) { //Este es el socket que hay que comparar.
-			log_in_disk_plat(LOG_LEVEL_INFO,
+			log_in_disk_plan(LOG_LEVEL_INFO,
 					"Elimino el planificador %s de la lista",
 					h_planificador->desc_nivel);
 
@@ -181,11 +180,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	if (total_elementos > 0) {
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
 		if (index_aux >= total_elementos) {
-			index_aux = 0;
+			index_aux= 0;
 		}
 
-		log_in_disk_plat(LOG_LEVEL_INFO, "Indice en la planificacion %d",
-				*index);
+		log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
+								*index);
 		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
@@ -200,18 +199,14 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 
 
 
-			if (string_equals_ignore_case(h_planificador->desc_nivel,
-					personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
+			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
+				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
 						personaje->nombre);
 
 				*index = index_aux;
 				return personaje;
 			}
 			*index = index_aux;
-//		else if (index > total_elementos) {
-//			index = 0;
-//		}
 		}
 	}
 	*index = index_aux;
@@ -230,7 +225,7 @@ static void mover_personaje(t_personaje *personaje,
 	while (*(h_planificador->cuantum) >= ++movimientos_realizados //TODO Revisar condicion del ciclo.
 	&& !personaje_bloqueado) {
 
-		log_in_disk_plat(LOG_LEVEL_INFO,
+		log_in_disk_plan(LOG_LEVEL_INFO,
 				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
 				personaje->nombre, movimientos_realizados);
 
@@ -244,7 +239,7 @@ static void mover_personaje(t_personaje *personaje,
 		case P_TO_PL_JUEGO_GANADO: //cuando el nivel esta complido saco el personaje de las listas
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"el personaje:  %s a completado su plan de niveles. ",
+					"El personaje %s ha completado su plan de niveles. ",
 					personaje->nombre);
 
 			lock_listas_plantaforma(h_planificador);
@@ -255,9 +250,8 @@ static void mover_personaje(t_personaje *personaje,
 					h_planificador->l_koopa);
 			un_lock_listas_plataforma(h_planificador);
 			personaje_bloqueado = true;
-			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio",
-					&byteEnviados);
-			close(personaje->sck);
+			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio", &byteEnviados);
+			close (personaje->sck);
 			//TODO Ejecutar koopa si las listas estan vacias.
 			//TODO Libera la lista de koopa, o eliminarlos personajes en lugar de moverlos a koopa.
 			break;
@@ -266,22 +260,19 @@ static void mover_personaje(t_personaje *personaje,
 
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
 
-//			fd_mensaje(personaje->sck, OK, "Me alegro pos vos!!!!",
-//					&byteEnviados);
-
 			lock_listas_plantaforma(h_planificador);
 			sock_aux = personaje->sck;
 			eliminar_personaje_termino_nivel(personaje->sck,
 					h_planificador->l_listos);
 
-			//elimino_sck_lista(personaje->sck, h_planificador->readfds);
 			imprimir_listas(h_planificador, 'p');
+			personaje_bloqueado = true;
 			un_lock_listas_plataforma(h_planificador);
 
 			fd_mensaje(sock_aux, OK, "Me alegro pos vos!!!!", &byteEnviados);
 
 			close(personaje->sck);
-			personaje_bloqueado = true;
+
 
 			break;
 			//TODO AGregar mensaje de que el personaje gano el juego!!
@@ -303,10 +294,11 @@ static void mover_personaje(t_personaje *personaje,
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_bloquedos);
 			imprimir_listas(h_planificador, 'p');
+			personaje_bloqueado = true;
+			personaje->prox_recurso = buffer[0];
 			un_lock_listas_plataforma(h_planificador);
 
-			personaje_bloqueado = true;
-			//personaje->prox_recurso = buffer[0];
+
 			break;
 		}
 
@@ -316,11 +308,11 @@ static void mover_personaje(t_personaje *personaje,
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_errores);
 			imprimir_listas(h_planificador, 'p');
-
+			personaje_bloqueado = true;
 			un_lock_listas_plataforma(h_planificador);
 			elimino_sck_lista(personaje->sck, h_planificador->readfds); //creo que este el esl socket que tengo que eliminar
 
-			personaje_bloqueado = true;
+
 
 		}
 		free(buffer);
@@ -333,7 +325,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 	t_personaje *personaje;
 	int indice_personaje;
 
-	log_in_disk_plat(LOG_LEVEL_INFO, "eliminar_personaje_termino_nivel");
+	log_in_disk_plan(LOG_LEVEL_INFO, "eliminar_personaje_termino_nivel");
 
 	busca_personaje_skc(sck, l_listos, &indice_personaje);
 
@@ -343,7 +335,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 }
 
 void liberar_memoria_personaje(t_personaje *personaje) {
-	log_in_disk_plat(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
+	log_in_disk_plan(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
 			personaje->nombre);
 	free(personaje->nivel);
 	free(personaje->nombre);
@@ -369,4 +361,5 @@ void * hilo_planificador(void * p) {
 		}
 	}
 }
+
 
