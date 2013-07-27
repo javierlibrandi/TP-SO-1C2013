@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <sys/select.h>
 #include "../planificador/planificador_thr.h"
+#include <commons/string.h>
 
 /* According to earlier standards */
 #include <sys/time.h>
@@ -180,11 +181,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	if (total_elementos > 0) {
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
 		if (index_aux >= total_elementos) {
-			index_aux= 0;
+			index_aux = 0;
 		}
 
 		log_in_disk_plat(LOG_LEVEL_INFO, "Indice en la planificacion %d",
-								*index);
+				*index);
 		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
@@ -197,14 +198,17 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 
 			index_aux++;
 
-			log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elijido para la planificacion %c, nivel del personaje %s, indice %d",personaje->simbolo,personaje->nivel,*index);
 
-			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
+
+			if (string_equals_ignore_case(h_planificador->desc_nivel,
+					personaje->nivel)) {
 				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado %s",
 						personaje->nombre);
+
 				*index = index_aux;
 				return personaje;
 			}
+			*index = index_aux;
 //		else if (index > total_elementos) {
 //			index = 0;
 //		}
@@ -251,8 +255,9 @@ static void mover_personaje(t_personaje *personaje,
 					h_planificador->l_koopa);
 			un_lock_listas_plataforma(h_planificador);
 			personaje_bloqueado = true;
-			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio", &byteEnviados);
-			close (personaje->sck);
+			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio",
+					&byteEnviados);
+			close(personaje->sck);
 			//TODO Ejecutar koopa si las listas estan vacias.
 			//TODO Libera la lista de koopa, o eliminarlos personajes en lugar de moverlos a koopa.
 			break;
@@ -349,7 +354,7 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 void * hilo_planificador(void * p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 	t_personaje *personaje;
-	static int index = 0;
+	int index = 0;
 	for (;;) {
 
 		sleep(h_planificador->segundos_espera);

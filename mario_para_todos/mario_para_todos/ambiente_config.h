@@ -12,7 +12,7 @@
 #include <semaphore.h>
 
 
-#define  val_pos_recurso(rows, cols,x,y) (((x<=rows && y<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0)
+int val_pos_recurso(int rows, int cols, int x, int y);
 
 typedef struct h_t_param_plat {
 	char** planificador_nivel;
@@ -32,8 +32,8 @@ typedef struct h_t_recusos {
 	char NOMBRE[20];
 	char SIMBOLO;
 	char cantidad;/*considero que no tengo mas 255 de un recurso*/
-	char posX;
-	char posY;
+	int posX;
+	int posY;
 	char **RECURSOS; //lo usa el personaje no el nivel OJO!!!
 	struct h_t_recusos  *ref_recuso; //referencia al reucuso que usa el personaje para devolver los recursos lo uso en add_recurso_personaje y liberar_recursos
 	char recursos_disponibles; //campo auximilar para el interbloqueo
