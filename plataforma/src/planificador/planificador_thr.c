@@ -296,9 +296,11 @@ static void mover_personaje(t_personaje *personaje,
 			imprimir_listas(h_planificador, 'p');
 			personaje_bloqueado = true;
 			personaje->prox_recurso = buffer[0];
+
 			un_lock_listas_plataforma(h_planificador);
 
-
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+								"Recuros cuando %s se salga del bloqueo %c",personaje->nombre,personaje->prox_recurso);
 			break;
 		}
 

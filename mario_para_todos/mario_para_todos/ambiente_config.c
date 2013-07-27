@@ -307,8 +307,8 @@ static void impimir_lista(t_list *lista) {
 
 			per = list_get(lista, count);
 
-			log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s",
-					per->nombre);
+			log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s nivel %s",
+					per->nombre,per->nivel);
 
 		}
 	}
