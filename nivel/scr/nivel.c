@@ -156,7 +156,7 @@ int main(void) {
 					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-												"encontro recurso: %c ", recurso);
+												"encontro recurso: %c ", recurso->SIMBOLO);
 					aux_mensaje = string_from_format("%d;%d", recurso->posX,
 							recurso->posY);
 
@@ -378,7 +378,7 @@ int main(void) {
 							nodo_lista_personaje->proximo_recurso->NOMBRE;
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El pesonaje %s solicita un recurso del tipo %s. La cantidad actual es de %d.",
+							"El personaje %s solicita un recurso del tipo %s. La cantidad actual es de %d.",
 							nodo_lista_personaje->nombre_personaje,
 							nombre_recurso, catidad_recursos);
 
@@ -397,15 +397,21 @@ int main(void) {
 								"Se envió N_TO_P_RECURSO_OK");
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"****** El recurso %c es entregado al personaje %c ******",
+								"****** El recurso %s es entregado al personaje %c ******",
 								nombre_recurso,
 								nodo_lista_personaje->id_personaje);
 						recurso = busco_recurso(
 								nodo_lista_personaje->proximo_recurso->SIMBOLO,
 								nodo_lista_personaje->l_recursos_optenidos);
 
+						log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos después de asignar uno al personaje: %d",
+													catidad_recursos);
+
+						if(B_DIBUJAR){
 						restarRecurso(ListaItems,
 								nodo_lista_personaje->proximo_recurso->SIMBOLO);
+						log_in_disk_niv(LOG_LEVEL_INFO, "Se restó un recurso de la pantalla.");
+						}
 
 						if (recurso != NULL ) { //agrego a la lista de recursos asignados al personaje
 							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
@@ -429,11 +435,11 @@ int main(void) {
 								"Se envió N_TO_P_RECURSO_ERROR");
 
 					}
-					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos %d",
-							catidad_recursos);
+
 
 					nodo_lista_personaje->proximo_recurso->cantidad =
 							catidad_recursos;
+					log_in_disk_niv(LOG_LEVEL_INFO, "Cantidad de recursos después de la solicitud: %d", nodo_lista_personaje->proximo_recurso->cantidad);
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
@@ -559,7 +565,7 @@ void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,ITEM_NIVEL *ite
 void liberar_memoria(t_lista_personaje *personaje,ITEM_NIVEL *item) {
 	liberar_recursos(personaje->l_recursos_optenidos,item);
 	free(personaje->nombre_personaje);
-	free(personaje->proximo_recurso);
+	//free(personaje->proximo_recurso);
 }
 
 void liberar_recursos(t_list *recursos_otenido,ITEM_NIVEL *item) {
