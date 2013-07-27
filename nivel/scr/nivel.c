@@ -103,7 +103,7 @@ int main(void) {
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
 	tv.tv_sec = 8;
-//	tv.tv_usec = 100;
+	tv.tv_usec = 100;
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
@@ -250,6 +250,11 @@ int main(void) {
 
 						elimino_personaje_lista_nivel(i,
 								t_personaje->l_personajes, ListaItems);
+						//para pruebas
+						imprmir_recursos_nivel(param_nivel.recusos);
+						recurso = busco_recurso(mensaje[0][0],
+								param_nivel.recusos);
+						//para pruebas
 						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
 						elimino_sck_lista(i, t_personaje->readfds);
 						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje.
@@ -295,7 +300,6 @@ int main(void) {
 //								"");
 
 						//Recibir del nivel los recursos que se asignaron y a que personajes se le asignaron.
-
 
 					} else {
 						log_in_disk_niv(LOG_LEVEL_INFO,
@@ -418,9 +422,12 @@ int main(void) {
 								nodo_lista_personaje->l_recursos_optenidos);
 						//para pruebas
 						imprmir_recursos_nivel(param_nivel.recusos);
-						restarRecurso(ListaItems,
-								nodo_lista_personaje->proximo_recurso->SIMBOLO);
 
+						if (B_DIBUJAR) {
+
+							restarRecurso(ListaItems,
+									nodo_lista_personaje->proximo_recurso->SIMBOLO);
+						}
 						if (recurso != NULL ) { //agrego a la lista de recursos asignados al personaje
 							recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 						} else {
@@ -575,7 +582,7 @@ void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,
 void liberar_memoria(t_lista_personaje *personaje, ITEM_NIVEL *item) {
 	liberar_recursos(personaje->l_recursos_optenidos, item);
 	free(personaje->nombre_personaje);
-	free(personaje->proximo_recurso);
+	//free(personaje->proximo_recurso);
 }
 
 void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
@@ -651,20 +658,23 @@ void imprmir_recursos_nivel(t_list * recursos) {
 	int j = 0;
 	cant_elemmm = list_size(recursos);
 	for (j = 0; j < cant_elemmm; j++) {
+
 		recuss = list_get(recursos, j);
 		log_in_disk_niv(LOG_LEVEL_INFO,
-				"recursos del nivel (indice--> Recurso) %d --> %c", j,
-				recuss->SIMBOLO);
+				"recursos del nivel (indice--> Recurso) %d --> %c, cantidad:%d ",
+				j, recuss->SIMBOLO, recuss->cantidad);
 	}
-void imprimir_recursos(t_list * lista_Recursos){
+}
+void imprimir_recursos(t_list * lista_Recursos) {
 	int tot_recusos = list_size(lista_Recursos);
 	int count;
 	struct h_t_recusos *recurso;
 
-	for(count=0; count < tot_recusos ; count++){
-		recurso =(struct h_t_recusos *)list_get(lista_Recursos,count);
-		log_in_disk_niv(LOG_LEVEL_INFO,"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d", count,recurso->SIMBOLO,recurso->cantidad);
+	for (count = 0; count < tot_recusos; count++) {
+		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
+				count, recurso->SIMBOLO, recurso->cantidad);
 	}
-
 
 }
