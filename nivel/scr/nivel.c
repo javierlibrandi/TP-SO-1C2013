@@ -688,11 +688,7 @@ void imprmir_recursos_nivel(t_list * recursos) {
 
 }
 
-<<<<<<< HEAD
-void imprimir_recursos(t_list * lista_Recursos){
-=======
 void imprimir_recursos(t_list * lista_Recursos) {
->>>>>>> 94295ad2193c9370713b6f217e10d4c5e865c779
 	int tot_recusos = list_size(lista_Recursos);
 	int count;
 	struct h_t_recusos *recurso;
