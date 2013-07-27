@@ -366,7 +366,7 @@ void * hilo_planificador(void * p) {
 	}
 }
 
-static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
+/*static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 		int *index) {
 
 	int total_elementos;
@@ -413,5 +413,5 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	}
 	*index = index_aux;
 	return NULL ;
-}
+}*/
 
