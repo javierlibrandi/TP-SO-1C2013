@@ -197,18 +197,16 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 
 			index_aux++;
 
-			//log_in_disk_plat(LOG_LEVEL_INFO, "Personaje elegido para la planificación: %c. Nivel del personaje: %s, Indice: %d",personaje->simbolo,personaje->nivel,*index);
+
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				//log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
-					//	personaje->nombre);
+				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
+						personaje->nombre);
 
 				*index = index_aux;
 				return personaje;
 			}
-//		else if (index > total_elementos) {
-//			index = 0;
-//		}
+			*index = index_aux;
 		}
 	}
 	*index = index_aux;
@@ -262,22 +260,19 @@ static void mover_personaje(t_personaje *personaje,
 
 			log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
 
-//			fd_mensaje(personaje->sck, OK, "Me alegro pos vos!!!!",
-//					&byteEnviados);
-
 			lock_listas_plantaforma(h_planificador);
 			sock_aux = personaje->sck;
 			eliminar_personaje_termino_nivel(personaje->sck,
 					h_planificador->l_listos);
 
-			//elimino_sck_lista(personaje->sck, h_planificador->readfds);
 			imprimir_listas(h_planificador, 'p');
+			personaje_bloqueado = true;
 			un_lock_listas_plataforma(h_planificador);
 
 			fd_mensaje(sock_aux, OK, "Me alegro pos vos!!!!", &byteEnviados);
 
 			close(personaje->sck);
-			personaje_bloqueado = true;
+
 
 			break;
 			//TODO AGregar mensaje de que el personaje gano el juego!!
@@ -299,10 +294,13 @@ static void mover_personaje(t_personaje *personaje,
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_bloquedos);
 			imprimir_listas(h_planificador, 'p');
+			personaje_bloqueado = true;
+			personaje->prox_recurso = buffer[0];
+
 			un_lock_listas_plataforma(h_planificador);
 
-			personaje_bloqueado = true;
-			//personaje->prox_recurso = buffer[0];
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+								"Recuros cuando %s se salga del bloqueo %c",personaje->nombre,personaje->prox_recurso);
 			break;
 		}
 
@@ -312,11 +310,11 @@ static void mover_personaje(t_personaje *personaje,
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_errores);
 			imprimir_listas(h_planificador, 'p');
-
+			personaje_bloqueado = true;
 			un_lock_listas_plataforma(h_planificador);
 			elimino_sck_lista(personaje->sck, h_planificador->readfds); //creo que este el esl socket que tengo que eliminar
 
-			personaje_bloqueado = true;
+
 
 		}
 		free(buffer);
@@ -350,7 +348,7 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 void * hilo_planificador(void * p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 	t_personaje *personaje;
-	static int index = 0;
+	int index = 0;
 	for (;;) {
 
 		sleep(h_planificador->segundos_espera);
