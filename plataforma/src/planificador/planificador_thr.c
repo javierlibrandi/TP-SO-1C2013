@@ -287,7 +287,9 @@ static void mover_personaje(t_personaje *personaje,
 		case P_TO_PL_BLOQUEO:
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"Se recibió el mensaje P_TO_N_BLOQUEO");
+					"Se recibió el mensaje P_TO_PL_BLOQUEO");
+
+			log_in_disk_plan(LOG_LEVEL_TRACE, "Recurso:%c", buffer[0]);
 
 			lock_listas_plantaforma(h_planificador);
 
