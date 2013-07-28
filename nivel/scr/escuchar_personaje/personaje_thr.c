@@ -20,8 +20,6 @@
 #include <string.h>
 #include <commons/string.h>
 
-
-
 void *escucho_personaje(void *p) {
 	int sck, new_sck;
 	t_h_personaje *t_personaje = (t_h_personaje*) p;
@@ -30,7 +28,6 @@ void *escucho_personaje(void *p) {
 	int tipo, tot_enviados, tipo_mensaje;
 	char **mensaje;
 	ITEM_NIVEL *ListaItems = t_personaje->ListaItemss;
-
 
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"Ecucho conexiones de los personajes en el puerto %d \t soy el nivel %s ",
@@ -53,7 +50,8 @@ void *escucho_personaje(void *p) {
 
 		mensaje = string_split(buffer, ";");
 
-		log_in_disk_niv(LOG_LEVEL_TRACE, "Tipo de mensaje %d ", tipo);
+		log_in_disk_niv(LOG_LEVEL_TRACE,
+				"1er mensaje recibido en el nivel. Tipo de mensaje %d ", tipo);
 
 		switch (tipo) {
 
@@ -67,21 +65,23 @@ void *escucho_personaje(void *p) {
 					t_personaje);
 			tipo_mensaje = OK;
 
+			//		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
+			if (new_sck > t_personaje->sck_personaje) {
+				t_personaje->sck_personaje = new_sck;
+			}
+			FD_SET(new_sck, t_personaje->readfds);
+
+			log_in_disk_niv(LOG_LEVEL_TRACE,
+					"Acepto la conexion del personaje en el socket %d  ",
+					new_sck);
+			pthread_mutex_unlock(t_personaje->s_personaje_conectado);
+			//sleep(1); //TODO ver si sacar sleep.
 			fd_mensaje(new_sck, tipo_mensaje, "Nivel iniciado.", &tot_enviados);
 			break;
 		}
 
 		free(buffer);
 
-//		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
-		if (new_sck > t_personaje->sck_personaje) {
-			t_personaje->sck_personaje = new_sck;
-		}
-		FD_SET(new_sck, t_personaje->readfds);
-		//buffer = recv_variable(new_sck, &tipo);
-		log_in_disk_niv(LOG_LEVEL_TRACE,
-				"Acepto la conexion del personaje en el socket %d  ", new_sck);
-		pthread_mutex_unlock(t_personaje->s_personaje_conectado);
 	}
 
 }
