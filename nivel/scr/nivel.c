@@ -76,6 +76,8 @@ int main(void) {
 	if (B_DIBUJAR) {
 		inicializo_pantalla();
 		nivel_gui_get_area_nivel(&rows, &cols);
+		log_in_disk_niv(LOG_LEVEL_INFO, "rows %d cols %d", rows, cols);
+
 	}
 	param_nivel = leer_nivel_config(rows, cols);
 
@@ -99,17 +101,17 @@ int main(void) {
 	FD_SET(sck_plat, &readfds);
 	t_personaje->readfds = &readfds;
 	t_personaje->sck_personaje = sck_plat;
-	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
-
 	tv.tv_sec = 2;
 	tv.tv_usec = 50;
+
+	pthread_mutex_lock(&s_personaje_conectado);
 
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
-//	pthread_mutex_lock(&s_personaje_conectado);
+	//	pthread_mutex_lock(&s_personaje_conectado);
 
 	//setteo las estructura para pasar al hilo
 	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));

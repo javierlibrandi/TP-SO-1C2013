@@ -77,6 +77,8 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 	char **aux;
 	char *aux_char;
 
+
+
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"comienzo lectura archivo de configuracion del nivel en el %s ",
 			PATH_CONFIG_NIVEL);
@@ -305,11 +307,14 @@ static void impimir_lista(t_list *lista) {
 
 			per = list_get(lista, count);
 
-			log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s",
-					per->nombre);
+			log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s nivel %s",
+					per->nombre,per->nivel);
 
 		}
 	}
 
 }
 
+int val_pos_recurso(int rows, int cols, int x, int y){
+	return (((y<=rows && x<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0);
+}
