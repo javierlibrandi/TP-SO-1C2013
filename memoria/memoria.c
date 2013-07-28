@@ -66,15 +66,21 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	 almacenar la solicitud. */
 
 	int i, indexParticionMayor, total;
-	void* ptrMemoria = NULL;
+	unsigned int ptrMemoria; //ptr a la direccion de memoria
 	t_particion* particionAux;
 	t_particion particionMayor;
 	t_particion* particion;
 	t_particion* particionRestante;
 
-	particionAux = malloc(sizeof(t_particion));
+	//particionAux = malloc(sizeof(t_particion)); //no hace falta recive un valor ya allocado en la lista
 	particion = malloc(sizeof(t_particion));
+	//TODO Verificar con Pato.si no recibo un dato previamente alocado tengo que hacer el malloc.
+	particion->dato = malloc(sizeof(t_memoria));
 	particionRestante = malloc(sizeof(t_particion));
+	//TODO Verificar con Pato.si no recibo un dato previamente alocado tengo que hacer el malloc.
+	particionRestante->dato = malloc(sizeof(t_memoria));
+	//TODO Verificar con Pato.si no recibo un dato previamente alocado tengo que hacer el malloc.
+	particionRestante->dato = malloc(sizeof(t_memoria));
 
 	//Inicializo particionMayor con un tamaño de 0 para después saber si encontré otra mayor, o ninguna disponible
 	particionMayor.tamanio = 0;
@@ -126,8 +132,10 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 						"La partición %d con ID %c no es lo suficientemente grande (%d a almacenar vs. %d disponible)\n",
 						i, particionAux->id, tamanio, particionAux->id);
 			} else {
-				printf("El tamaño de la partición actual es %d\n", particionAux->tamanio);
-				printf("El tamaño de la partición actual es %d\n", particionMayor.tamanio);
+				printf("El tamaño de la partición actual es %d\n",
+						particionAux->tamanio);
+				printf("El tamaño de la partición actual es %d\n",
+						particionMayor.tamanio);
 				if (particionAux->tamanio > particionMayor.tamanio) {
 					printf(
 							"Encontré un espacio libre mayor que el más grande que conocía; me lo guardo\n");
@@ -192,7 +200,7 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	printf("/n");
 	printf("/n");
 	particiones(segmento);
-	free(particionAux);
+	//free(particionAux);//si hago esto elimino el ultimo nodo obtenido de la lista pero sigo teniendo la referencia en la lista PELIGROOOOO!!!!!
 	free(particion);
 	free(particionRestante);
 	return 1;

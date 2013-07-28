@@ -101,17 +101,17 @@ int main(void) {
 	FD_SET(sck_plat, &readfds);
 	t_personaje->readfds = &readfds;
 	t_personaje->sck_personaje = sck_plat;
-	pthread_mutex_lock(&s_personaje_conectado);
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	struct timeval tv;
-
 	tv.tv_sec = 2;
-	tv.tv_usec = 0;
+	tv.tv_usec = 50;
+
+	pthread_mutex_lock(&s_personaje_conectado);
 
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
-	pthread_mutex_lock(&s_personaje_conectado);
+	//	pthread_mutex_lock(&s_personaje_conectado);
 
 	//setteo las estructura para pasar al hilo
 	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
@@ -122,6 +122,16 @@ int main(void) {
 	imprmir_recursos_nivel(param_nivel.recusos);
 
 	for (;;) {
+
+		FD_ZERO(t_personaje->readfds);
+		FD_SET(sck_plat, t_personaje->readfds);
+		cant_presonajes_conectados = list_size(t_personaje->l_personajes);
+
+		for (j = 0; j < cant_presonajes_conectados; j++) {
+			un_per = list_get(t_personaje->l_personajes, j);
+			FD_SET(un_per->sokc, t_personaje->readfds);
+
+		}
 
 		if (select(t_personaje->sck_personaje + 1, t_personaje->readfds, NULL,
 				NULL, &tv) == -1) {
