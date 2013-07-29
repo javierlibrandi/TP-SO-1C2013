@@ -123,20 +123,22 @@ void *orequestador_thr(void* p) {
 				mensaje = string_split(buffer, ";");
 				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
 						tipo);
-
+				log_in_disk_orq(LOG_LEVEL_INFO, "mensaje recibido %s",
+						buffer);
 				sleep(1);
 
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
 					log_in_disk_orq(LOG_LEVEL_ERROR,
-							"El pesonaje termina el nivel y libero los recuros");
+							"El personaje termina el nivel y libera los recuros");
 					respuesta_recursos = "";
 					for (j = 0; mensaje[j] != '\0';) {
 
-						log_in_disk_orq(LOG_LEVEL_ERROR,
-								"Libero el recuros %s con la cantidad %d",
-								mensaje[j + 1], mensaje[j]);
+
+//						log_in_disk_orq(LOG_LEVEL_ERROR,
+//								"Libero el recuros %s con la cantidad %s",
+//								mensaje[j + 1], mensaje[j]);
 						pthread_mutex_lock(h_planificador->s_lista_plani);
 						busca_planificador_socket(i, t_h_orq->planificadores,
 								h_planificador); // necesitmos el nombre del nivel
