@@ -246,7 +246,7 @@ int main(void) {
 					//Informo al orquestador los recursos liberados
 
 					fd_mensaje(sck_plat, N_TO_O_PERSONAJE_TERMINO_NIVEL,
-							recursos_personaje, &tot_enviados);
+							recursos_personaje, &tot_enviados); // Respuesta_PErsonaje = "cantidad_tipos_recurso;Recurso1,Cantidad1;Recurso2,Cantidad2"
 
 					//Espero la respuesta del orquestador con los recursos que asigno
 					log_in_disk_niv(LOG_LEVEL_INFO,
@@ -698,7 +698,7 @@ void imprmir_recursos_nivel(t_list * recursos) {
 		recuss = list_get(recursos, j);
 		log_in_disk_niv(LOG_LEVEL_INFO,
 
-		"recursos del nivel (indice--> Recurso-->Cantidad: %d) %d --> %d", j,
+		"recursos del nivel (indice--> Recurso-->Cantidad:) %d --> %c --> %d", j,
 				recuss->SIMBOLO, recuss->cantidad);
 	}
 
