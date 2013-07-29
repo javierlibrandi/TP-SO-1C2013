@@ -98,14 +98,16 @@ int main(void) {
 					personaje->infoNivel.nombre);
 
 			buffer = recv_variable(personaje->sockPlanif, &tipo);
-			if (tipo == ERROR) {
+			switch(tipo){
+
+			case ERROR:
 				log_in_disk_per(LOG_LEVEL_ERROR,
 						"Mensaje de error del planificador: %s", buffer);
 				exit(EXIT_FAILURE);
-			}
+				break;
 
 			//Espero y recibo muerte del nivel.
-			if (tipo == PL_TO_P_MUERTE) {
+			case PL_TO_P_MUERTE:
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se ha perdido una vida! El personaje fue elegido víctima por deadlock.");
 				personaje->vidas--;
@@ -114,20 +116,20 @@ int main(void) {
 				flagReiniciarNivel = true;
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se han perdido todos los recursos conseguidos. ");
-			}
+			break;
 
-			if (tipo == PL_TO_P_TURNO) {
+			case PL_TO_P_TURNO:
 				log_in_disk_per(LOG_LEVEL_INFO, "****** TURNO PARA %s ******",
 						personaje->nombre);
 				ejecutarTurno(personaje);
-			}
+			break;
 
-			if (tipo != PL_TO_P_TURNO && tipo != PL_TO_P_MUERTE && tipo != ERROR) {
+			default:
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"No se recibió un mensaje esperado:%s . TIPO: %d",
 						buffer, tipo);
-
 				exit(EXIT_FAILURE);
+				break;
 			}
 
 			//Aviso si las señales no pudieron capturarse
