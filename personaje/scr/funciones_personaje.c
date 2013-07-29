@@ -537,7 +537,6 @@ void ejecutarTurno(Personaje *personaje) {
 	mensajeFinTurno = personaje->nombre;
 
 	sprintf(mensajeBloqueo, "%c", personaje->recursoActual);
-//	mensajeBloqueo = string_from_format("%c",personaje->recursoActual);
 
 //Espero y recibo notificación de movimiento permitido
 
@@ -586,7 +585,7 @@ void ejecutarTurno(Personaje *personaje) {
 					"Nivel informa que no hay instancias disponibles de %c",
 					personaje->recursoActual);
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"Envío notificación de bloqueo al planificador.");
+					"Envío notificación de bloqueo al planificador. Recurso: %c", personaje->recursoActual);
 
 			fd_mensaje(personaje->sockPlanif, P_TO_PL_BLOQUEO, mensajeBloqueo,
 					&bytes_enviados1);

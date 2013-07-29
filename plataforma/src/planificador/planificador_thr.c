@@ -183,8 +183,8 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			index_aux= 0;
 		}
 
-		log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
-								*index);
+		//log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
+						//		*index);
 		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
@@ -287,7 +287,9 @@ static void mover_personaje(t_personaje *personaje,
 		case P_TO_PL_BLOQUEO:
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"Se recibió el mensaje P_TO_N_BLOQUEO");
+					"Se recibió el mensaje P_TO_PL_BLOQUEO");
+
+			log_in_disk_plan(LOG_LEVEL_TRACE, "Recurso:%c", buffer[0]);
 
 			lock_listas_plantaforma(h_planificador);
 
