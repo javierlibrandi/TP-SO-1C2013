@@ -314,8 +314,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 		exit(EXIT_FAILURE);
 	}
 
-	log_in_disk_per(LOG_LEVEL_INFO,
-				"Espero OKEY del nivel...");
+	log_in_disk_per(LOG_LEVEL_INFO, "Espero OKEY del nivel...");
 
 	tipoN = 0;
 	while (tipoN != OK) {
@@ -370,8 +369,7 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 
 		}
 
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Espero OKEY del planificador...");
+		log_in_disk_per(LOG_LEVEL_INFO, "Espero OKEY del planificador...");
 		bufferPla = recv_variable(descriptorPlan, &tipoP);
 		if (tipoP == ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
@@ -511,7 +509,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 void ejecutarTurno(Personaje *personaje) {
 	int bytes_enviados, bytes_enviados1, bytes_enviados2, recursoAdjudicado;
 	char *mensajeFinTurno;
-	char mensajeBloqueo[max_len];
+	char  mensajeBloqueo[max_len];
 
 	//Me fijo si el anterior turno estuve bloqueado par asignarme el recurso correspondiente.
 	if (personaje->bloqueado && personaje->indexRecurso == -1) {
@@ -587,7 +585,7 @@ void ejecutarTurno(Personaje *personaje) {
 					"Nivel informa que no hay instancias disponibles de %c",
 					personaje->recursoActual);
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"Envío notificación de bloqueo al planificador.");
+					"Envío notificación de bloqueo al planificador. Recurso: %c", personaje->recursoActual);
 
 			fd_mensaje(personaje->sockPlanif, P_TO_PL_BLOQUEO, mensajeBloqueo,
 					&bytes_enviados1);

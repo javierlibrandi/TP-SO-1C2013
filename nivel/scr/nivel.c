@@ -37,7 +37,7 @@ void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,
 		ITEM_NIVEL *item);
 void liberar_memoria(t_lista_personaje *personaje, ITEM_NIVEL *item);
 void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item);
-void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos);
+char* listarRecursosPersonaje(t_list * lista_Recursos);
 t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 		int *indice_personaje);
 void imprimir_recursos(t_list * lista_Recursos);
@@ -225,15 +225,15 @@ int main(void) {
 				case P_TO_N_OBJ_CUMPLIDO:
 
 					recursos_personaje = "";
+
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Notificación de objetivo de nivel cumplido de %s",
 							nodo_lista_personaje->nombre_personaje);
 
-					listarRecursosPersonaje(
-							nodo_lista_personaje->l_recursos_optenidos,
-							recursos_personaje);
+					recursos_personaje = listarRecursosPersonaje(
+							nodo_lista_personaje->l_recursos_optenidos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El personaje %s ha completado el nivel y libera estos recursos: %s. Se informa al orquestador.",
@@ -639,10 +639,11 @@ void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 
 //Recibe una lista de recursos de tipo t_recusos y devuelve un string de tipo. EJ:"cantidadRecursos;simbolo1,cantidad1;simbolo2,cantidad2.."
 
-void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos) {
+char* listarRecursosPersonaje(t_list * lista_Recursos) {
 
 	int cantidadRecu = list_size(lista_Recursos);
 	int i;
+	char* recursos;
 	char recursosAux[5] = ("");
 	t_recusos *recurso_aux;
 	recursos = malloc(2 * sizeof(char));
@@ -657,6 +658,8 @@ void listarRecursosPersonaje(t_list * lista_Recursos, char * recursos) {
 	}
 	log_in_disk_niv(LOG_LEVEL_INFO, "Los recursos a devolver son: %s ",
 			recursos);
+
+	return recursos;
 
 }
 
