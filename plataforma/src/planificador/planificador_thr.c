@@ -129,6 +129,8 @@ void* planificador_nivel_thr(void *p) {
 
 			}
 		}
+		/* Forzamos la expulsión de la CPU con sched_yield */
+		sched_yield();
 	}
 
 //cierro el socket que escucha para no aceptar nuevas conexiones.
@@ -281,7 +283,7 @@ static void mover_personaje(t_personaje *personaje,
 			log_in_disk_plan(LOG_LEVEL_TRACE,
 					"Se recibió el mensaje P_TO_PL_RECURSO_CONSEGUIDO");
 
-			//PLANIFICAR EL SIGUIENTE PERSONAJE DE LISTOS
+			movimientos_realizados = *(h_planificador->cuantum) + 1;
 			break;
 
 		case P_TO_PL_BLOQUEO:
