@@ -183,8 +183,8 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			index_aux= 0;
 		}
 
-		log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
-								*index);
+		//log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
+						//		*index);
 		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null

@@ -130,12 +130,12 @@ void *orequestador_thr(void* p) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
 					log_in_disk_orq(LOG_LEVEL_ERROR,
-							"El pesonaje termina el nivel y libero los recuros");
+							"El personaje termina el nivel y libera los recuros");
 					respuesta_recursos = "";
 					for (j = 0; mensaje[j] != '\0';) {
 
 						log_in_disk_orq(LOG_LEVEL_ERROR,
-								"Libero el recuros %s con la cantidad %d",
+								"Libero recursos %s con la cantidad %d",
 								mensaje[j + 1], mensaje[j]);
 						pthread_mutex_lock(h_planificador->s_lista_plani);
 						busca_planificador_socket(i, t_h_orq->planificadores,
