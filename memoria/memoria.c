@@ -35,11 +35,7 @@ t_memoria crear_memoria(int tamanio) {
 	particion->inicio = 0;
 	particion->tamanio = tamanio;
 	particion->libre = true;
-	particion->dato = segmento[particion->inicio];
-	printf("La partición actual es la %c\n", particion->id);
-	printf("La partición actual comienza en %d\n", particion->inicio);
-	printf("La partición actual es de %d\n", particion->tamanio);
-	printf("La partición acutal está libre? %d\n", particion->libre);
+	particion->dato = &segmento[particion->inicio];
 
 	printf("Agrego la partición inicial\n");
 
@@ -136,9 +132,9 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 
 	//Saco la partición anterior
 	ptrAEliminar = list_remove(list_particiones, indexParticionMayor);
-	free(ptrAEliminar->dato);
-	free(ptrAEliminar);
 	printf("Se eliminó la partición %c de la posición %d\n", ptrAEliminar->id, indexParticionMayor);
+	//free(ptrAEliminar->dato);
+	free(ptrAEliminar);
 
 	particiones(segmento);
 
@@ -147,7 +143,7 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	particion->id = id;
 	particion->inicio = particionMayor.inicio;
 	particion->tamanio = tamanio;
-	particion->dato = particionMayor.dato;
+	particion->dato = &segmento[particion->inicio];
 	particion->libre = false;
 	printf("Inicialicé la partición para agregar a la lista\n");
 
@@ -160,7 +156,7 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 
 	//Grabo el dato en memoria la particion
 	printf("Grabo el dato en memoria la particion\n");
-	memcpy(&segmento[particion->inicio], contenido, particion->tamanio);
+	memcpy(particion->dato, contenido, particion->tamanio);
 
 	//Inicializo la particion restante
 	printf("Voy a inicializar la partición restante para agregar a la lista\n");
@@ -168,7 +164,7 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	particionRestante->inicio = particion->inicio + particion->tamanio;
 	particionRestante->tamanio = particionMayor.tamanio - particion->tamanio;
 	//particionRestante->dato = particionMayor.dato + particion->tamanio - 1;
-	particionRestante->dato = NULL;
+	particionRestante->dato = &segmento[particion->inicio + particion->tamanio];
 	particionRestante->libre = true;
 	printf("Inicialicé la partición restante para agregar a la lista\n");
 
@@ -180,13 +176,11 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 
 	//Grabo el dato en memoria la particion restante
 	printf("Grabo el dato en memoria la particion restante\n");
-	memcpy(&segmento[particionRestante->inicio], contenido, particionRestante->tamanio);
+	memcpy(particionRestante->dato, contenido, particionRestante->tamanio);
 
 	//Imprimo las particiones para chequear
 	printf("\n");
 	printf("Las particiones quedaron así:\n");
-	printf("\n");
-	printf("\n");
 	particiones(segmento);
 	//free(particionAux);//si hago esto elimino el ultimo nodo obtenido de la lista pero sigo teniendo la referencia en la lista PELIGROOOOO!!!!!
 //	free(particion);
@@ -284,14 +278,18 @@ t_list* particiones(t_memoria segmento) {
 
 	for (i = 0; i < total; i++) {
 		particionAux = list_get(list_segmento, i);
-		if (((t_particion*) particionAux)->id == ' ') {
+		if (particionAux->id == ' ') {
 			printf("VACIO[%d:%d:%d]\n", particionAux->inicio,
 					(particionAux->inicio + particionAux->tamanio - 1),
 					particionAux->tamanio);
 		} else {
-			printf("%c[%d:%d:%d]:%s\n", particionAux->id, particionAux->inicio,
+			printf("%c[%d:%d:%d]:", particionAux->id, particionAux->inicio,
 					(particionAux->inicio + particionAux->tamanio - 1),
-					particionAux->tamanio, particionAux->dato);
+					particionAux->tamanio);
+			for (i = particionAux->inicio; i < particionAux->tamanio; i++) {
+				printf("%c", segmento[i]);
+			}
+			printf("\n");
 		}
 	}
 
