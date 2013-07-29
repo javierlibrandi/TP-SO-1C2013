@@ -299,7 +299,7 @@ static void mover_personaje(t_personaje *personaje,
 			personaje_bloqueado = true;
 			personaje->prox_recurso = buffer[0];
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-											"El recurso por el que se bloque es %c",buffer[0]);
+											"El recurso por el que se bloqueo el personaje %s es %c", personaje->nombre,buffer[0]);
 			un_lock_listas_plataforma(h_planificador);
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,

@@ -209,6 +209,8 @@ void lock_listas_plantaforma(t_h_planificador *h_planificador) {
 	pthread_mutex_lock(h_planificador->s_listos);
 	pthread_mutex_lock(h_planificador->s_bloquedos);
 	pthread_mutex_lock(h_planificador->s_errores);
+	pthread_mutex_lock(h_planificador->s_koopa);
+
 
 }
 
@@ -216,12 +218,15 @@ void un_lock_listas_plataforma(t_h_planificador *h_planificador) {
 	pthread_mutex_unlock(h_planificador->s_listos);
 	pthread_mutex_unlock(h_planificador->s_bloquedos);
 	pthread_mutex_unlock(h_planificador->s_errores);
+	pthread_mutex_unlock(h_planificador->s_koopa);
 }
 
 void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_lock(h_orq->s_listos);
 	pthread_mutex_lock(h_orq->s_bloquedos);
 	pthread_mutex_lock(h_orq->s_errores);
+	pthread_mutex_lock(h_orq->s_koopa);
+	pthread_mutex_lock(h_orq->s_nuevos);
 
 }
 
@@ -229,6 +234,8 @@ void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_unlock(h_orq->s_listos);
 	pthread_mutex_unlock(h_orq->s_bloquedos);
 	pthread_mutex_unlock(h_orq->s_errores);
+	pthread_mutex_unlock(h_orq->s_koopa);
+	pthread_mutex_unlock(h_orq->s_nuevos);
 }
 
 /**
