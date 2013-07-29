@@ -34,7 +34,7 @@ void *orequestador_thr(void* p) {
 	char respuesta[100];
 	t_h_planificador * h_planificador = NULL;
 	t_personaje* pers = NULL;
-	int indice_personaje;
+	int indice_personaje, cantidad_Recurso_Aux;
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
@@ -93,7 +93,7 @@ void *orequestador_thr(void* p) {
 					log_in_disk_orq(LOG_LEVEL_ERROR, "%s ", Leido_error);
 
 					if (busca_planificador_socket(i, t_h_orq->planificadores, //Miro si el socket del error es el de algun nivel/planificador.
-							h_planificador)) {
+							&h_planificador)) {
 
 						log_in_disk_orq(LOG_LEVEL_ERROR,
 								"Error en el socket del nivel: %s, se mata el hilo ",
@@ -123,8 +123,7 @@ void *orequestador_thr(void* p) {
 				mensaje = string_split(buffer, ";");
 				log_in_disk_orq(LOG_LEVEL_ERROR, "rev tipo de mensaje %d",
 						tipo);
-				log_in_disk_orq(LOG_LEVEL_INFO, "mensaje recibido %s",
-						buffer);
+				log_in_disk_orq(LOG_LEVEL_INFO, "mensaje recibido %s", buffer);
 				sleep(1);
 
 				switch (tipo) {
@@ -132,36 +131,37 @@ void *orequestador_thr(void* p) {
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
 					log_in_disk_orq(LOG_LEVEL_ERROR,
 							"El personaje termina el nivel y libera los recuros");
+
+					pthread_mutex_lock(t_h_orq->s_lista_plani);
+					busca_planificador_socket(i, t_h_orq->planificadores,
+							&h_planificador); // necesitmos el nombre del nivel
+					pthread_mutex_unlock(t_h_orq->s_lista_plani);
+					//*****el mensaje recibido es de tipo = "cantidad_tipos_recurso;Recurso1,Cantidad1;Recurso2,Cantidad2"
+
+					log_in_disk_orq(LOG_LEVEL_ERROR,
+							"Los recursos recibidos del nivel: %s son: %s",
+							h_planificador->desc_nivel, buffer);
+
 					respuesta_recursos = "";
-					for (j = 0; mensaje[j] != '\0';) {
 
+					for (j = 0; j < atoi(mensaje[0]); j++) {
 
-//						log_in_disk_orq(LOG_LEVEL_ERROR,
-//								"Libero el recuros %s con la cantidad %s",
-//								mensaje[j + 1], mensaje[j]);
-						pthread_mutex_lock(h_planificador->s_lista_plani);
-						busca_planificador_socket(i, t_h_orq->planificadores,
-								h_planificador); // necesitmos el nombre del nivel
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+						lock_listas_plantaforma_orq(t_h_orq);
+
+						imprimir_listas(t_h_orq, 'o');
 
 						buscar_bloqueados_recurso(mensaje[j + 1],
 								h_planificador->desc_nivel,
 								t_h_orq->l_bloquedos, pers);
 
+						cantidad_Recurso_Aux = (mensaje[j + 1][2] - '0');
+
+						log_in_disk_orq(LOG_LEVEL_ERROR,
+								"Se puede liberar el recurso %c con la cantidad %d",
+								mensaje[j + 1][0], cantidad_Recurso_Aux);
+
 						for (k = 0;
-								(pers != NULL )&& (k < atoi(mensaje[j])); k++){
-
-								lock_listas_plantaforma_orq(t_h_orq);
-								buscar_bloqueados_recurso(mensaje[j + 1],
-										h_planificador->desc_nivel,
-										t_h_orq->l_bloquedos, pers);
-
-								mover_personaje_lista(pers->sck,
-										t_h_orq->l_bloquedos, t_h_orq->l_listos);
-
-								imprimir_listas(t_h_orq,'o');
-
-								un_lock_listas_plataforma_orq(t_h_orq);
+								(pers != NULL )&& (k < cantidad_Recurso_Aux); k++){
 
 								if (!strcmp(respuesta_recursos, "")) {
 									string_append(&respuesta_recursos,
@@ -174,13 +174,23 @@ void *orequestador_thr(void* p) {
 													pers->simbolo,
 													mensaje[j + 1][0]));
 								}
-							}
 
-						j = j + 2;
+								mover_personaje_lista(pers->sck,
+										t_h_orq->l_bloquedos, t_h_orq->l_listos);
+
+								imprimir_listas(t_h_orq,'o');
+
+								buscar_bloqueados_recurso(mensaje[j + 1],
+										h_planificador->desc_nivel,
+										t_h_orq->l_bloquedos, pers);
+
+							}
+						un_lock_listas_plataforma_orq(t_h_orq);
+						//j = j + 2; Fin del for de J
 					}
 
 					log_in_disk_orq(LOG_LEVEL_ERROR,
-							"Lo recuros liberados son los siguientes %s",
+							"Lo recuros liberados son los siguientes (ej: personaje;recurso) %s",
 							respuesta_recursos);
 
 					if (!strcmp(respuesta_recursos, "")) {
@@ -236,7 +246,7 @@ void *orequestador_thr(void* p) {
 					//exit(1);
 				}
 				free(buffer);
-
+				//free(mensaje);
 			}
 		}
 
@@ -329,7 +339,7 @@ bool busca_planificador(char *desc_nivel, t_list *list_plataforma, char * msj) {
 }
 
 bool busca_planificador_socket(int sock, t_list *list_plataforma,
-		t_h_planificador * planificador) {
+		t_h_planificador ** planificador) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE,
 			"busco si el socket del error es del nivel de algun planificador.: ");
@@ -345,7 +355,7 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 			log_in_disk_orq(LOG_LEVEL_TRACE,
 					"El error es del socket del planificador del nivel %s",
 					h_planificador->desc_nivel);
-			planificador = h_planificador;
+			*planificador = h_planificador;
 			return true;
 
 		} else {
@@ -357,9 +367,12 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 	return (bool*) list_find(list_plataforma, (void*) _list_elements);
 
 }
+
 //el 1er parametro de la funcion es un char* de tipo "recurso,cantidad" por ej: "F,3".
 void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 		t_personaje *pers) {
+	// recur Viene dado como: "recurso,cantidad"
+
 	char recurso = recur[0];
 	int total_bloqueados = list_size(bloqueados);
 	int count;
@@ -369,7 +382,7 @@ void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 
 		unper = list_get(bloqueados, count);
 
-		if (!strcmp(unper->nivel, nivel) && unper->prox_recurso == recurso) {
+		if (!strcmp(unper->nivel, nivel) && (unper->prox_recurso == recurso)) {
 			pers = unper;
 			return;
 		}

@@ -1,0 +1,1 @@
+LD_LIBRARY_PATH=/home/utnso/git/tp-20131c-gaturro/memoria/Debug/:/home/utnso/git/tp-20131c-gaturro/so-commons-library/Debug
