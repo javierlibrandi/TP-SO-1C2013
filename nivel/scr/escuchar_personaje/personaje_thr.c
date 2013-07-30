@@ -44,12 +44,6 @@ void *escucho_personaje(void *p) {
 			exit(1);
 		}
 
-//		if (new_sck > t_personaje->sck_personaje) {
-//			t_personaje->sck_personaje = new_sck;
-//		}
-//		FD_SET(new_sck, t_personaje->readfds);
-//		pthread_mutex_unlock(t_personaje->s_personaje_conectado);
-		/////////////////////////
 		buffer = recv_variable(new_sck, &tipo);
 
 		mensaje = string_split(buffer, ";");
@@ -80,7 +74,7 @@ void *escucho_personaje(void *p) {
 					"Acepto la conexion del personaje en el socket %d  ",
 					new_sck);
 			pthread_mutex_unlock(t_personaje->s_personaje_conectado);
-			//sleep(1); //TODO ver si sacar sleep.
+
 			fd_mensaje(new_sck, tipo_mensaje, "Nivel iniciado.", &tot_enviados);
 
 			log_in_disk_niv(LOG_LEVEL_INFO,

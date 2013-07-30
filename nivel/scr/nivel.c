@@ -144,7 +144,7 @@ int main(void) {
 		for (i = 0; i <= t_personaje->sck_personaje; i++) {
 			if (FD_ISSET(i, t_personaje->readfds)) {
 
-				buffer = recv_variable(i, &tipo); // *(t_h_orq->sock) Para mi es i el 1er parametro del rec por que el socket que me respondio tiene ese valor.
+				buffer = recv_variable(i, &tipo);
 				if (!strcmp(buffer, Leido_error)) {
 					pthread_mutex_lock(&s_personaje_recursos);
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
@@ -152,18 +152,12 @@ int main(void) {
 					elimino_sck_lista(i, t_personaje->readfds);
 					pthread_mutex_unlock(&s_personaje_recursos);
 				}
-				mensaje = string_split(buffer, ";");
 
 				log_in_disk_niv(LOG_LEVEL_INFO,
 						"****** Se recibió un tipo de mensaje %d: %s ******",
 						tipo, buffer);
 
-				/*for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
-				 log_in_disk_niv(LOG_LEVEL_TRACE, "mensaje %d contenido %s",
-				 cont_msj, mensaje[cont_msj]);
-
-				 }*/
-
+				mensaje = string_split(buffer, ";");
 				switch (tipo) {
 				case P_TO_N_UBIC_RECURSO:
 
@@ -320,6 +314,7 @@ int main(void) {
 										nodo_lista_personaje->proximo_recurso);
 
 							}
+							//TODO MArcar el personaje para que no se tenga en cuenta en el desbloqueo por que ya no tiene proximo recurso. (Hasta que vuevla a pedir uno).
 							//Recursos despues de la asignacion del orquestador:
 							recurso = busco_recurso(mensaje[cont_msj][2],
 									param_nivel.recusos);
@@ -339,7 +334,7 @@ int main(void) {
 
 							imprmir_recursos_nivel(param_nivel.recusos);
 
-// Comenteado para pruebas
+// Comenteado para pruebas *** //
 //							fd_mensaje(nodo_lista_personaje->sokc,
 //									N_TO_P_PROXIMO_RECURSO, buffer,
 //									&tot_enviados);
@@ -382,25 +377,6 @@ int main(void) {
 					imprimir_recursos(param_nivel.recusos);
 					free(personaje_aux.nombre_personaje);
 					break;
-
-//				case P_TO_N_INICIAR_NIVEL:
-//
-//					log_in_disk_niv(LOG_LEVEL_INFO,
-//							"Nivel recibe solicitud de inicio en su mapa de %s.",
-//							mensaje[0]);
-//
-//					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
-//					add_personaje_lista(mensaje[1][0], mensaje[0], i,
-//							t_personaje);
-//					tipo_mensaje = OK;
-//
-//					fd_mensaje(i, tipo_mensaje, "Nivel iniciado",
-//							&tot_enviados);
-//					log_in_disk_niv(LOG_LEVEL_INFO,
-//							"****** El personaje %s inicia el nivel ******",
-//							mensaje[0]);
-//
-//					break;
 
 				case P_TO_N_REINICIAR_NIVEL:
 					log_in_disk_niv(LOG_LEVEL_INFO,
@@ -642,12 +618,12 @@ void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,
 		ITEM_NIVEL *item) {
 	int pos;
 
-	//pthread_mutex_lock(&s_personaje_recursos); //	mejor los semaforos afuera de las funciones.
 	t_lista_personaje *personaje;
+
 	busco_personaje(sck, l_personajes, &pos);
 	personaje = (t_lista_personaje *) list_remove(l_personajes, pos);
 	liberar_memoria(personaje, item);
-	//pthread_mutex_unlock(&s_personaje_recursos);
+
 }
 
 void liberar_memoria(t_lista_personaje *personaje, ITEM_NIVEL *item) {
