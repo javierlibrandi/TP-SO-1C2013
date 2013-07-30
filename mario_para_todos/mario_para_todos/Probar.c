@@ -21,6 +21,7 @@ desconexión inesperada personajes/niveles
 gráficos, sumar recursos en pantalla
 integrar koopa
 restar recursos al desbloquear (nivel), ya que el personaje se los asigna automáticamente
+ingresar niveles en cualquier momento. Mepa q plataforma no reconoce niveles q entran despues del personaje
  */
 
 

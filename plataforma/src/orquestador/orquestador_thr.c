@@ -168,7 +168,6 @@ void *orequestador_thr(void* p) {
 								if (!strcmp(respuesta_recursos, "")) {
 
 									sprintf(respuesta_recu_aux, "%c,%c", pers->simbolo, mensaje[j + 1][0]);
-									strlen(respuesta_recu_aux);
 									string_append(&respuesta_recursos,respuesta_recu_aux);
 								} else {
 									sprintf(respuesta_recu_aux, ";%c,%c", pers->simbolo, mensaje[j + 1][0]);
@@ -196,7 +195,7 @@ void *orequestador_thr(void* p) {
 						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS,
 								respuesta_recursos, &byteEnviados);
 						log_in_disk_orq(LOG_LEVEL_INFO,
-								"Lo recuros Asignados son los siguientes (ej: personaje;recurso) %s",
+								"Lo recusros asignados son los siguientes (ej: personaje;recurso) %s",
 								respuesta_recursos);
 					}
 					free(respuesta_recursos);

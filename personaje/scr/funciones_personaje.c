@@ -509,7 +509,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 void ejecutarTurno(Personaje *personaje) {
 	int bytes_enviados, bytes_enviados1, bytes_enviados2, recursoAdjudicado;
 	char *mensajeFinTurno;
-	char  mensajeBloqueo[max_len];
+	char mensajeBloqueo[max_len];
 
 	//Me fijo si el anterior turno estuve bloqueado par asignarme el recurso correspondiente.
 	if (personaje->bloqueado && personaje->indexRecurso == -1) {
@@ -545,8 +545,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 //Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
 	if (!conocePosicionRecurso(personaje->recursoActual)) {
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"Solicito coordenadas al %s",
+		log_in_disk_per(LOG_LEVEL_INFO, "Solicito coordenadas al %s",
 				personaje->infoNivel.nombre);
 		solicitarUbicacionRecurso(personaje);
 	}
@@ -585,7 +584,8 @@ void ejecutarTurno(Personaje *personaje) {
 					"Nivel informa que no hay instancias disponibles de %c",
 					personaje->recursoActual);
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"Envío notificación de bloqueo al planificador. Recurso: %c", personaje->recursoActual);
+					"Envío notificación de bloqueo al planificador. Recurso: %c",
+					personaje->recursoActual);
 
 			fd_mensaje(personaje->sockPlanif, P_TO_PL_BLOQUEO, mensajeBloqueo,
 					&bytes_enviados1);
@@ -611,7 +611,7 @@ void ejecutarTurno(Personaje *personaje) {
 		if (bytes_enviados2 == -1) {
 			log_in_disk_per(LOG_LEVEL_TRACE,
 
-					"Hubo un error al enviar el mensaje P_TO_PL_TURNO_CUMPLIDO");
+			"Hubo un error al enviar el mensaje P_TO_PL_TURNO_CUMPLIDO");
 			log_in_disk_per(LOG_LEVEL_TRACE,
 					"Planificador cerró la conexión. El proceso personaje va a terminar.");
 			exit(EXIT_FAILURE);
@@ -634,7 +634,45 @@ void salirDelNivel(Personaje *personaje) {
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del planificador.");
 
-	if (personaje->nivelActual != -2) {
+	if (vidas <= 0) {
+
+		fd_mensaje(sockPlanif, P_TO_PL_SALIR, "He perdido todas las vidas. Salgo del planificador.",
+				&bytes_enviados1);
+
+		if (bytes_enviados1 == -1) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Hubo un error al enviar el mensaje P_TO_PL_SALIR");
+
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Planificador cerró la conexión. El proceso personaje va a terminar.");
+			exit(EXIT_FAILURE);
+		}
+		//Espero OK del planificador de finalización de nivel.
+		tipo = 0;
+		while (tipo != OK) {
+
+			recv_variable(sockPlanif, &tipo);
+
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+
+				"Se recibió OK de salida de nivel del planificador.");
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Cierro socket del planificador");
+
+				close(sockPlanif);
+			} else {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+				//	"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ",
+						"Esperando OK de salida del planificador...");
+				sleep(3);
+
+			}
+
+		}
+	}
+
+	if (vidas > 0 && personaje->nivelActual != -2) {
 		//Si no es el último nivel
 		fd_mensaje(sockPlanif, P_TO_PL_OBJ_CUMPLIDO, mensajeFinNivelP,
 				&bytes_enviados1);
@@ -663,9 +701,9 @@ void salirDelNivel(Personaje *personaje) {
 				close(sockPlanif);
 			} else {
 				log_in_disk_per(LOG_LEVEL_ERROR,
-					//	"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ",
+				//	"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ",
 						"Esperando OK de objetivo cumplido del planificador.");
-						//tipo);
+				//tipo);
 				sleep(3);
 
 			}
@@ -673,35 +711,75 @@ void salirDelNivel(Personaje *personaje) {
 		}
 	} // fin IF si no es último nivel
 
-	log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del nivel.");
+	//lalalalalala
 
-	fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
-			&bytes_enviados);
+	//Si salgo del nivel porque cumplí el objetivo
+	if (vidas > 0) {
 
-	if (bytes_enviados == -1) {
-		log_in_disk_per(LOG_LEVEL_ERROR,
-				"Hubo un error al enviar el mensaje P_TO_N_OBJ_CUMPLIDO");
+		log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del nivel.");
 
-		log_in_disk_per(LOG_LEVEL_ERROR,
-				"Nivel cerró la conexión. El proceso personaje va a terminar.");
-		exit(EXIT_FAILURE);
-	}
+		fd_mensaje(sockNivel, P_TO_N_OBJ_CUMPLIDO, mensajeFinNivel,
+				&bytes_enviados);
 
-	tipo = 0;
-	while (tipo != OK) {
-		recv_variable(sockNivel, &tipo);
-
-		if (tipo == OK) {
+		if (bytes_enviados == -1) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
-					"Se recibió OK de finalización de nivel.");
-			log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
-			close(sockNivel);
+					"Hubo un error al enviar el mensaje P_TO_N_OBJ_CUMPLIDO");
 
-		} else {
 			log_in_disk_per(LOG_LEVEL_ERROR,
-					"No se recibió un mensaje esperado. Tipo:%d ", tipo);
-			sleep(1);
+					"Nivel cerró la conexión. El proceso personaje va a terminar.");
+			exit(EXIT_FAILURE);
+		}
 
+		tipo = 0;
+		while (tipo != OK) {
+			recv_variable(sockNivel, &tipo);
+
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Se recibió OK de finalización de nivel.");
+				log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+				close(sockNivel);
+
+			} else {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Espero ok de fin de nivel. No se recibió un mensaje esperado. Tipo:%d ",
+						tipo);
+				sleep(1);
+			}
+		}
+		//Si salgo del nivel porque perdí todas las vidas y debo reiniciar el plan entero
+	} else {
+
+		log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del nivel.");
+
+		fd_mensaje(sockNivel, P_TO_N_SALIR, "He muerto. Debo salir del nivel.",
+				&bytes_enviados);
+
+		if (bytes_enviados == -1) {
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Hubo un error al enviar el mensaje P_TO_N_SALIR");
+
+			log_in_disk_per(LOG_LEVEL_ERROR,
+					"Nivel cerró la conexión. El proceso personaje va a terminar.");
+			exit(EXIT_FAILURE);
+		}
+
+		tipo = 0;
+		while (tipo != OK) {
+			recv_variable(sockNivel, &tipo);
+
+			if (tipo == OK) {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Se recibió OK de salida de nivel.");
+				log_in_disk_per(LOG_LEVEL_INFO, "Cierro socket del nivel");
+				close(sockNivel);
+
+			} else {
+				log_in_disk_per(LOG_LEVEL_ERROR,
+						"Espero Ok de Nivel para salir. No se recibió un mensaje esperado. Tipo:%d ",
+						tipo);
+				sleep(1);
+			}
 		}
 
 	}

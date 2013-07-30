@@ -98,7 +98,7 @@ int main(void) {
 					personaje->infoNivel.nombre);
 
 			buffer = recv_variable(personaje->sockPlanif, &tipo);
-			switch(tipo){
+			switch (tipo) {
 
 			case ERROR:
 				log_in_disk_per(LOG_LEVEL_ERROR,
@@ -106,7 +106,7 @@ int main(void) {
 				exit(EXIT_FAILURE);
 				break;
 
-			//Espero y recibo muerte del nivel.
+				//Espero y recibo muerte del nivel.
 			case PL_TO_P_MUERTE:
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se ha perdido una vida! El personaje fue elegido víctima por deadlock.");
@@ -116,13 +116,13 @@ int main(void) {
 				flagReiniciarNivel = true;
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"Se han perdido todos los recursos conseguidos. ");
-			break;
+				break;
 
 			case PL_TO_P_TURNO:
 				log_in_disk_per(LOG_LEVEL_INFO, "****** TURNO PARA %s ******",
 						personaje->nombre);
 				ejecutarTurno(personaje);
-			break;
+				break;
 
 			default:
 				log_in_disk_per(LOG_LEVEL_INFO,
@@ -141,7 +141,7 @@ int main(void) {
 				log_in_disk_per(LOG_LEVEL_INFO,
 						"[SEÑAL]No se pudo capturar la señal SIGTERM para restar una vida");
 
-		} //fin del while "Mientras haya recursos pendientes para conseguir en el nivel"
+		} //fin del while "Mientras haya recursos pendientes para conseguir en el nivel y tenga vidas"
 
 		personaje->finNivel = false;
 
@@ -149,8 +149,11 @@ int main(void) {
 			log_in_disk_per(LOG_LEVEL_INFO,
 					"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
 					personaje->infoNivel.nombre);
-			if (personaje->nivelActual == -3)
+			if (personaje->nivelActual == -3) {
 				personaje->nivelActual = -2;
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Se acaba de completar el último nivel.");
+			}
 
 		} else {
 			personaje->nivelActual = -1;
@@ -158,11 +161,6 @@ int main(void) {
 					"****** EL PERSONAJE HA MUERTO ******");
 			flagReiniciarNivel = false;
 			flagReiniciarJuego = true;
-		}
-
-		if (personaje->nivelActual == -2) {
-			log_in_disk_per(LOG_LEVEL_INFO,
-					"Se acaba de completar el último nivel.");
 		}
 
 		//Se informa al nivel y planificador del objetivo cumplido/muerte y se cierra la conexión con los mismos
@@ -194,12 +192,10 @@ int main(void) {
 			"El personaje %s está ansioso por matar a Koopa!",
 			personaje->nombre);
 
-
-	tipo=0;
+	tipo = 0;
 	while (tipo != PL_TO_P_MATAR_KOOPA) {
 
 		buffer = recv_variable(personaje->sockPlanif, &tipo);
-
 
 		if (tipo == PL_TO_P_MATAR_KOOPA) {
 			//log_in_disk_per(LOG_LEVEL_INFO, "Se venció a Koopa!");
@@ -208,11 +204,11 @@ int main(void) {
 			close(personaje->sockPlanif);
 
 			return EXIT_SUCCESS;
-		}else{
+		} else {
 			//log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
 			log_in_disk_per(LOG_LEVEL_INFO, "Espero por Koopa...");
 
 			sleep(1);
 		}
-}
+	}
 }
