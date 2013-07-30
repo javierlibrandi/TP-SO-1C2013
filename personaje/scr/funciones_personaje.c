@@ -166,10 +166,10 @@ char* determinarProxNivel(Personaje *personaje) {
 	if (nodoNivelProx == NULL ) {
 		//if ((obtenerNodo(personaje.niveles, personaje.nivelActual))->next == NULL){
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"Último nivel para completar el juego. var nivelActual");
+				"Último nivel para completar el juego.");
 		personaje->nivelActual = -3;
-		log_in_disk_per(LOG_LEVEL_INFO, "var nivelActual: %d",
-				personaje->nivelActual);
+		//log_in_disk_per(LOG_LEVEL_INFO, "var nivelActual: %d",
+		//		personaje->nivelActual);
 	}
 
 	return proxNivel;
@@ -546,7 +546,7 @@ void ejecutarTurno(Personaje *personaje) {
 //Si no sabemos las coordenadas del próximo recurso a conseguir preguntamos y luego nos movemos en 1 quantum
 	if (!conocePosicionRecurso(personaje->recursoActual)) {
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"Desconozco la ubicación del recurso que necesito. Solicito coordenadas al %s",
+				"Solicito coordenadas al %s",
 				personaje->infoNivel.nombre);
 		solicitarUbicacionRecurso(personaje);
 	}
@@ -574,7 +574,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 			if (bytes_enviados == -1) {
 				log_in_disk_per(LOG_LEVEL_TRACE,
-						"Hubo un error al enviar el mensaje P_TO_PL_TURNO_CUMPLIDO");
+						"Hubo un error al enviar el mensaje P_TO_PL_RECURSO_CONSEGUIDO");
 				log_in_disk_per(LOG_LEVEL_TRACE,
 						"Planificador cerró la conexión. El proceso personaje va a terminar.");
 				exit(EXIT_FAILURE);
@@ -592,7 +592,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 			if (bytes_enviados1 == -1) {
 				log_in_disk_per(LOG_LEVEL_TRACE,
-						"Hubo un error al enviar el mensaje P_TO_N_BLOQUEO");
+						"Hubo un error al enviar el mensaje P_TO_PL_BLOQUEO");
 				log_in_disk_per(LOG_LEVEL_TRACE,
 						"Nivel cerró la conexión. El proceso personaje va a terminar.");
 				exit(EXIT_FAILURE);
@@ -610,6 +610,7 @@ void ejecutarTurno(Personaje *personaje) {
 
 		if (bytes_enviados2 == -1) {
 			log_in_disk_per(LOG_LEVEL_TRACE,
+
 					"Hubo un error al enviar el mensaje P_TO_PL_TURNO_CUMPLIDO");
 			log_in_disk_per(LOG_LEVEL_TRACE,
 					"Planificador cerró la conexión. El proceso personaje va a terminar.");
@@ -662,8 +663,9 @@ void salirDelNivel(Personaje *personaje) {
 				close(sockPlanif);
 			} else {
 				log_in_disk_per(LOG_LEVEL_ERROR,
-						"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ",
-						tipo);
+					//	"Ok de Obj Cumplido de PLanif: No se recibió un mensaje esperado. Tipo:%d ",
+						"Esperando OK de objetivo cumplido del planificador.");
+						//tipo);
 				sleep(3);
 
 			}
@@ -938,9 +940,9 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 					buffer);
 			//eliminar de la lista de recursos el adjudicado. Apuntar al sgte recurso.
 			personaje->recursoActual = '-';
-			log_in_disk_per(LOG_LEVEL_INFO,
-					"Valor index: %d. Si es -1 deberia salir del nivel",
-					personaje->indexRecurso);
+//			log_in_disk_per(LOG_LEVEL_INFO,
+//					"Valor index: %d. Si es -1 deberia salir del nivel",
+//					personaje->indexRecurso);
 			if (personaje->indexRecurso == -1) {
 				personaje->finNivel = true;
 			}
@@ -964,7 +966,7 @@ bool conocePosicionRecurso(char recursoActual) {
 
 	if (recursoActual == '-') {
 		log_in_disk_per(LOG_LEVEL_INFO,
-				"No tengo asignado un recurso actual. No conozco la posición del próximo recurso.");
+				"Desconozco la posición del próximo recurso.");
 		return false;
 	} else {
 		return true;
