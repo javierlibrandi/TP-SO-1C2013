@@ -21,6 +21,6 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 		t_h_planificador* h_planificador);
 void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
-		t_personaje *pers);
+		t_personaje **pers);
 
 #endif /* ORQUESTADOR_THR_H_ */

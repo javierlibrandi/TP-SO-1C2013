@@ -38,6 +38,7 @@ void *orequestador_thr(void* p) {
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
+	char respuesta_recu_aux[5] = ("");
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;
@@ -129,6 +130,7 @@ void *orequestador_thr(void* p) {
 				switch (tipo) {
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
+
 					log_in_disk_orq(LOG_LEVEL_ERROR,
 							"El personaje termina el nivel y libera los recuros");
 
@@ -143,7 +145,7 @@ void *orequestador_thr(void* p) {
 							h_planificador->desc_nivel, buffer);
 
 					respuesta_recursos = "";
-
+					respuesta_recursos = malloc(sizeof(respuesta_recu_aux));
 					for (j = 0; j < atoi(mensaje[0]); j++) {
 
 						lock_listas_plantaforma_orq(t_h_orq);
@@ -152,7 +154,7 @@ void *orequestador_thr(void* p) {
 
 						buscar_bloqueados_recurso(mensaje[j + 1],
 								h_planificador->desc_nivel,
-								t_h_orq->l_bloquedos, pers);
+								t_h_orq->l_bloquedos, &pers);
 
 						cantidad_Recurso_Aux = (mensaje[j + 1][2] - '0');
 
@@ -162,17 +164,23 @@ void *orequestador_thr(void* p) {
 
 						for (k = 0;
 								(pers != NULL )&& (k < cantidad_Recurso_Aux); k++){
+//								char * respuesta_recu_aux1 = string_from_format("%c;%c",
+//										pers->simbolo,
+//										mensaje[j + 1][0]);
+//								char * respuesta_recu_aux2 = string_from_format(";%c;%c",
+//										pers->simbolo,
+//										mensaje[j + 1][0]);
 
 								if (!strcmp(respuesta_recursos, "")) {
-									string_append(&respuesta_recursos,
-											string_from_format("%c;%c",
-													pers->simbolo,
-													mensaje[j + 1][0]));
+//									respuesta_recu_aux[0]= pers->simbolo;
+//									respuesta_recu_aux[1]= ';';
+//									respuesta_recu_aux[2]= mensaje[j + 1][0];
+									sprintf(respuesta_recu_aux, "%c,%c", pers->simbolo, mensaje[j + 1][0]);
+									strlen(respuesta_recu_aux);
+									string_append(&respuesta_recursos,respuesta_recu_aux);
 								} else {
-									string_append(&respuesta_recursos,
-											string_from_format(";%c;%c",
-													pers->simbolo,
-													mensaje[j + 1][0]));
+									sprintf(respuesta_recu_aux, ";%c,%c", pers->simbolo, mensaje[j + 1][0]);
+									string_append(&respuesta_recursos,respuesta_recu_aux);
 								}
 
 								mover_personaje_lista(pers->sck,
@@ -182,16 +190,14 @@ void *orequestador_thr(void* p) {
 
 								buscar_bloqueados_recurso(mensaje[j + 1],
 										h_planificador->desc_nivel,
-										t_h_orq->l_bloquedos, pers);
+										t_h_orq->l_bloquedos, &pers);
 
 							}
 						un_lock_listas_plataforma_orq(t_h_orq);
 						//j = j + 2; Fin del for de J
 					}
 
-					log_in_disk_orq(LOG_LEVEL_ERROR,
-							"Lo recuros liberados son los siguientes (ej: personaje;recurso) %s",
-							respuesta_recursos);
+
 
 					if (!strcmp(respuesta_recursos, "")) {
 						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS_null,
@@ -199,8 +205,11 @@ void *orequestador_thr(void* p) {
 					} else {
 						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS,
 								respuesta_recursos, &byteEnviados);
+						log_in_disk_orq(LOG_LEVEL_INFO,
+								"Lo recuros Asignados son los siguientes (ej: personaje;recurso) %s",
+								respuesta_recursos);
 					}
-
+					free(respuesta_recursos);
 					break;
 
 				case P_TO_O_PROX_NIVEL:
@@ -370,7 +379,7 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 
 //el 1er parametro de la funcion es un char* de tipo "recurso,cantidad" por ej: "F,3".
 void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
-		t_personaje *pers) {
+		t_personaje **pers) {
 	// recur Viene dado como: "recurso,cantidad"
 
 	char recurso = recur[0];
@@ -383,10 +392,10 @@ void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 		unper = list_get(bloqueados, count);
 
 		if (!strcmp(unper->nivel, nivel) && (unper->prox_recurso == recurso)) {
-			pers = unper;
+			*pers = unper;
 			return;
 		}
 	}
-	pers = NULL;
+	*pers = NULL;
 }
 
