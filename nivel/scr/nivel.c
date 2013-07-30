@@ -72,6 +72,7 @@ int main(void) {
 	int cant_presonajes_conectados = 0;
 	int j;
 	t_lista_personaje * un_per;
+	t_lista_personaje personaje_aux;
 
 	if (B_DIBUJAR) {
 		inicializo_pantalla();
@@ -228,6 +229,14 @@ int main(void) {
 
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
+
+					personaje_aux.id_personaje =
+							nodo_lista_personaje->id_personaje;
+					personaje_aux.nombre_personaje = malloc(
+							strlen(nodo_lista_personaje->nombre_personaje) + 1);
+					strcpy(personaje_aux.nombre_personaje,
+							nodo_lista_personaje->nombre_personaje);
+
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Notificación de objetivo de nivel cumplido de %s",
 							nodo_lista_personaje->nombre_personaje);
@@ -241,8 +250,21 @@ int main(void) {
 							recursos_personaje);
 
 					fd_mensaje(i, OK, "Fin de nivel", &tot_enviados);
+
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se envió OK de fin de nivel al personaje");
+					//La funcion el "elimino_personaje_lista_nivel" ya suma los recursos que se liberaron y tambien actualiza los recursos en pantalla.
+					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
+							ListaItems);
+					elimino_sck_lista(i, t_personaje->readfds);
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Los recursos del nivel: %s despues de liberar el personaje: %s %c son los siguietes: (proximo log)",
+							param_nivel.nom_nivel,
+							personaje_aux.nombre_personaje,
+							personaje_aux.id_personaje);
+
+					imprmir_recursos_nivel(param_nivel.recusos);
 					//Informo al orquestador los recursos liberados
 
 					fd_mensaje(sck_plat, N_TO_O_PERSONAJE_TERMINO_NIVEL,
@@ -250,7 +272,8 @@ int main(void) {
 
 					//Espero la respuesta del orquestador con los recursos que asigno
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Se espera respuesta del orquestador...");
+							"Se espera respuesta del orquestador con los recursos asignados...");
+
 					buffer = recv_variable(sck_plat, &tipo);
 
 					if (!strcmp(buffer, Leido_error)) {
@@ -266,36 +289,23 @@ int main(void) {
 						mensaje = string_split(buffer, ";");
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"Se recibieron los recursos asignados desde el orquestador: %s .",
+								"Se recibieron los siguientes recursos asignados desde el orquestador: %s .",
 								buffer);
 
-						elimino_personaje_lista_nivel(i,
-								t_personaje->l_personajes, ListaItems);
-						//para pruebas
-						imprmir_recursos_nivel(param_nivel.recusos);
-						recurso = busco_recurso(mensaje[0][2],
-								param_nivel.recusos);
-						//para pruebas
-						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
-						elimino_sck_lista(i, t_personaje->readfds);
-						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje. y Restar el recurso de la lista de recursos del nivel.
-
-						for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
+						for (cont_msj = 0; mensaje[cont_msj] != '\0';
+								cont_msj++) {
 
 							log_in_disk_niv(LOG_LEVEL_INFO,
 									"Se recibio el recurso asignado desde el orquestador a un personaje (personaje,Recurso): %s",
 									mensaje[cont_msj]);
 
 							nodo_lista_personaje = busca_personaje_simbolo(
-									mensaje[cont_msj][0], t_personaje->l_personajes,
-									&pos);
-							//para pruebas
-							imprmir_recursos_nivel(param_nivel.recusos);
-							//t_recusos * recu_auxx =
+									mensaje[cont_msj][0],
+									t_personaje->l_personajes, &pos);
+
 							recurso = busco_recurso(mensaje[cont_msj][2],
 									nodo_lista_personaje->l_recursos_optenidos);
-							//para pruebas
-							imprmir_recursos_nivel(param_nivel.recusos);
+
 							if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
 								recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 							} else {
@@ -304,6 +314,24 @@ int main(void) {
 										nodo_lista_personaje->proximo_recurso);
 
 							}
+							//Recursos despues de la asignacion del orquestador:
+							recurso = busco_recurso(mensaje[cont_msj][2],
+									param_nivel.recusos);
+							//Resto el recurso asignado
+							recurso->cantidad--;
+							//Resto el recurso asignado en la pantalla
+							if (B_DIBUJAR) {
+								restarRecurso(ListaItems,
+										nodo_lista_personaje->proximo_recurso->SIMBOLO);
+							}
+
+							log_in_disk_niv(LOG_LEVEL_INFO,
+									"el orquestador asigno el siguiente recurso (%c --> %c) ",
+									nodo_lista_personaje->id_personaje,
+									recurso->SIMBOLO);
+
+							imprmir_recursos_nivel(param_nivel.recusos);
+
 // Comenteado para pruebas
 //							fd_mensaje(nodo_lista_personaje->sokc,
 //									N_TO_P_PROXIMO_RECURSO, buffer,
@@ -315,13 +343,10 @@ int main(void) {
 //							busco_recurso(buffer[0], param_nivel.recusos);
 //							nodo_lista_personaje->proximo_recurso = recurso;
 
-
 						}
-
-//						log_in_disk_niv (LOG_LEVEL_INFO,
-//								"");
-
-						//Recibir del nivel los recursos que se asignaron y a que personajes se le asignaron.
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Los recursos del nivel despues de las asignaciones del orquestador son: (Proximo_Log)");
+						imprmir_recursos_nivel(param_nivel.recusos);
 
 						break;
 
@@ -329,11 +354,11 @@ int main(void) {
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se recibieron los recursos asignados desde el orquestador pero no se desbloqueo ningun personaje");
 
-						elimino_personaje_lista_nivel(i,
-								t_personaje->l_personajes, ListaItems);
+//						elimino_personaje_lista_nivel(i,
+//								t_personaje->l_personajes, ListaItems);
 
 						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
-						elimino_sck_lista(i, t_personaje->readfds);
+//						elimino_sck_lista(i, t_personaje->readfds);
 
 						break;
 					}
@@ -346,6 +371,7 @@ int main(void) {
 
 					//free(recursos_personaje);
 					imprimir_recursos(param_nivel.recusos);
+					free(personaje_aux.nombre_personaje);
 					break;
 
 				case P_TO_N_INICIAR_NIVEL:
@@ -700,8 +726,8 @@ void imprmir_recursos_nivel(t_list * recursos) {
 		recuss = list_get(recursos, j);
 		log_in_disk_niv(LOG_LEVEL_INFO,
 
-		"recursos del nivel (indice--> Recurso-->Cantidad:) %d --> %c --> %d", j,
-				recuss->SIMBOLO, recuss->cantidad);
+		"recursos del nivel (indice--> Recurso-->Cantidad:) %d --> %c --> %d",
+				j, recuss->SIMBOLO, recuss->cantidad);
 	}
 
 }
@@ -720,3 +746,23 @@ void imprimir_recursos(t_list * lista_Recursos) {
 
 }
 
+//t_lista_personaje *busca_personaje_skc(int sck, t_list *personajes,
+//		int *indice_personaje) {
+//	int count;
+//	int total_personajes = list_size(personajes);
+//	t_lista_personaje *per;
+//	log_in_disk_plat(LOG_LEVEL_INFO, "busca_personaje_skc");
+//	for (count = 0; count < total_personajes; count++) {
+//		per = list_get(personajes, count);
+//		if (per->sokc == sck) {
+//
+////			log_in_disk_plat(LOG_LEVEL_INFO, "Retorno el personaje %s",
+////					per->nombre_personaje);
+//
+//			*indice_personaje = count;
+//			return per;
+//		}
+//	}
+//
+//	return NULL ;
+//}
