@@ -278,7 +278,7 @@ int main(void) {
 						//para pruebas
 						//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
 						elimino_sck_lista(i, t_personaje->readfds);
-						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje.
+						//TODO Actualizar los recursos en la pantalla sumando los que libero el personaje. y Restar el recurso de la lista de recursos del nivel.
 
 						for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
 
@@ -287,10 +287,11 @@ int main(void) {
 									mensaje[cont_msj]);
 
 							nodo_lista_personaje = busca_personaje_simbolo(
-									mensaje[cont_msj], t_personaje->l_personajes,
+									mensaje[cont_msj][0], t_personaje->l_personajes,
 									&pos);
 							//para pruebas
 							imprmir_recursos_nivel(param_nivel.recusos);
+							//t_recusos * recu_auxx =
 							recurso = busco_recurso(mensaje[cont_msj][2],
 									nodo_lista_personaje->l_recursos_optenidos);
 							//para pruebas

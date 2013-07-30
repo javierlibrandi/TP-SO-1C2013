@@ -164,17 +164,9 @@ void *orequestador_thr(void* p) {
 
 						for (k = 0;
 								(pers != NULL )&& (k < cantidad_Recurso_Aux); k++){
-//								char * respuesta_recu_aux1 = string_from_format("%c;%c",
-//										pers->simbolo,
-//										mensaje[j + 1][0]);
-//								char * respuesta_recu_aux2 = string_from_format(";%c;%c",
-//										pers->simbolo,
-//										mensaje[j + 1][0]);
 
 								if (!strcmp(respuesta_recursos, "")) {
-//									respuesta_recu_aux[0]= pers->simbolo;
-//									respuesta_recu_aux[1]= ';';
-//									respuesta_recu_aux[2]= mensaje[j + 1][0];
+
 									sprintf(respuesta_recu_aux, "%c,%c", pers->simbolo, mensaje[j + 1][0]);
 									strlen(respuesta_recu_aux);
 									string_append(&respuesta_recursos,respuesta_recu_aux);
@@ -194,10 +186,8 @@ void *orequestador_thr(void* p) {
 
 							}
 						un_lock_listas_plataforma_orq(t_h_orq);
-						//j = j + 2; Fin del for de J
+
 					}
-
-
 
 					if (!strcmp(respuesta_recursos, "")) {
 						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS_null,
@@ -223,8 +213,6 @@ void *orequestador_thr(void* p) {
 							t_h_orq->planificadores, respuesta,
 							h_planificador)) {
 
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
-
 						log_in_disk_orq(LOG_LEVEL_INFO, "%s", respuesta);
 
 						log_in_disk_orq(LOG_LEVEL_INFO,
@@ -246,7 +234,7 @@ void *orequestador_thr(void* p) {
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);
 					}
-
+					pthread_mutex_unlock(t_h_orq->s_lista_plani);
 					break;
 
 				default:
