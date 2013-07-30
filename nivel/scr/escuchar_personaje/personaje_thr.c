@@ -27,8 +27,6 @@ void *escucho_personaje(void *p) {
 	char *buffer = NULL;
 	int tipo, tot_enviados, tipo_mensaje;
 	char **mensaje;
-	ITEM_NIVEL *ListaItems = t_personaje->ListaItemss;
-
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"Ecucho conexiones de los personajes en el puerto %d \t soy el nivel %s ",
 			t_personaje->pueto, t_personaje->nomb_nivel);
@@ -60,12 +58,13 @@ void *escucho_personaje(void *p) {
 			log_in_disk_niv(LOG_LEVEL_TRACE,
 					"Nivel recibe solicitud de inicio en su mapa.");
 
-			personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
+			pthread_mutex_lock(t_personaje->s_personaje_recursos);
+			personaje_pantalla(mensaje[1][0], 1, 1, t_personaje->ListaItemss);
 			add_personaje_lista(mensaje[1][0], mensaje[0], new_sck,
 					t_personaje);
+			pthread_mutex_unlock(t_personaje->s_personaje_recursos);
 			tipo_mensaje = OK;
 
-			//		FD_SET(new_sck, t_personaje->readfds);//agreo un nuevo socket para atender conexiones
 			if (new_sck > t_personaje->sck_personaje) {
 				t_personaje->sck_personaje = new_sck;
 			}
@@ -75,8 +74,13 @@ void *escucho_personaje(void *p) {
 					"Acepto la conexion del personaje en el socket %d  ",
 					new_sck);
 			pthread_mutex_unlock(t_personaje->s_personaje_conectado);
-			//sleep(1); //TODO ver si sacar sleep.
+
 			fd_mensaje(new_sck, tipo_mensaje, "Nivel iniciado.", &tot_enviados);
+
+			log_in_disk_niv(LOG_LEVEL_INFO,
+					"****** El personaje %s inicia el nivel ******",
+					mensaje[0]);
+
 			break;
 		}
 
