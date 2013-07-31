@@ -75,6 +75,7 @@ void *escucho_personaje(void *p) {
 					"Acepto la conexion del personaje en el socket %d  ",
 					new_sck);
 			pthread_mutex_unlock(t_personaje->s_personaje_conectado);
+			usleep(500000);
 
 			fd_mensaje(new_sck, tipo_mensaje, "Nivel iniciado.", &tot_enviados);
 
@@ -100,6 +101,7 @@ void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 
 	list_personajes = malloc(sizeof(t_lista_personaje));
 	list_personajes->id_personaje = id_personaje;
+	list_personajes->nombre_personaje = malloc(strlen(nombre_personaje) + 1);
 	list_personajes->nombre_personaje = nombre_personaje;
 	list_personajes->sokc = i;
 	list_personajes->l_recursos_optenidos = list_create();
