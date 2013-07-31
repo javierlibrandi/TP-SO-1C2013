@@ -394,8 +394,12 @@ int main(void) {
 						BorrarItem(nodo_lista_personaje->id_personaje,
 								ListaItems);
 					}
+					imprmir_recursos_nivel(param_nivel.recusos);
+
 					liberar_recursos(nodo_lista_personaje->l_recursos_optenidos,
 							ListaItems);
+
+					imprmir_recursos_nivel(param_nivel.recusos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO, "Liberó recursos.");
 					//Desbloquear personajes
@@ -684,9 +688,9 @@ void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 			total_recursos);
 	for (i = 0; i < total_recursos; i++) {
 		recurso_aux = (t_recusos *) list_get(recursos_otenido, i);
-		recurso_aux->ref_recuso->cantidad = +recurso_aux->cantidad;
 
-		log_in_disk_niv(LOG_LEVEL_TRACE, "Recurso: %c", recurso_aux->SIMBOLO);
+
+		recurso_aux->ref_recuso->cantidad = recurso_aux->ref_recuso->cantidad + recurso_aux->cantidad;
 
 		//si esta puesta la forma grafica y la tantidad de recursos es mayor o
 		//sumo recurosos a la pantalla
@@ -716,7 +720,7 @@ char* listarRecursosPersonaje(t_list * lista_Recursos) {
 		string_append(&recursos, recursosAux);
 
 	}
-	log_in_disk_niv(LOG_LEVEL_INFO, "Los recursos a devolver son: %s ",
+	log_in_disk_niv(LOG_LEVEL_TRACE, "Los recursos a devolver son: %s ",
 			recursos);
 
 	return recursos;
@@ -729,14 +733,14 @@ t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 	int total_personajes = list_size(l_personajes);
 	t_lista_personaje *per;
 
-	log_in_disk_niv(LOG_LEVEL_INFO, "busca_personaje_simbolo: %c", id);
+	log_in_disk_niv(LOG_LEVEL_TRACE, "busca_personaje_simbolo: %c", id);
 
 	for (count = 0; count < total_personajes; count++) {
 		per = list_get(l_personajes, count);
 
 		if (per->id_personaje == id) {
 
-			log_in_disk_niv(LOG_LEVEL_INFO, "Retorno el personaje %s",
+			log_in_disk_niv(LOG_LEVEL_TRACE, "Retorno el personaje %s",
 					per->nombre_personaje);
 
 			*indice_personaje = count;
@@ -749,32 +753,32 @@ t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 
 void imprmir_recursos_nivel(t_list * recursos) {
 
-//	int cant_elemmm = 0;
-//	t_recusos * recuss;
-//	int j;
-//	cant_elemmm = list_size(recursos);
-//	for (j = 0; j < cant_elemmm; j++) {
-//
-//		recuss = list_get(recursos, j);
-//		log_in_disk_niv(LOG_LEVEL_INFO,
-//
-//		"recursos del nivel (indice--> Recurso-->Cantidad:) %d --> %c --> %d",
-//				j, recuss->SIMBOLO, recuss->cantidad);
-//	}
+	int cant_elemmm = 0;
+	t_recusos * recuss;
+	int j;
+	cant_elemmm = list_size(recursos);
+	for (j = 0; j < cant_elemmm; j++) {
+
+		recuss = list_get(recursos, j);
+		log_in_disk_niv(LOG_LEVEL_TRACE,
+
+		"Recursos del nivel: (indice--> Recurso-->Cantidad:) %d --> %c --> %d",
+				j, recuss->SIMBOLO, recuss->cantidad);
+	}
 
 }
 
 void imprimir_recursos(t_list * lista_Recursos) {
-//	int tot_recusos = list_size(lista_Recursos);
-//	int count;
-//	struct h_t_recusos *recurso;
-//
-//	for (count = 0; count < tot_recusos; count++) {
-//		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
-//		log_in_disk_niv(LOG_LEVEL_INFO,
-//				"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
-//				count, recurso->SIMBOLO, recurso->cantidad);
-//	}
+	int tot_recusos = list_size(lista_Recursos);
+	int count;
+	struct h_t_recusos *recurso;
+
+	for (count = 0; count < tot_recusos; count++) {
+		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
+		log_in_disk_niv(LOG_LEVEL_TRACE,
+				"El recurso está en la posición %d de la lista con el id %c y la cantidad %d",
+				count, recurso->SIMBOLO, recurso->cantidad);
+	}
 
 }
 

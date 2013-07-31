@@ -338,7 +338,7 @@ static void mover_personaje(t_personaje *personaje,
 
 		default:
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"Opción del switch planificador no implementada.");
+					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s", tipo, buffer);
 
 			break;
 		}
