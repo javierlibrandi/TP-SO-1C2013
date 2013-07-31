@@ -182,11 +182,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	if (total_elementos > 0) {
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
 		if (index_aux >= total_elementos) {
-			index_aux= 0;
+			index_aux = 0;
 		}
 
 		//log_in_disk_plan(LOG_LEVEL_INFO, "Indice en la planificacion %d",
-						//		*index);
+		//		*index);
 		aux = total_elementos;
 
 //doy una vuelta completa al buffer y si no encuentro ningun personaje retorno null
@@ -198,8 +198,6 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 					index_aux);
 
 			index_aux++;
-
-
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
 				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
@@ -234,6 +232,13 @@ static void mover_personaje(t_personaje *personaje,
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
 				&byteEnviados);
 
+		if (byteEnviados == -1) {
+			log_in_disk_plan(LOG_LEVEL_ERROR,
+					"El personaje cerró la conexión. Se lo mueve a lista de errores.");
+			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
+					h_planificador->l_errores);
+		}
+
 		buffer = recv_variable(personaje->sck, &tipo);
 
 		switch (tipo) {
@@ -252,8 +257,9 @@ static void mover_personaje(t_personaje *personaje,
 					h_planificador->l_koopa);
 			un_lock_listas_plataforma(h_planificador);
 			personaje_bloqueado = true;
-			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio", &byteEnviados);
-			close (personaje->sck);
+			fd_mensaje(personaje->sck, PL_TO_P_MATAR_KOOPA, "vacio",
+					&byteEnviados);
+			close(personaje->sck);
 			//TODO Ejecutar koopa si las listas estan vacias.
 			//TODO Libera la lista de koopa, o eliminarlos personajes en lugar de moverlos a koopa.
 			break;
@@ -274,7 +280,6 @@ static void mover_personaje(t_personaje *personaje,
 			fd_mensaje(sock_aux, OK, "Me alegro pos vos!!!!", &byteEnviados);
 
 			close(personaje->sck);
-
 
 			break;
 			//TODO AGregar mensaje de que el personaje gano el juego!!
@@ -301,11 +306,40 @@ static void mover_personaje(t_personaje *personaje,
 			personaje_bloqueado = true;
 			personaje->prox_recurso = buffer[0];
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-											"El recurso por el que se bloqueo el personaje %s es %c", personaje->nombre,buffer[0]);
+					"El recurso por el que se bloqueo el personaje %s es %c",
+					personaje->nombre, buffer[0]);
 			un_lock_listas_plataforma(h_planificador);
 
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-								"Recuros cuando %s se salga del bloqueo %c",personaje->nombre,personaje->prox_recurso);
+					"Recuros cuando %s se salga del bloqueo %c",
+					personaje->nombre, personaje->prox_recurso);
+			break;
+
+		case P_TO_PL_SALIR:
+
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"Se recibió un mensaje P_TO_PL_SALIR");
+
+			lock_listas_plantaforma(h_planificador);
+			sock_aux = personaje->sck;
+			eliminar_personaje_termino_nivel(personaje->sck,
+					h_planificador->l_listos);
+
+			imprimir_listas(h_planificador, 'p');
+			personaje_bloqueado = true;
+			un_lock_listas_plataforma(h_planificador);
+
+			fd_mensaje(sock_aux, OK, "Saliste del planificador del nivel",
+					&byteEnviados);
+
+			close(personaje->sck);
+
+			break;
+
+		default:
+			log_in_disk_plan(LOG_LEVEL_TRACE,
+					"Opción del switch planificador no implementada.");
+
 			break;
 		}
 
@@ -319,8 +353,6 @@ static void mover_personaje(t_personaje *personaje,
 			un_lock_listas_plataforma(h_planificador);
 			elimino_sck_lista(personaje->sck, h_planificador->readfds); //creo que este el esl socket que tengo que eliminar
 
-
-
 		}
 		free(buffer);
 		sleep(h_planificador->segundos_espera);
@@ -332,7 +364,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 	t_personaje *personaje;
 	int indice_personaje;
 
-	log_in_disk_plan(LOG_LEVEL_INFO, "eliminar_personaje_termino_nivel");
+	log_in_disk_plan(LOG_LEVEL_TRACE, "eliminar_personaje_termino_nivel");
 
 	busca_personaje_skc(sck, l_listos, &indice_personaje);
 
@@ -342,7 +374,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 }
 
 void liberar_memoria_personaje(t_personaje *personaje) {
-	log_in_disk_plan(LOG_LEVEL_INFO, "liberar_memoria_personaje personaje %s",
+	log_in_disk_plan(LOG_LEVEL_TRACE, "liberar_memoria_personaje personaje %s",
 			personaje->nombre);
 	free(personaje->nivel);
 	free(personaje->nombre);
@@ -368,5 +400,4 @@ void * hilo_planificador(void * p) {
 		}
 	}
 }
-
 
