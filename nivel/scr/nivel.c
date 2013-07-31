@@ -394,11 +394,16 @@ int main(void) {
 					liberar_recursos(nodo_lista_personaje->l_recursos_optenidos,
 							ListaItems);
 
+					log_in_disk_niv(LOG_LEVEL_INFO, "Liberó recursos.");
+					//Desbloquear personajes
+
 					nodo_lista_personaje->l_recursos_optenidos = list_create();
 
-					personaje_pantalla(mensaje[1][0], 1, 1, &ListaItems);
-					add_personaje_lista(mensaje[1][0], mensaje[0], i,
+					personaje_pantalla(mensaje[0][0], 1, 1, &ListaItems);
+
+					add_personaje_lista(mensaje[0][0], mensaje[0], i,
 							t_personaje);
+
 					pthread_mutex_unlock(&s_personaje_recursos);
 					tipo_mensaje = OK;
 
@@ -638,11 +643,15 @@ void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 	t_recusos *recurso_aux;
 
 	total_recursos = list_size(recursos_otenido);
+	log_in_disk_niv(LOG_LEVEL_TRACE, "Total recursos obtenidos: %d", total_recursos);
 	for (i = 0; i < total_recursos; i++) {
-		recurso_aux = (t_recusos *) list_get(recursos_otenido, i);
+		recurso_aux =
+				(t_recusos *) list_get(recursos_otenido, i);
 		recurso_aux->ref_recuso->cantidad = +recurso_aux->cantidad;
 
-		//si esta puesta la forma grafiaca y la tantidad de recursos es mayor o
+		log_in_disk_niv(LOG_LEVEL_TRACE, "Recurso: %c", recurso_aux->SIMBOLO);
+
+		//si esta puesta la forma grafica y la tantidad de recursos es mayor o
 		//sumo recurosos a la pantalla
 		while (B_DIBUJAR && recurso_aux->cantidad--) {
 			sumarRecurso(item, recurso_aux->SIMBOLO);

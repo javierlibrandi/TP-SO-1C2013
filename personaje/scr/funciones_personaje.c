@@ -636,7 +636,8 @@ void salirDelNivel(Personaje *personaje) {
 
 	if (vidas <= 0) {
 
-		fd_mensaje(sockPlanif, P_TO_PL_SALIR, "He perdido todas las vidas. Salgo del planificador.",
+		fd_mensaje(sockPlanif, P_TO_PL_SALIR,
+				"He perdido todas las vidas. Salgo del planificador.",
 				&bytes_enviados1);
 
 		if (bytes_enviados1 == -1) {
@@ -822,6 +823,8 @@ void reiniciarNivel(Personaje *personaje) {
 
 	char mensaje[max_len];
 	int bytes_enviados;
+	char* buffer;
+	int tipo;
 
 //Envío mensaje a nivel del tipo P_TO_N_REINICIAR_NIVEL. "simbolo"
 	sprintf(mensaje, "%c", personaje->simbolo);
@@ -839,6 +842,21 @@ void reiniciarNivel(Personaje *personaje) {
 		log_in_disk_per(LOG_LEVEL_ERROR,
 				"Nivel cerró la conexión. El proceso personaje va a terminar.");
 		exit(EXIT_FAILURE);
+	}
+
+	log_in_disk_per(LOG_LEVEL_INFO, "Se espera la confirmación del nivel.");
+	tipo = 0;
+	while (tipo != OK) {
+
+		buffer = recv_variable(personaje->sockNivel, &tipo);
+
+		if (tipo == OK) {
+			log_in_disk_per(LOG_LEVEL_INFO,"Respuesta del nivel:%s", buffer);
+		} else {
+			//log_in_disk_per(LOG_LEVEL_INFO, "No se recibió un mensaje esperado. Tipo:%d. Buffer:%s", tipo, buffer);
+			log_in_disk_per(LOG_LEVEL_INFO, "Ok de reinicio. No se recibió un mensaje esperado.");
+			sleep(1);
+		}
 	}
 
 	reiniciarListaRecursos(personaje);
