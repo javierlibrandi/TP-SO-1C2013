@@ -105,7 +105,7 @@ int main(void) {
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	t_personaje->ListaItemss = &ListaItems;
 	struct timeval tv;
-	tv.tv_sec = 2;
+	tv.tv_sec = 10;
 	tv.tv_usec = 50;
 
 	pthread_mutex_lock(&s_personaje_conectado);
@@ -169,10 +169,10 @@ int main(void) {
 							nodo_lista_personaje->nombre_personaje,
 							mensaje[0][0]);
 					//para pruebas
-					imprmir_recursos_nivel(param_nivel.recusos);
+					//imprmir_recursos_nivel(param_nivel.recusos);
 					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
 					//para pruebas
-					imprmir_recursos_nivel(param_nivel.recusos);
+					//imprmir_recursos_nivel(param_nivel.recusos);
 					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
 					pthread_mutex_unlock(&s_personaje_recursos);
 
@@ -332,7 +332,7 @@ int main(void) {
 									nodo_lista_personaje->id_personaje,
 									recurso->SIMBOLO);
 
-							imprmir_recursos_nivel(param_nivel.recusos);
+							//imprmir_recursos_nivel(param_nivel.recusos);
 
 // Comenteado para pruebas *** //
 //							fd_mensaje(nodo_lista_personaje->sokc,
@@ -749,32 +749,32 @@ t_lista_personaje *busca_personaje_simbolo(char id, t_list *l_personajes,
 
 void imprmir_recursos_nivel(t_list * recursos) {
 
-	int cant_elemmm = 0;
-	t_recusos * recuss;
-	int j;
-	cant_elemmm = list_size(recursos);
-	for (j = 0; j < cant_elemmm; j++) {
-
-		recuss = list_get(recursos, j);
-		log_in_disk_niv(LOG_LEVEL_INFO,
-
-		"recursos del nivel (indice--> Recurso-->Cantidad:) %d --> %c --> %d",
-				j, recuss->SIMBOLO, recuss->cantidad);
-	}
+//	int cant_elemmm = 0;
+//	t_recusos * recuss;
+//	int j;
+//	cant_elemmm = list_size(recursos);
+//	for (j = 0; j < cant_elemmm; j++) {
+//
+//		recuss = list_get(recursos, j);
+//		log_in_disk_niv(LOG_LEVEL_INFO,
+//
+//		"recursos del nivel (indice--> Recurso-->Cantidad:) %d --> %c --> %d",
+//				j, recuss->SIMBOLO, recuss->cantidad);
+//	}
 
 }
 
 void imprimir_recursos(t_list * lista_Recursos) {
-	int tot_recusos = list_size(lista_Recursos);
-	int count;
-	struct h_t_recusos *recurso;
-
-	for (count = 0; count < tot_recusos; count++) {
-		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
-		log_in_disk_niv(LOG_LEVEL_INFO,
-				"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
-				count, recurso->SIMBOLO, recurso->cantidad);
-	}
+//	int tot_recusos = list_size(lista_Recursos);
+//	int count;
+//	struct h_t_recusos *recurso;
+//
+//	for (count = 0; count < tot_recusos; count++) {
+//		recurso = (struct h_t_recusos *) list_get(lista_Recursos, count);
+//		log_in_disk_niv(LOG_LEVEL_INFO,
+//				"El recuros esta en la posicion %d de la lista con el id %c  y la cantidad %d",
+//				count, recurso->SIMBOLO, recurso->cantidad);
+//	}
 
 }
 

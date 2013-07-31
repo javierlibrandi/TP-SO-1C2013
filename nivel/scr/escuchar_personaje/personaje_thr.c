@@ -63,6 +63,7 @@ void *escucho_personaje(void *p) {
 			add_personaje_lista(mensaje[1][0], mensaje[0], new_sck,
 					t_personaje);
 			pthread_mutex_unlock(t_personaje->s_personaje_recursos);
+
 			tipo_mensaje = OK;
 
 			if (new_sck > t_personaje->sck_personaje) {
