@@ -338,7 +338,7 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 		t_h_planificador ** planificador) {
 
 	log_in_disk_orq(LOG_LEVEL_TRACE,
-			"busco si el socket del error es del nivel de algun planificador.: ");
+			"busco planificador por socket.: ");
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;
@@ -349,7 +349,7 @@ bool busca_planificador_socket(int sock, t_list *list_plataforma,
 		if (h_planificador->sck_planificador == sock) {
 
 			log_in_disk_orq(LOG_LEVEL_TRACE,
-					"El error es del socket del planificador del nivel %s",
+					"Planificador del nivel: %s Encontrado.",
 					h_planificador->desc_nivel);
 			*planificador = h_planificador;
 			return true;

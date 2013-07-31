@@ -827,7 +827,7 @@ void reiniciarNivel(Personaje *personaje) {
 	int tipo;
 
 //Envío mensaje a nivel del tipo P_TO_N_REINICIAR_NIVEL. "simbolo"
-	sprintf(mensaje, "%c", personaje->simbolo);
+	sprintf(mensaje, "%c;%s", personaje->simbolo, personaje->nombre);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "****** REINICIANDO %s ******",
 			personaje->infoNivel.nombre);
