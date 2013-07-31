@@ -30,6 +30,9 @@
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 #include <pthread.h>
 
+void desbloquear_Personajes(char * recursos_personaje, char *buffer, int tipo,
+		t_h_personaje * t_personaje, struct h_t_param_nivel param_nivel);
+
 t_lista_personaje *busco_personaje(int sck, t_list *l_personajes, int *i);
 void add_recurso_personaje(t_list *l_recursos_optenidos,
 		struct h_t_recusos *recurso_actual);
@@ -267,6 +270,9 @@ int main(void) {
 					imprmir_recursos_nivel(param_nivel.recusos);
 					//Informo al orquestador los recursos liberados
 
+//					desbloquear_Personajes(recursos_personaje, buffer, tipo,
+//							t_personaje, param_nivel);
+
 					fd_mensaje(sck_plat, N_TO_O_PERSONAJE_TERMINO_NIVEL,
 							recursos_personaje, &tot_enviados); // Respuesta_PErsonaje = "cantidad_tipos_recurso;Recurso1,Cantidad1;Recurso2,Cantidad2"
 
@@ -391,8 +397,8 @@ int main(void) {
 							t_personaje->l_personajes, &pos);
 
 					if (B_DIBUJAR) {
-						BorrarItem(nodo_lista_personaje->id_personaje,
-								ListaItems);
+						BorrarItem(&ListaItems,
+								nodo_lista_personaje->id_personaje);
 					}
 					liberar_recursos(nodo_lista_personaje->l_recursos_optenidos,
 							ListaItems);
@@ -527,8 +533,8 @@ int main(void) {
 							t_personaje->l_personajes, &pos);
 
 					if (B_DIBUJAR) {
-						BorrarItem(nodo_lista_personaje->id_personaje,
-								ListaItems);
+						BorrarItem(&ListaItems,
+								nodo_lista_personaje->id_personaje);
 					}
 					pthread_mutex_lock(&s_personaje_recursos);
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
@@ -582,6 +588,122 @@ int main(void) {
 	signal(SIGTERM, sig_handler);
 
 	return EXIT_SUCCESS;
+
+}
+
+void desbloquear_Personajes(char * recursos_personaje, char *buffer, int tipo,
+		t_h_personaje * t_personaje, struct h_t_param_nivel param_nivel) {
+
+	int cont_msj, tot_enviados, pos;
+	int sck_plat = t_personaje->sck_personaje;
+	char ** mensaje;
+	t_lista_personaje * nodo_lista_personaje;
+	struct h_t_recusos *recurso;
+
+	fd_mensaje(sck_plat, N_TO_O_PERSONAJE_TERMINO_NIVEL, recursos_personaje,
+			&tot_enviados); // Respuesta_PErsonaje = "cantidad_tipos_recurso;Recurso1,Cantidad1;Recurso2,Cantidad2"
+
+	//Espero la respuesta del orquestador con los recursos que asigno
+	log_in_disk_niv(LOG_LEVEL_INFO,
+			"Se espera respuesta del orquestador con los recursos asignados...");
+
+	buffer = recv_variable(sck_plat, &tipo);
+
+	if (!strcmp(buffer, Leido_error)) {
+		log_in_disk_niv(LOG_LEVEL_ERROR,
+				"Hubo un error en la lectura del socket de la plataforma.");
+
+		exit(EXIT_FAILURE);
+	}
+
+	switch (tipo) {
+
+	case O_TO_N_ASIGNAR_RECURSOS:
+		mensaje = string_split(buffer, ";");
+
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"Se recibieron los siguientes recursos asignados desde el orquestador: %s .",
+				buffer);
+
+		for (cont_msj = 0; mensaje[cont_msj] != '\0'; cont_msj++) {
+
+			log_in_disk_niv(LOG_LEVEL_INFO,
+					"Se recibio el recurso asignado desde el orquestador a un personaje (personaje,Recurso): %s",
+					mensaje[cont_msj]);
+			pthread_mutex_lock(&s_personaje_recursos);
+			nodo_lista_personaje = busca_personaje_simbolo(mensaje[cont_msj][0],
+					t_personaje->l_personajes, &pos);
+
+			recurso = busco_recurso(mensaje[cont_msj][2],
+					nodo_lista_personaje->l_recursos_optenidos);
+
+			if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
+				recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
+			} else {
+				add_recurso_personaje(
+						nodo_lista_personaje->l_recursos_optenidos,
+						nodo_lista_personaje->proximo_recurso);
+
+			}
+			//TODO MArcar el personaje para que no se tenga en cuenta en el desbloqueo por que ya no tiene proximo recurso. (Hasta que vuevla a pedir uno).
+			//Recursos despues de la asignacion del orquestador:
+			recurso = busco_recurso(mensaje[cont_msj][2], param_nivel.recusos);
+			//Resto el recurso asignado
+			recurso->cantidad--;
+			//Resto el recurso asignado en la pantalla
+			if (B_DIBUJAR) {
+				restarRecurso(ListaItems,
+						nodo_lista_personaje->proximo_recurso->SIMBOLO);
+			}
+			pthread_mutex_unlock(&s_personaje_recursos);
+
+			log_in_disk_niv(LOG_LEVEL_INFO,
+					"el orquestador asigno el siguiente recurso (%c --> %c) ",
+					nodo_lista_personaje->id_personaje, recurso->SIMBOLO);
+
+			//imprmir_recursos_nivel(param_nivel.recusos);
+
+// Comenteado para pruebas *** //
+//							fd_mensaje(nodo_lista_personaje->sokc,
+//									N_TO_P_PROXIMO_RECURSO, buffer,
+//									&tot_enviados);
+//
+//							buffer = recv_variable(nodo_lista_personaje->sokc,
+//									&tipo);
+//
+//							busco_recurso(buffer[0], param_nivel.recusos);
+//							nodo_lista_personaje->proximo_recurso = recurso;
+
+		}
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"Los recursos del nivel despues de las asignaciones del orquestador son: (Proximo_Log)");
+		imprmir_recursos_nivel(param_nivel.recusos);
+
+		break;
+
+	case O_TO_N_ASIGNAR_RECURSOS_null:
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"Se recibieron los recursos asignados desde el orquestador pero no se desbloqueo ningun personaje");
+
+//						elimino_personaje_lista_nivel(i,
+//								t_personaje->l_personajes, ListaItems);
+
+		//liberar_memoria(nodo_lista_personaje); // ya se libera la memoria adentro de la funcion anterior (elimino_personaje_lista_nivel)
+//						elimino_sck_lista(i, t_personaje->readfds);
+
+		break;
+	}
+
+	if (B_DIBUJAR) {
+		pthread_mutex_lock(&s_personaje_recursos);
+		BorrarItem(&ListaItems, nodo_lista_personaje->id_personaje);
+		nivel_gui_dibujar(ListaItems);
+		pthread_mutex_unlock(&s_personaje_recursos);
+	}
+
+	//free(recursos_personaje);
+	imprimir_recursos(param_nivel.recusos);
+	//free(personaje_aux.nombre_personaje);
 
 }
 
