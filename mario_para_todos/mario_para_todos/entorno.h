@@ -24,7 +24,7 @@
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
 #define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR true
+#define B_DIBUJAR false
 
 
 #define LOG_NIVEL LOG_LEVEL_TRACE

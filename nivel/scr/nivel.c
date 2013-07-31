@@ -108,6 +108,7 @@ int main(void) {
 	t_personaje->sck_personaje = sck_plat;
 	t_personaje->s_personaje_conectado = &s_personaje_conectado;
 	t_personaje->ListaItemss = &ListaItems;
+	t_personaje->sck_orquestador = sck_plat;
 	struct timeval tv;
 	tv.tv_sec = 10;
 	tv.tv_usec = 50;
@@ -122,9 +123,10 @@ int main(void) {
 	//setteo las estructura para pasar al hilo
 	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
+
 	//creo el hilo para la deteccion de interbloqueo
-	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-	//	(void*) &h_interbloqueo);
+//	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+//		(void*) &h_interbloqueo);
 	imprmir_recursos_nivel(param_nivel.recusos);
 
 	for (;;) {

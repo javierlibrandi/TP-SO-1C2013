@@ -30,28 +30,34 @@ int marchar_personaje_c_recursos(t_list *personajes);
 int cantidad_interbloquedos(t_list *personajes, char **personaje_bloquedos);
 
 void *detecto_interbloque(void *p) {
-	int sck_orq;
+	//int sck_orq;
 	t_h_interbloqueo h_interbloqueo;
 	t_h_personaje t_personaje;
 	struct h_t_param_nivel param_nivel;
-	char **personaje_bloquedos = NULL;
-
+	char *personaje_bloquedos = NULL;
+	int tot_enviados;
 	memcpy(&h_interbloqueo, (t_h_interbloqueo*) p, sizeof(t_h_interbloqueo));
 	memcpy(&t_personaje, &h_interbloqueo.t_personaje, sizeof(t_h_personaje));
 	memcpy(&param_nivel, &h_interbloqueo.param_nivel,
 			sizeof(struct h_t_param_nivel));
 
 	//conecxion con el orquestador, solo si tengo el valor Recovery = 1
-	if (param_nivel.Recovery) {
-		sck_orq = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
-				param_nivel.nom_nivel, param_nivel.PUERTO);
-	}
+//	if (param_nivel.Recovery) {
+//		sck_orq = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
+//				param_nivel.nom_nivel, param_nivel.PUERTO);
+//	}
 	log_in_disk_niv(LOG_LEVEL_INFO,
-			"Hilo pra la deteccion de interbloqueo del nivel %s levantado",
+			"####INTERBLOQUEO	Hilo pra la deteccion de interbloqueo del nivel %s levantado",
 			param_nivel.nom_nivel);
 	for (;;) {
+
 		usleep(param_nivel.TiempoChequeoDeadlock);
 		pthread_mutex_lock(t_personaje.s_personaje_recursos);
+
+		log_in_disk_niv(LOG_LEVEL_INFO,
+				"#######INTER_BLOQUEO	Comienza el algoritmo de deteccion de interbloqueo del nivel: %s	#######INTER_BLOQUEO",
+				param_nivel.nom_nivel);
+
 		if (marcar_personajes_s_recursos(t_personaje.l_personajes) != 0) { // paso 1
 			otnego_vector_diponibles(param_nivel.recusos, NULL ); //paso 2
 
@@ -61,16 +67,28 @@ void *detecto_interbloque(void *p) {
 						t_personaje.l_personajes); //paso 4
 			}
 		}
-		pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+
 		if (cantidad_interbloquedos(t_personaje.l_personajes,
-				personaje_bloquedos) != 0) {
-			//TODO imprimo lista de interbloquedos
+				&personaje_bloquedos) != 0) {
+
+			log_in_disk_niv(LOG_LEVEL_INFO,
+					"#######################INTER_BLOQUEO  SE DETECTO UN INTERBLOQUEO EN EL NIVEL: %s. Y LOS PERSONAJES QUE PARTICIPAN DEL MISMO SON: %s.  #######INTER_BLOQUEO",
+					param_nivel.nom_nivel, personaje_bloquedos);
+
 			if (param_nivel.Recovery) {
 				//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
+				fd_mensaje(t_personaje.sck_orquestador, N_TO_O_RECOVERY,
+						personaje_bloquedos, &tot_enviados);
+				//REcibir la victima, e iniciar el desbloqueo informando al orquestador.
 			}
-			free(personaje_bloquedos);
-			personaje_bloquedos = NULL;
+			pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+
+		} else {
+			pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 		}
+
+		//free(personaje_bloquedos);
+		personaje_bloquedos = NULL;
 	}
 
 	return NULL ;
@@ -86,11 +104,11 @@ int marcar_personajes_s_recursos(t_list *personajes) {
 	t_lista_personaje *l_personaje;
 
 	log_in_disk_niv(LOG_LEVEL_INFO,
-			"marcar_personajes_s_recursos total de personajes %d",
+			"#######INTER_BLOQUEO  marcar_personajes_s_recursos total de personajes %d   #######INTER_BLOQUEO",
 			tot_personajes);
 
 	log_in_disk_niv(LOG_LEVEL_DEBUG,
-			"==================================================================================\n1.- se marca cada proceso que tenga una fila de la matriz de Asiganacion completamente a cerro\n==================================================================================\n");
+			"#######INTER_BLOQUEO#####	PASO 1.- se marca cada proceso que tenga una fila de la matriz de Asiganacion completamente a cero.###########INTER_BLOQUEO");
 
 	for (cont = 0; cont < tot_personajes; cont++) {
 		l_personaje = (t_lista_personaje*) list_get(personajes, cont);
@@ -98,7 +116,7 @@ int marcar_personajes_s_recursos(t_list *personajes) {
 		if (list_is_empty(l_personaje->l_recursos_optenidos)) {
 			l_personaje->bloquedo = false;
 			log_in_disk_niv(LOG_LEVEL_TRACE,
-					"El personaje %c no es candidato para el interbloqueo",
+					"##########INTER_BLOQUEO  El personaje %c no es candidato para el interbloqueo  ##########INTER_BLOQUEO",
 					l_personaje->id_personaje);
 
 		} else {
@@ -106,7 +124,7 @@ int marcar_personajes_s_recursos(t_list *personajes) {
 			l_personaje->recusos_sumados = false;
 
 			log_in_disk_niv(LOG_LEVEL_TRACE,
-					"El personaje %c es candidato para el interbloqueo",
+					"##########INTER_BLOQUEO    El personaje %c es candidato para el interbloqueo  ##########INTER_BLOQUEO  ",
 					l_personaje->id_personaje);
 
 		}
@@ -152,8 +170,9 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 						char id = l_recursos_personaje->SIMBOLO;
 						aux_recurso = busco_recurso(id, recursos); // bueco en la lista de recurso por el ID del recuros del personaje
 
-						aux_recurso->recursos_disponibles +=
-								l_recursos_personaje->cantidad; //suma la cantidad de recuros que tiene el personaje
+						aux_recurso->recursos_disponibles =
+								aux_recurso->recursos_disponibles
+										+ l_recursos_personaje->cantidad; //suma la cantidad de recuros que tiene el personaje
 						l_personaje->recusos_sumados = true; //lo pongo en true para no sumar 2 vesces los recursos de un personaje
 					}
 				}
@@ -178,7 +197,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 			tot_personajes);
 
 	log_in_disk_niv(LOG_LEVEL_DEBUG,
-			"==================================================================================\n3.- marco los procesos que pueden que pueden contunuar con sus peticiones\n==================================================================================\n");
+			"################INTER_BLOQUEO---PASO3.- marco los procesos que pueden que pueden contunuar con sus peticiones  ########################INTER_BLOQUE");
 
 	for (cont = 0; cont < tot_personajes; cont++) {
 		l_personaje = (t_lista_personaje*) list_get(personajes, cont);
@@ -213,7 +232,8 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 
 //devuevo la cantida de personaje loquedos
 int cantidad_interbloquedos(t_list *personajes, char **personajes_bloquedos) {
-	int cont_personajes, tot_perosnajes = list_size(personajes);
+	int cont_personajes;
+	int tot_perosnajes = list_size(personajes);
 	int tot_interbloquedos = 0;
 	t_lista_personaje *l_personaje;
 
@@ -240,39 +260,24 @@ int cantidad_interbloquedos(t_list *personajes, char **personajes_bloquedos) {
  */
 struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
 	int i, tot_elementos;
-	struct h_t_recusos *recurso = NULL;
+	//struct h_t_recusos *recurso = NULL;
 	struct h_t_recusos *recurso_aux = NULL;
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "Busco el recurso %c", id);
 
 	tot_elementos = list_size(recusos);
-	log_in_disk_niv(LOG_LEVEL_INFO, "list_size(recusos): %d", tot_elementos);
-
-	for (i = 0; i < tot_elementos; i++) {
-		recurso_aux = (struct h_t_recusos*) list_get(recusos, i);
-		log_in_disk_niv(LOG_LEVEL_INFO, "list_get(recusos, %d) = %c", i, recurso_aux->SIMBOLO);
-
-		if (id == recurso_aux->SIMBOLO) {
-			recurso = recurso_aux;
-			log_in_disk_niv(LOG_LEVEL_INFO, "entro en if, Id:%c Recurso:%c",id, recurso->SIMBOLO);
-
-		}
-	}
 
 	for (i = 0; i < tot_elementos; i++) {
 		recurso_aux = (struct h_t_recusos*) list_get(recusos, i);
 
-		log_in_disk_niv(LOG_LEVEL_INFO, "después de list_get(recusos_posicion, %d) el recurso es:%c .", i, recurso_aux->SIMBOLO);
-
-		log_in_disk_niv(LOG_LEVEL_INFO, "después de list_get(recusos, %d)= %c", i, recurso_aux->SIMBOLO);
-
-
 		if (id == recurso_aux->SIMBOLO) {
-			recurso = recurso_aux;
-			log_in_disk_niv(LOG_LEVEL_INFO, "entro en if, posicion: %d y recurso: %c, recurso buscado: %c",i, recurso_aux->SIMBOLO, id);
+			log_in_disk_niv(LOG_LEVEL_INFO,
+					"encuentro el recurso buscado: %c, en la posicion %d de la lista de recursos",
+					recurso_aux->SIMBOLO, i);
 
+			return recurso_aux;
 		}
 	}
 
-	return recurso;
+	return NULL ;
 }
