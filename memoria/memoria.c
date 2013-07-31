@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <commons/collections/list.h>
 #include "memoria.h"
 #include <commons/string.h>
@@ -10,9 +11,11 @@ int tamanioTotal;
 
 t_memoria crear_memoria(int tamanio) {
 	t_particion* particion;
-	t_memoria segmento[tamanio];
+	t_memoria segmento;
 
 	tamanioTotal = tamanio;
+
+	segmento = (char*)(malloc(tamanio));
 
 	// Crea el segmento de memoria a particionar
 
@@ -31,7 +34,7 @@ t_memoria crear_memoria(int tamanio) {
 	particion = malloc(sizeof(t_particion));
 
 	printf("Inicializo la partición\n");
-	particion->id = ' ';
+	particion->id = '\0';
 	particion->inicio = 0;
 	particion->tamanio = tamanio;
 	particion->libre = true;
@@ -47,6 +50,8 @@ t_memoria crear_memoria(int tamanio) {
 			list_particiones->elements_count);
 	particiones(segmento);
 
+	printf("%p", segmento);
+
 	return segmento;
 }
 
@@ -59,16 +64,20 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	 no encontrar una particion libre lo suficientemente grande para
 	 almacenar la solicitud. */
 
-	int i, indexParticionMayor, total, index;
+	int i, indexParticionMayor, total;
 	t_particion* particionAux;
 	t_particion particionMayor;
 	t_particion* particion;
 	t_particion* particionRestante;
 	t_particion* ptrAEliminar;
 
+	printf("%p", segmento);
+
 	//particionAux = malloc(sizeof(t_particion)); //no hace falta recive un valor ya allocado en la lista
 	particion = malloc(sizeof(t_particion));
 	particionRestante = malloc(sizeof(t_particion));
+
+	printf("%p", segmento);
 
 	//Inicializo particionMayor con un tamaño de 0 para después saber si encontré otra mayor, o ninguna disponible
 	particionMayor.tamanio = 0;
@@ -89,6 +98,8 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 
 	printf(
 			"Reviso la lista a ver si la nueva partición entra, o si está duplicada\n");
+
+	printf("%p", segmento);
 
 	particiones(segmento);
 
@@ -139,7 +150,7 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	particiones(segmento);
 
 	//Inicializo la particion
-	printf("Voy a inicializar la partición para agregar a la lista\n");
+	printf("Voy a inicializar la partición %c para agregar a la lista\n", id);
 	particion->id = id;
 	particion->inicio = particionMayor.inicio;
 	particion->tamanio = tamanio;
@@ -148,9 +159,7 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	printf("Inicialicé la partición para agregar a la lista\n");
 
 	//Agrego la partición a la lista
-	//TODO: ver esto
 	list_add_in_index(list_particiones, indexParticionMayor, particion);
-	particiones(segmento);
 	printf("Agregué la partición a la lista\n");
 	printf("Elements count: %d\n", list_particiones->elements_count);
 
@@ -160,23 +169,21 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 
 	//Inicializo la particion restante
 	printf("Voy a inicializar la partición restante para agregar a la lista\n");
-	particionRestante->id = ' ';
+	particionRestante->id = '\0';
 	particionRestante->inicio = particion->inicio + particion->tamanio;
 	particionRestante->tamanio = particionMayor.tamanio - particion->tamanio;
-	//particionRestante->dato = particionMayor.dato + particion->tamanio - 1;
 	particionRestante->dato = &segmento[particion->inicio + particion->tamanio];
 	particionRestante->libre = true;
 	printf("Inicialicé la partición restante para agregar a la lista\n");
 
 	//Agrego la partición restante a la lista
 	list_add_in_index(list_particiones, indexParticionMayor, particionRestante);
-	particiones(segmento);
 	printf("Agregué la partición restante a la lista\n");
 	printf("Elements count: %d\n", list_particiones->elements_count);
 
 	//Grabo el dato en memoria la particion restante
-	printf("Grabo el dato en memoria la particion restante\n");
-	memcpy(particionRestante->dato, contenido, particionRestante->tamanio);
+	//printf("Grabo el dato en memoria la particion restante\n");
+	//memcpy(particionRestante->dato, contenido, particionRestante->tamanio);
 
 	//Imprimo las particiones para chequear
 	printf("\n");
@@ -206,7 +213,7 @@ int eliminar_particion(t_memoria segmento, char id) {
 //			free(particionEliminada->dato);
 //			free(particionEliminada);
 			ptrAEliminar = list_get(list_particiones, 0);
-			ptrAEliminar->id = ' ';
+			ptrAEliminar->id = '\0';
 			ptrAEliminar->libre = true;
 			list_replace(list_particiones, 0, ptrAEliminar);
 			printf("Se eliminó la partición %c de la posición 0, usando eliminar_particion\n", id);
@@ -229,7 +236,7 @@ int eliminar_particion(t_memoria segmento, char id) {
 //			free(particionEliminada->dato);
 //			free(particionEliminada);
 			ptrAEliminar = list_get(list_particiones, index);
-			ptrAEliminar->id = ' ';
+			ptrAEliminar->id = '\0';
 			ptrAEliminar->libre = true;
 			list_replace(list_particiones, index, ptrAEliminar);
 			printf("Se eliminó la partición %c de la posición %d, usando eliminar_particion\n", id, index);
@@ -254,31 +261,31 @@ t_list* particiones(t_memoria segmento) {
 	/* Esta funcion devuelve una lista en el formato t_list de las
 	 commonslibrary con la siguiente descripcion por cada particion */
 	t_particion* particionAux;
-	t_list* list_segmento;
-	int i, total;
+	t_list* list_segmento, *list_auxiliar;
+	int i, n, totalLista;
 
-	i = 0;
-
+	list_auxiliar = list_create();
 	list_segmento = list_create();
 
 	printf("Segmento de memoria:\n");
 	printf("---------------------------------------\n");
 
+	totalLista = list_particiones->elements_count;
 
-//TODO: ordenar particiones
-
-	total = list_particiones->elements_count;
-
-	for (i = (total-1); i >= 0; i--) {
+	for (i = (totalLista-1); i >= 0; i--) {
 		particionAux = list_get(list_particiones, i);
-		list_add(list_segmento, particionAux);
+		list_add(list_auxiliar, particionAux);
 	}
 
-	total = list_segmento->elements_count;
+	list_segmento = list_take(list_auxiliar, totalLista);
 
-	for (i = 0; i < total; i++) {
+	totalLista = list_segmento->elements_count;
+
+	printf("%d", totalLista);
+
+	for (i = 0; i < totalLista; i++) {
 		particionAux = list_get(list_segmento, i);
-		if (particionAux->id == ' ') {
+		if (particionAux->libre == true) {
 			printf("VACIO[%d:%d:%d]\n", particionAux->inicio,
 					(particionAux->inicio + particionAux->tamanio - 1),
 					particionAux->tamanio);
@@ -286,8 +293,8 @@ t_list* particiones(t_memoria segmento) {
 			printf("%c[%d:%d:%d]:", particionAux->id, particionAux->inicio,
 					(particionAux->inicio + particionAux->tamanio - 1),
 					particionAux->tamanio);
-			for (i = particionAux->inicio; i < particionAux->tamanio; i++) {
-				printf("%c", segmento[i]);
+			for (n = particionAux->inicio; n < particionAux->tamanio; n++) {
+				printf("%c", segmento[n]);
 			}
 			printf("\n");
 		}
@@ -295,7 +302,14 @@ t_list* particiones(t_memoria segmento) {
 
 	printf("---------------------------------------\n");
 
-	//free a list_segmento acá?
+	//TODO: Agregar tamaño total y blabla
+
+	for(i=0; i< tamanioTotal; i++){
+		printf("%c",segmento[i]);
+	}
+	printf("\n");
+
+	list_destroy(list_auxiliar);
 
 	return list_segmento;
 }
