@@ -380,7 +380,10 @@ int main(void) {
 
 				case P_TO_N_REINICIAR_NIVEL:
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El personaje %c reinicia el nivel.",
+							"Se recibió un mensaje P_TO_N_REINICIAR_NIVEL");
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"****** El personaje %c reinicia el nivel. ******",
 							mensaje[0][0]);
 
 					pthread_mutex_lock(&s_personaje_recursos);
@@ -426,7 +429,7 @@ int main(void) {
 				case P_TO_N_SOLIC_RECURSO:
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Nivel recibe solicitud de instancia de recurso");
+							"****** Nivel recibe solicitud de instancia de recurso ******");
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El personaje solicita un recurso");
@@ -509,6 +512,40 @@ int main(void) {
 							nodo_lista_personaje->proximo_recurso->cantidad);
 
 					pthread_mutex_unlock(&s_personaje_recursos);
+					break;
+
+				case P_TO_N_SALIR:
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se recibió un mensaje P_TO_N_SALIR");
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"****** El personaje %c sale del nivel por muerte. ******",
+							mensaje[0][0]);
+
+					pthread_mutex_lock(&s_personaje_recursos);
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes, &pos);
+
+					if (B_DIBUJAR) {
+						BorrarItem(nodo_lista_personaje->id_personaje,
+								ListaItems);
+					}
+					pthread_mutex_lock(&s_personaje_recursos);
+					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
+							ListaItems);
+					pthread_mutex_unlock(&s_personaje_recursos);
+					elimino_sck_lista(i, t_personaje->readfds);
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
+					//TODO Listar recursos
+					//TODO Desbloquear personajes
+
+					pthread_mutex_unlock(&s_personaje_recursos);
+					tipo_mensaje = OK;
+
+					fd_mensaje(i, tipo_mensaje, "Saliste del nivel.",
+							&tot_enviados);
 					break;
 
 				default:
@@ -643,10 +680,10 @@ void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 	t_recusos *recurso_aux;
 
 	total_recursos = list_size(recursos_otenido);
-	log_in_disk_niv(LOG_LEVEL_TRACE, "Total recursos obtenidos: %d", total_recursos);
+	log_in_disk_niv(LOG_LEVEL_TRACE, "Total recursos obtenidos: %d",
+			total_recursos);
 	for (i = 0; i < total_recursos; i++) {
-		recurso_aux =
-				(t_recusos *) list_get(recursos_otenido, i);
+		recurso_aux = (t_recusos *) list_get(recursos_otenido, i);
 		recurso_aux->ref_recuso->cantidad = +recurso_aux->cantidad;
 
 		log_in_disk_niv(LOG_LEVEL_TRACE, "Recurso: %c", recurso_aux->SIMBOLO);
