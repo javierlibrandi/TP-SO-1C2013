@@ -22,7 +22,7 @@
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="so" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.so.debug.419234047" name="Debug" parent="cdt.managedbuild.config.gnu.so.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.so.debug.419234047." name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.so.debug.687424690" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.so.debug">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.so.debug.687424690" name="Linux GCC" resourceTypeBasedDiscovery="true" superClass="cdt.managedbuild.toolchain.gnu.so.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.so.debug.1500852346" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.so.debug"/>
 							<builder buildPath="${workspace_loc:/libMemoria/Debug}" id="cdt.managedbuild.target.gnu.builder.so.debug.1976501171" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.so.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.319799873" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
