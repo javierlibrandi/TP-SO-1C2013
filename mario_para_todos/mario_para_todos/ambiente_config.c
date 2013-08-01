@@ -325,6 +325,8 @@ int val_pos_recurso(int rows, int cols, int x, int y) {
 			&& (x != 2 || y != 2)) ? 1 : 0);
 }
 
+
+
 void tabla_a_koopa(t_h_planificador *h_planificador) {
 
 	//Si nadie espera por Koopa salgo

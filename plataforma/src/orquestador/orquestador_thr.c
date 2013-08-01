@@ -25,7 +25,9 @@
 
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
-	char *buffer, *respuesta_recursos;
+	char *buffer;
+	char *respuesta_recursos;
+	//char respuesta_recursos[200];
 	int i, j, k;
 	int tipo;
 	char **mensaje;
@@ -33,12 +35,13 @@ void *orequestador_thr(void* p) {
 	int byteEnviados;
 	char respuesta[100];
 	t_h_planificador * h_planificador = NULL;
-	t_personaje* pers = NULL;
+	t_personaje* pers = NULL, *per_aux = NULL;
 	int indice_personaje, cantidad_Recurso_Aux;
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
-	char respuesta_recu_aux[5] = ("");
+	char respuesta_recu_aux[10] = ("");
+	int indice;
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;
@@ -129,6 +132,79 @@ void *orequestador_thr(void* p) {
 
 				switch (tipo) {
 
+				case N_TO_O_RECOVERY:
+
+					log_in_disk_orq(LOG_LEVEL_INFO,
+							"Se ha detectado un interbloqueo.");
+					//el nivel pasa lista de personajes interbloqueados.
+					//Se elije el de secuencia más baja y se le envía mensaje de muerte
+
+					pthread_mutex_lock(t_h_orq->s_bloquedos);
+
+					per_aux = NULL;
+					for (l = 0; mensaje[l] != '\0'; l++) {
+
+						pers = busca_personaje_simbolo_pla(mensaje[l][0],
+								t_h_orq->l_bloquedos, &indice);
+						if (per_aux == NULL ) {
+							per_aux = pers;
+						} else {
+							if (per_aux->sec_entrada > pers->sec_entrada) {
+								per_aux = pers;
+							}
+						}
+
+					}
+					pthread_mutex_lock(t_h_orq->s_deadlock);
+					//TODO sacar la lista de deadlock
+					mover_personaje_lista(per_aux->sck, t_h_orq->l_bloquedos,
+							t_h_orq->l_deadlock);
+					pthread_mutex_unlock(t_h_orq->s_bloquedos);
+					pthread_mutex_unlock(t_h_orq->s_deadlock);
+
+					fd_mensaje(i, O_TO_N_MUERTE,
+							string_from_format("%c", per_aux->simbolo),
+							&byteEnviados);
+
+					usleep(200000);
+
+					fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste",
+							&byteEnviados);
+
+					buffer = recv_variable(per_aux->sck, &tipo);
+
+					if (!strcmp(buffer, Leido_error)) {
+
+						log_in_disk_orq(LOG_LEVEL_ERROR, "%s ", Leido_error);
+
+						log_in_disk_orq(LOG_LEVEL_ERROR,
+								"Error en el socket del nivel: %s, se mata el hilo ",
+								h_planificador->desc_nivel);
+						//Saco el planificador de la lista de planificadores
+						pthread_mutex_lock(h_planificador->s_lista_plani);
+						eliminar_planificador(i, t_h_orq->planificadores);
+						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+						h_planificador->error_nivel = true; //marco el error en la bandera para que el planificador mate el hilo.
+
+					}
+
+					if (tipo == P_TO_PL_SALIR) {
+						// ELIMINAR EL PERSONAJE DE TODAS LAS LISTAS. ( BLOQUEADOS O DEADLOCK)
+					}
+
+					if (tipo == P_TO_O_REINICIAR_NIVEL) {
+						// PONER EL PERSONAJE EN LA COLA DE LISTOS.
+					}
+
+//					if (tipo == OK) {
+//						usleep(200000);
+//						fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste",
+//								&byteEnviados);
+//
+//					}
+
+					break;
+
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
 
 					log_in_disk_orq(LOG_LEVEL_ERROR,
@@ -144,8 +220,10 @@ void *orequestador_thr(void* p) {
 							"Los recursos recibidos del nivel: %s son: %s",
 							h_planificador->desc_nivel, buffer);
 
-					respuesta_recursos = "";
-					respuesta_recursos = malloc(sizeof(respuesta_recu_aux));
+					//respuesta_recursos = malloc(sizeof(respuesta_recu_aux));
+					//respuesta_recursos = malloc(3 * sizeof(char));
+					//respuesta_recursos = "";
+					respuesta_recursos = string_new();
 					for (j = 0; j < atoi(mensaje[0]); j++) {
 
 						lock_listas_plantaforma_orq(t_h_orq);
@@ -164,7 +242,8 @@ void *orequestador_thr(void* p) {
 
 						for (k = 0;
 								(pers != NULL )&& (k < cantidad_Recurso_Aux); k++){
-
+								log_in_disk_orq(LOG_LEVEL_ERROR,
+										"Hay personajes para desbloquear");
 								if (!strcmp(respuesta_recursos, "")) {
 
 									sprintf(respuesta_recu_aux, "%c,%c", pers->simbolo, mensaje[j + 1][0]);
@@ -195,10 +274,10 @@ void *orequestador_thr(void* p) {
 						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS,
 								respuesta_recursos, &byteEnviados);
 						log_in_disk_orq(LOG_LEVEL_INFO,
-								"Lo recusros asignados son los siguientes (ej: personaje;recurso) %s",
+								"Lo recursos asignados son los siguientes (ej: personaje;recurso) %s",
 								respuesta_recursos);
 					}
-					free(respuesta_recursos);
+					//free(respuesta_recursos);
 					break;
 
 				case P_TO_O_PROX_NIVEL:
@@ -337,8 +416,7 @@ bool busca_planificador(char *desc_nivel, t_list *list_plataforma, char * msj) {
 bool busca_planificador_socket(int sock, t_list *list_plataforma,
 		t_h_planificador ** planificador) {
 
-	log_in_disk_orq(LOG_LEVEL_TRACE,
-			"busco planificador por socket.: ");
+	log_in_disk_orq(LOG_LEVEL_TRACE, "busco planificador por socket.: ");
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;

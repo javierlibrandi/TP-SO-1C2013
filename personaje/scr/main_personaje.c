@@ -119,6 +119,9 @@ int main(void) {
 				break;
 
 			case PL_TO_P_TURNO:
+				if(personaje->vidas < 0){
+					break;
+				}
 				log_in_disk_per(LOG_LEVEL_INFO, "****** TURNO PARA %s ******",
 						personaje->nombre);
 				ejecutarTurno(personaje);

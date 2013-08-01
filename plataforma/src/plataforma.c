@@ -46,8 +46,6 @@ void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 		char *msj);
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
-t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
-		int *indice_personaje);
 
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
@@ -60,6 +58,7 @@ static pthread_mutex_t s_nuevos = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_terminados = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_sock_orquestador = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t reads_orquestador = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_deadlock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_koopa = PTHREAD_MUTEX_INITIALIZER;
 
 int main(void) {
@@ -87,6 +86,7 @@ int main(void) {
 	h_orquestador->s_bloquedos = &s_bloqueados;
 	h_orquestador->s_errores = &s_errores;
 	h_orquestador->s_nuevos = &s_nuevos;
+	h_orquestador->s_deadlock = &s_deadlock;
 
 	h_orquestador->s_terminados = &s_terminados;
 
@@ -100,6 +100,7 @@ int main(void) {
 	h_orquestador->l_errores = list_create(); //lista de personajes que terminaron con error
 	h_orquestador->l_nuevos = list_create(); //lista de personajes nuevos que no estan para lanificar.
 	h_orquestador->l_terminados = list_create(); //pongo las visctimas que elige el orquestador
+	h_orquestador->l_deadlock = list_create();
 	h_orquestador->l_koopa = list_create();
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	FD_ZERO(h_orquestador->readfds);
@@ -285,12 +286,15 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->l_listos = h_orquestador->l_listos;
 	h_planificador->l_bloquedos = h_orquestador->l_bloquedos;
 	h_planificador->l_errores = h_orquestador->l_errores;
+	h_planificador->l_deadlock = h_orquestador->l_deadlock;
 	h_planificador->l_koopa = h_orquestador->l_koopa;
+
 	h_planificador->s_koopa = h_orquestador->s_koopa;
 	h_planificador->s_listos = h_orquestador->s_listos;
-
+	h_planificador->s_deadlock = h_orquestador->s_deadlock;
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
 	h_planificador->s_errores = h_orquestador->s_errores;
+
 	h_planificador->segundos_espera = segundos_espera;
 	h_planificador->cuantum = cuantum;
 	h_planificador->sck_planificador = sock; // guardo el socked del planificador para poder diferencialo de los personajes //En realidad es el socket del nivel.
@@ -611,27 +615,6 @@ void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos)
 
 }
 
-t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
-		int *indice_personaje) {
-	int count;
-	int total_personajes = list_size(l_listo);
-	t_personaje *per;
-	log_in_disk_plat(LOG_LEVEL_INFO, "busca_personaje_skc");
-	for (count = 0; count < total_personajes; count++) {
-		per = list_get(l_listo, count);
-		if (per->sck == sck) {
-
-			log_in_disk_plat(LOG_LEVEL_INFO, "Retorno el personaje %s",
-					per->nombre);
-
-			*indice_personaje = count;
-			return per;
-		}
-	}
-
-	return NULL ;
-}
-
 t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
 		int *indice_personaje) {
 	int count;
@@ -653,6 +636,27 @@ t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
 		}
 	}
 
+	return NULL ;
+}
+
+t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
+		int *indice_personaje) {
+	int count;
+	int total_personajes = list_size(l_listo);
+	t_personaje *per;
+	log_in_disk_plat(LOG_LEVEL_INFO, "busca_personaje_skc");
+	for (count = 0; count < total_personajes; count++) {
+		per = list_get(l_listo, count);
+		if (per->sck == sck) {
+
+			log_in_disk_plat(LOG_LEVEL_INFO, "Retorno el personaje %s",
+					per->nombre);
+
+			*indice_personaje = count;
+			return per;
+		}
+	}
+	*indice_personaje = -1;
 	return NULL ;
 }
 
