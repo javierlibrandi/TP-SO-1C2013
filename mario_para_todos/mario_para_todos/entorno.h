@@ -17,19 +17,18 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define PATH_PLATAFORMA_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
-#define PATH_PERSONAJE_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
-#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
-#define PATH_CONFIG_PERSONAJE "/home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg"
-#define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
-#define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
-#define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR false
-#define ESPERA_POR_KOOPA 5 //segundos de espera para comprobar las listas antes de matar a KOOPA
-#define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
-#define PATH_KOOPA ""
-
-#define LOG_NIVEL LOG_LEVEL_TRACE
+//#define PATH_PLATAFORMA_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+//#define PATH_PERSONAJE_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+//#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+//#define PATH_CONFIG_PERSONAJE "/home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg"
+//#define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
+//#define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
+//#define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
+//#define ESPERA_POR_KOOPA 5 //segundos de espera para comprobar las listas antes de matar a KOOPA
+//#define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
+//#define PATH_KOOPA ""
+//#define B_DIBUJAR true
+//#define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
 //		LOG_LEVEL_TRACE,
 //		LOG_LEVEL_DEBUG,
@@ -79,6 +78,5 @@ typedef struct {
 	int vidasIniciales;
 	bool bloqueado;
 } Personaje;
-
 
 #endif /* ENTORNO_H_ */

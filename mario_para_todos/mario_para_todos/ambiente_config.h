@@ -144,7 +144,7 @@ void tabla_a_koopa(t_h_planificador *h_planificador);
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
 #define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR false
+#define B_DIBUJAR true
 #define ESPERA_POR_KOOPA 5 //segundos de espera para comprobar las listas antes de matar a KOOPA
 #define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
 #define PATH_KOOPA ""
