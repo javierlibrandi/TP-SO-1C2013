@@ -176,10 +176,15 @@ int almacenar_particion(t_memoria segmento, char id, int tamanio,
 	particionRestante->libre = true;
 	printf("Inicialicé la partición restante para agregar a la lista\n");
 
-	//Agrego la partición restante a la lista
-	list_add_in_index(list_particiones, indexParticionMayor, particionRestante);
-	printf("Agregué la partición restante a la lista\n");
-	printf("Elements count: %d\n", list_particiones->elements_count);
+	//Agrego la partición restante a la lista si tengo lugar
+	if(particionRestante->inicio == tamanioTotal){
+		printf("No tengo más lugar en mi segmento, así que no agregué partición restante a la lista\n");
+		printf("Elements count: %d\n", list_particiones->elements_count);
+	} else {
+		list_add_in_index(list_particiones, indexParticionMayor, particionRestante);
+		printf("Agregué la partición restante a la lista\n");
+		printf("Elements count: %d\n", list_particiones->elements_count);
+	}
 
 	//Grabo el dato en memoria la particion restante
 	//printf("Grabo el dato en memoria la particion restante\n");
@@ -293,7 +298,7 @@ t_list* particiones(t_memoria segmento) {
 			printf("%c[%d:%d:%d]:", particionAux->id, particionAux->inicio,
 					(particionAux->inicio + particionAux->tamanio - 1),
 					particionAux->tamanio);
-			for (n = particionAux->inicio; n < particionAux->tamanio; n++) {
+			for (n = particionAux->inicio; n < (particionAux->tamanio + particionAux->inicio); n++) {
 				printf("%c", segmento[n]);
 			}
 			printf("\n");
