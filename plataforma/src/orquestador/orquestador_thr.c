@@ -38,7 +38,7 @@ void *orequestador_thr(void* p) {
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
-	char respuesta_recu_aux[5] = ("");
+	char respuesta_recu_aux[16] = ("");
 	int indice;
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
@@ -164,7 +164,7 @@ void *orequestador_thr(void* p) {
 							string_from_format("%c", per_aux->simbolo),
 							&byteEnviados);
 
-					recv_variable(i, &tipo);
+					buffer = recv_variable(i, &tipo);
 
 					if (!strcmp(buffer, Leido_error)) {
 
@@ -182,7 +182,7 @@ void *orequestador_thr(void* p) {
 					}
 
 					if (tipo == OK) {
-						usleep(500000);
+						usleep(200000);
 						fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste", &byteEnviados);
 
 					}
@@ -204,8 +204,9 @@ void *orequestador_thr(void* p) {
 							"Los recursos recibidos del nivel: %s son: %s",
 							h_planificador->desc_nivel, buffer);
 
-					respuesta_recursos = "";
 					respuesta_recursos = malloc(sizeof(respuesta_recu_aux));
+					respuesta_recursos = "";
+
 					for (j = 0; j < atoi(mensaje[0]); j++) {
 
 						lock_listas_plantaforma_orq(t_h_orq);

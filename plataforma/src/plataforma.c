@@ -47,7 +47,6 @@ void agregar_personaje_planificador(int new_sck, t_h_orquestadro *h_orquestador,
 t_h_planificador *optener_nivel(char *desc_nivel, t_list *list_planificadores);
 void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos);
 
-
 /* Declaración del objeto atributo */
 pthread_attr_t attr;
 
@@ -633,9 +632,7 @@ t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
 			return per;
 		}
 	}
-
+	*indice_personaje = -1;
 	return NULL ;
 }
-
-
 

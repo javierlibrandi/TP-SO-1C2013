@@ -229,7 +229,6 @@ static void mover_personaje(t_personaje *personaje,
 				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
 				personaje->nombre, movimientos_realizados);
 
-
 //		enviarDeadlock(h_planificador->l_deadlock);
 
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
@@ -325,8 +324,11 @@ static void mover_personaje(t_personaje *personaje,
 
 			lock_listas_plantaforma(h_planificador);
 			sock_aux = personaje->sck;
+			//TODO buscar si no esta en bloqeados para sacar el personaje.
 			eliminar_personaje_termino_nivel(personaje->sck,
 					h_planificador->l_listos);
+			eliminar_personaje_termino_nivel(personaje->sck,
+					h_planificador->l_bloquedos);
 
 			imprimir_listas(h_planificador, 'p');
 			personaje_bloqueado = true;
@@ -341,7 +343,8 @@ static void mover_personaje(t_personaje *personaje,
 
 		default:
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s", tipo, buffer);
+					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s",
+					tipo, buffer);
 
 			break;
 		}
@@ -371,9 +374,11 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
 
 	busca_personaje_skc(sck, l_listos, &indice_personaje);
 
-	personaje = list_remove(l_listos, indice_personaje);
+	if (indice_personaje != -1) {
+		personaje = list_remove(l_listos, indice_personaje);
+		liberar_memoria_personaje(personaje);
+	}
 
-	liberar_memoria_personaje(personaje);
 }
 
 void liberar_memoria_personaje(t_personaje *personaje) {

@@ -449,7 +449,10 @@ int main(void) {
 					recursos_personaje = "";
 					recursos_personaje = listarRecursosPersonaje(
 							nodo_lista_personaje->l_recursos_optenidos);
+					tipo_mensaje = OK;
 
+					fd_mensaje(i, tipo_mensaje, "Saliste del nivel.",
+							&tot_enviados);
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
 							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
@@ -462,10 +465,6 @@ int main(void) {
 							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
 					//TODO Listar recursos
 
-					tipo_mensaje = OK;
-
-					fd_mensaje(i, tipo_mensaje, "Saliste del nivel.",
-							&tot_enviados);
 					break;
 
 				default:
