@@ -47,6 +47,7 @@
 #define P_TO_PL_RECURSO_CONSEGUIDO 32
 #define PL_TO_P_MATAR_KOOPA 33
 #define O_TO_N_ASIGNAR_RECURSOS_null 34
+#define N_TO_O_DEADLOCK 35
 #define OK 100
 #define ERROR 101
 

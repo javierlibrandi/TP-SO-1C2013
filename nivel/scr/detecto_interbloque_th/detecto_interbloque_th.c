@@ -35,12 +35,13 @@ void *detecto_interbloque(void *p) {
 	t_h_personaje t_personaje;
 	struct h_t_param_nivel param_nivel;
 	char *personaje_bloquedos = NULL;
-	int tot_enviados;
+	int tot_enviados, tipo, indice;
+	char * buffer;
 	memcpy(&h_interbloqueo, (t_h_interbloqueo*) p, sizeof(t_h_interbloqueo));
 	memcpy(&t_personaje, &h_interbloqueo.t_personaje, sizeof(t_h_personaje));
 	memcpy(&param_nivel, &h_interbloqueo.param_nivel,
 			sizeof(struct h_t_param_nivel));
-
+	t_lista_personaje * un_personaje_aux;
 	//conecxion con el orquestador, solo si tengo el valor Recovery = 1
 //	if (param_nivel.Recovery) {
 //		sck_orq = con_pla_nival(param_nivel.IP, param_nivel.PUERTO_PLATAFORMA,
@@ -79,7 +80,72 @@ void *detecto_interbloque(void *p) {
 				//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
 				fd_mensaje(t_personaje.sck_orquestador, N_TO_O_RECOVERY,
 						personaje_bloquedos, &tot_enviados);
-				//REcibir la victima, e iniciar el desbloqueo informando al orquestador.
+
+				buffer = recv_variable(t_personaje.sck_orquestador, &tipo);
+
+				if (tipo == O_TO_N_MUERTE) {
+					un_personaje_aux = busca_personaje_simbolo(buffer[0],
+							t_personaje.l_personajes, &indice);
+
+					buffer = recv_variable(un_personaje_aux->sokc, &tipo);
+
+					if (!strcmp(buffer, Leido_error)) {
+						pthread_mutex_lock(&s_personaje_recursos);
+						elimino_personaje_lista_nivel(i,
+								t_personaje->l_personajes, ListaItems);
+						elimino_sck_lista(i, t_personaje->readfds);
+						pthread_mutex_unlock(&s_personaje_recursos);
+					}
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"#######################INTER_BLOQUEO Se recibió un tipo de mensaje %d: %s #######################INTER_BLOQUEO",
+							tipo, buffer);
+
+					switch (tipo)
+					mensaje = string_split(buffer, ";");
+					case P_TO_N_SALIR:
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se recibió un mensaje P_TO_N_SALIR");
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"****** El personaje %c sale del nivel por muerte. ******",
+							mensaje[0][0]);
+
+					pthread_mutex_lock(&s_personaje_recursos);
+					nodo_lista_personaje = busco_personaje(i,
+							t_personaje->l_personajes, &pos);
+
+					if (B_DIBUJAR) {
+						BorrarItem(&ListaItems,
+								nodo_lista_personaje->id_personaje);
+						nivel_gui_dibujar(ListaItems);
+					}
+
+					recursos_personaje = "";
+					recursos_personaje = listarRecursosPersonaje(
+							nodo_lista_personaje->l_recursos_optenidos);
+					tipo_mensaje = OK;
+
+					fd_mensaje(i, tipo_mensaje, "Saliste del nivel.",
+							&tot_enviados);
+					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
+							ListaItems);
+					elimino_sck_lista(i, t_personaje->readfds);
+					pthread_mutex_unlock(&s_personaje_recursos);
+
+					desbloquear_Personajes(recursos_personaje, buffer,
+							t_personaje, param_nivel, sck_plat);
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
+					//TODO Listar recursos
+
+					break;
+
+				}
+
+				//Recibir la victima, e iniciar el desbloqueo informando al orquestador.
 			}
 			pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 
@@ -88,6 +154,7 @@ void *detecto_interbloque(void *p) {
 		}
 
 		//free(personaje_bloquedos);
+		free(buffer);
 		personaje_bloquedos = NULL;
 	}
 
@@ -260,7 +327,7 @@ int cantidad_interbloquedos(t_list *personajes, char **personajes_bloquedos) {
  */
 struct h_t_recusos *busco_recurso(char id, t_list *recusos) {
 	int i, tot_elementos;
-	//struct h_t_recusos *recurso = NULL;
+//struct h_t_recusos *recurso = NULL;
 	struct h_t_recusos *recurso_aux = NULL;
 
 	log_in_disk_niv(LOG_LEVEL_TRACE, "Busco el recurso %c", id);
