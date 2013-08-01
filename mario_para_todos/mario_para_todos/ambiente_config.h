@@ -11,7 +11,6 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-
 int val_pos_recurso(int rows, int cols, int x, int y);
 
 typedef struct h_t_param_plat {
@@ -35,7 +34,7 @@ typedef struct h_t_recusos {
 	int posX;
 	int posY;
 	char **RECURSOS; //lo usa el personaje no el nivel OJO!!!
-	struct h_t_recusos  *ref_recuso; //referencia al reucuso que usa el personaje para devolver los recursos lo uso en add_recurso_personaje y liberar_recursos
+	struct h_t_recusos *ref_recuso; //referencia al reucuso que usa el personaje para devolver los recursos lo uso en add_recurso_personaje y liberar_recursos
 	char recursos_disponibles; //campo auximilar para el interbloqueo
 } t_recusos;
 
@@ -72,20 +71,21 @@ typedef struct {
 	t_list *l_listos;
 	t_list *l_bloquedos;
 	t_list *l_errores;
-	t_list *l_koopa;//guado los personajes que terminan su plan de niveles para matar a koopa
+	t_list *l_deadlock;
+	t_list *l_koopa; //guado los personajes que terminan su plan de niveles para matar a koopa
 	pthread_mutex_t *s_lista_plani; //esta no se para que la hice????
 	pthread_mutex_t *s_listos; //personajes listos para planificar
 	pthread_mutex_t *s_bloquedos; //personajes bloqueados
 	pthread_mutex_t *s_errores; //personajes con errores
 	pthread_mutex_t *s_terminados;
+	pthread_mutex_t *s_deadlock;
 	pthread_mutex_t *s_koopa;
 	int segundos_espera;
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
-	bool error_nivel;	//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
+	bool error_nivel;//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
 
 } t_h_planificador;
-
 
 typedef struct {
 	int *sock;
@@ -97,6 +97,7 @@ typedef struct {
 	t_list *l_errores;
 	t_list *l_terminados; //pongo las visctimas que elige el orquestador
 	t_list *l_nuevos;
+	t_list *l_deadlock;
 	t_list *l_koopa;
 	pthread_mutex_t *s_lista_plani;
 	pthread_mutex_t *s_listos;
@@ -106,11 +107,9 @@ typedef struct {
 	pthread_mutex_t *s_sock_semaforo;
 	pthread_mutex_t *reads_select;
 	pthread_mutex_t *s_terminados;
+	pthread_mutex_t *s_deadlock;
 	pthread_mutex_t *s_koopa;
 } t_h_orquestadro;
-
-
-
 
 t_param_plat leer_archivo_plataforma_config();
 
@@ -122,17 +121,17 @@ void lock_listas_plantaforma(t_h_planificador *h_planificador);
 
 void un_lock_listas_plataforma(t_h_planificador *h_planificador);
 
-int mover_personaje_lista(int sck,t_list *origen, t_list *destino);
+int mover_personaje_lista(int sck, t_list *origen, t_list *destino);
 
 void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq);
 
 void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq);
 
-
+void enviarDeadlock(t_list *listaDeadlock);
 
 void imprimir_listas(void *estruc, char tipo_estruc);
 
-
-
+t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+		int *indice_personaje);
 
 #endif /* AMBIENTE_CONFIG_H_ */

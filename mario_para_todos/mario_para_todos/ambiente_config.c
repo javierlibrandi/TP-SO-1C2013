@@ -325,3 +325,27 @@ static void impimir_lista(t_list *lista) {
 int val_pos_recurso(int rows, int cols, int x, int y){
 	return (((y<=rows && x<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0);
 }
+
+t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+		int *indice_personaje) {
+	int count;
+	int total_personajes = list_size(l_personajes);
+	t_personaje *per;
+
+	log_in_disk_niv(LOG_LEVEL_INFO, "busca_personaje_simbolo: %c", id);
+
+	for (count = 0; count < total_personajes; count++) {
+		per = list_get(l_personajes, count);
+
+		if (per->simbolo == id) {
+
+			log_in_disk_niv(LOG_LEVEL_INFO, "Retorno el personaje %s",
+					per->nombre);
+
+			*indice_personaje = count;
+			return per;
+		}
+	}
+
+	return NULL ;
+}

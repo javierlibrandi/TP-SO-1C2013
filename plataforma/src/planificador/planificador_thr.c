@@ -229,6 +229,9 @@ static void mover_personaje(t_personaje *personaje,
 				"Permito el movimiento del personaje %s cantidad de movimientos realizados por el personaje %d",
 				personaje->nombre, movimientos_realizados);
 
+
+//		enviarDeadlock(h_planificador->l_deadlock);
+
 		fd_mensaje(personaje->sck, PL_TO_P_TURNO, "Movimiento permitido",
 				&byteEnviados);
 

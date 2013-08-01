@@ -33,12 +33,13 @@ void *orequestador_thr(void* p) {
 	int byteEnviados;
 	char respuesta[100];
 	t_h_planificador * h_planificador = NULL;
-	t_personaje* pers = NULL;
+	t_personaje* pers = NULL, *per_aux = NULL;
 	int indice_personaje, cantidad_Recurso_Aux;
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
 	char respuesta_recu_aux[5] = ("");
+	int indice;
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
 	 *(t_h_orq->sock) = t_h_orq->sock_nivel;
@@ -128,6 +129,65 @@ void *orequestador_thr(void* p) {
 				sleep(1);
 
 				switch (tipo) {
+
+				case N_TO_O_RECOVERY:
+
+					log_in_disk_orq(LOG_LEVEL_INFO,
+							"Se ha detectado un interbloqueo.");
+					//el nivel pasa lista de personajes interbloqueados.
+					//Se elije el de secuencia más baja y se le envía mensaje de muerte
+
+					pthread_mutex_lock(t_h_orq->s_bloquedos);
+
+					per_aux = NULL;
+					for (l = 0; mensaje[l] != '\0'; l++) {
+
+						pers = busca_personaje_simbolo_pla(mensaje[l][0],
+								t_h_orq->l_bloquedos, &indice);
+						if (per_aux == NULL ) {
+							per_aux = pers;
+						} else {
+							if (per_aux->sec_entrada > pers->sec_entrada) {
+								per_aux = pers;
+							}
+						}
+
+					}
+					pthread_mutex_lock(t_h_orq->s_deadlock);
+					//TODO sacar la lista de deadlock
+					mover_personaje_lista(per_aux->sck, t_h_orq->l_bloquedos,
+							t_h_orq->l_deadlock);
+					pthread_mutex_unlock(t_h_orq->s_bloquedos);
+					pthread_mutex_unlock(t_h_orq->s_deadlock);
+
+					fd_mensaje(i, O_TO_N_MUERTE,
+							string_from_format("%c", per_aux->simbolo),
+							&byteEnviados);
+
+					recv_variable(i, &tipo);
+
+					if (!strcmp(buffer, Leido_error)) {
+
+						log_in_disk_orq(LOG_LEVEL_ERROR, "%s ", Leido_error);
+
+						log_in_disk_orq(LOG_LEVEL_ERROR,
+								"Error en el socket del nivel: %s, se mata el hilo ",
+								h_planificador->desc_nivel);
+						//Saco el planificador de la lista de planificadores
+						pthread_mutex_lock(h_planificador->s_lista_plani);
+						eliminar_planificador(i, t_h_orq->planificadores);
+						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+						h_planificador->error_nivel = true; //marco el error en la bandera para que el planificador mate el hilo.
+
+					}
+
+					if (tipo == OK) {
+						usleep(500000);
+						fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste", &byteEnviados);
+
+					}
+
+					break;
 
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
 
@@ -337,8 +397,7 @@ bool busca_planificador(char *desc_nivel, t_list *list_plataforma, char * msj) {
 bool busca_planificador_socket(int sock, t_list *list_plataforma,
 		t_h_planificador ** planificador) {
 
-	log_in_disk_orq(LOG_LEVEL_TRACE,
-			"busco planificador por socket.: ");
+	log_in_disk_orq(LOG_LEVEL_TRACE, "busco planificador por socket.: ");
 
 	if (list_is_empty(list_plataforma) == 1) {
 		return false;
@@ -386,3 +445,15 @@ void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 	*pers = NULL;
 }
 
+//char *enviarDeadlock(t_personaje *per_aux,int sock){
+//	char aux[2];
+//	char *buffer;
+//	int tipo, tot;
+//	strcpy(aux,per->simbolo);
+//	aux[1]='\0';
+//
+//	fd_mensaje(sock,O_TO_N_VICTIMA,aux,&tot);
+//	buffer = recv_variable(sock,&tipo);
+//
+//	return buffer;
+//}
