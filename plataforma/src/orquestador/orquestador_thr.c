@@ -25,7 +25,9 @@
 
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
-	char *buffer, *respuesta_recursos;
+	char *buffer;
+	char *respuesta_recursos;
+	//char respuesta_recursos[200];
 	int i, j, k;
 	int tipo;
 	char **mensaje;
@@ -38,7 +40,7 @@ void *orequestador_thr(void* p) {
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
-	char respuesta_recu_aux[16] = ("");
+	char respuesta_recu_aux[10] = ("");
 	int indice;
 	/*//pongo el socket del nivel en el orquestador
 	 if(*(t_h_orq->sock) < t_h_orq->sock_nivel){
@@ -164,7 +166,12 @@ void *orequestador_thr(void* p) {
 							string_from_format("%c", per_aux->simbolo),
 							&byteEnviados);
 
-					buffer = recv_variable(i, &tipo);
+					usleep(200000);
+
+					fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste",
+							&byteEnviados);
+
+					buffer = recv_variable(per_aux->sck, &tipo);
 
 					if (!strcmp(buffer, Leido_error)) {
 
@@ -181,11 +188,20 @@ void *orequestador_thr(void* p) {
 
 					}
 
-					if (tipo == OK) {
-						usleep(200000);
-						fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste", &byteEnviados);
-
+					if (tipo == P_TO_PL_SALIR) {
+						// ELIMINAR EL PERSONAJE DE TODAS LAS LISTAS. ( BLOQUEADOS O DEADLOCK)
 					}
+
+					if (tipo == P_TO_O_REINICIAR_NIVEL) {
+						// PONER EL PERSONAJE EN LA COLA DE LISTOS.
+					}
+
+//					if (tipo == OK) {
+//						usleep(200000);
+//						fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste",
+//								&byteEnviados);
+//
+//					}
 
 					break;
 
@@ -204,9 +220,10 @@ void *orequestador_thr(void* p) {
 							"Los recursos recibidos del nivel: %s son: %s",
 							h_planificador->desc_nivel, buffer);
 
-					respuesta_recursos = malloc(sizeof(respuesta_recu_aux));
-					respuesta_recursos = "";
-
+					//respuesta_recursos = malloc(sizeof(respuesta_recu_aux));
+					//respuesta_recursos = malloc(3 * sizeof(char));
+					//respuesta_recursos = "";
+					respuesta_recursos = string_new();
 					for (j = 0; j < atoi(mensaje[0]); j++) {
 
 						lock_listas_plantaforma_orq(t_h_orq);
@@ -225,7 +242,8 @@ void *orequestador_thr(void* p) {
 
 						for (k = 0;
 								(pers != NULL )&& (k < cantidad_Recurso_Aux); k++){
-
+								log_in_disk_orq(LOG_LEVEL_ERROR,
+										"Hay personajes para desbloquear");
 								if (!strcmp(respuesta_recursos, "")) {
 
 									sprintf(respuesta_recu_aux, "%c,%c", pers->simbolo, mensaje[j + 1][0]);
@@ -259,7 +277,7 @@ void *orequestador_thr(void* p) {
 								"Lo recursos asignados son los siguientes (ej: personaje;recurso) %s",
 								respuesta_recursos);
 					}
-					free(respuesta_recursos);
+					//free(respuesta_recursos);
 					break;
 
 				case P_TO_O_PROX_NIVEL:

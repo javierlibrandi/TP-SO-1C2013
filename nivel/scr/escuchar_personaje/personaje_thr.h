@@ -22,6 +22,7 @@ typedef struct {
 	pthread_mutex_t *s_personaje_conectado;
 	t_list *l_personajes;
 	ITEM_NIVEL** ListaItemss;
+	ITEM_NIVEL* ListaItemsss;
 	pthread_mutex_t *s_personaje_recursos; //uso el semaforo para asigunar liberar recursos y verificar el interbloqueo
 } t_h_personaje;
 
