@@ -325,3 +325,34 @@ static void impimir_lista(t_list *lista) {
 int val_pos_recurso(int rows, int cols, int x, int y){
 	return (((y<=rows && x<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0);
 }
+
+void tabla_a_koopa(t_h_planificador *h_planificador) {
+
+	//Si nadie espera por Koopa salgo
+	pthread_mutex_lock(h_planificador->s_koopa);
+	if (h_planificador->l_koopa) {
+		return;
+	}
+
+	pthread_mutex_unlock(h_planificador->s_koopa);
+
+	while (VALIDAR_KOOPA) {
+		//TODO PONEMOS LA LISTA DE NUEVOS?????
+		pthread_mutex_lock(h_planificador->s_listos);
+		pthread_mutex_lock(h_planificador->s_bloquedos);
+
+		//si las lista tiene personajes SALGO
+		if (!list_is_empty(h_planificador->l_listos)
+				|| !list_is_empty(h_planificador->l_bloquedos)) {
+			return;
+		}
+
+		pthread_mutex_unlock(h_planificador->s_listos);
+		pthread_mutex_unlock(h_planificador->s_bloquedos);
+	}
+	sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
+
+	//execv();
+
+}
+

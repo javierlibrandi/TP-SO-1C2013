@@ -42,6 +42,7 @@ t_personaje *busca_personaje_skc(int sck, t_list *l_listos,
 		int *indice_personaje);
 void liberar_memoria_personaje(t_personaje *personaje);
 void * hilo_planificador(void * p);
+void ejecutar_koopa(t_h_planificador *h_planificador);
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
@@ -338,7 +339,8 @@ static void mover_personaje(t_personaje *personaje,
 
 		default:
 			log_in_disk_plan(LOG_LEVEL_TRACE,
-					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s", tipo, buffer);
+					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s",
+					tipo, buffer);
 
 			break;
 		}
