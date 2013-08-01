@@ -12,7 +12,8 @@
 
 
 
-
+t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+		int *indice_personaje);
 
 bool existe_personaje(const char *nombre_personaje, char simbolo,
 		t_list *list_personaje);

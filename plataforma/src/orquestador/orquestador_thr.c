@@ -446,15 +446,3 @@ void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 	*pers = NULL;
 }
 
-//char *enviarDeadlock(t_personaje *per_aux,int sock){
-//	char aux[2];
-//	char *buffer;
-//	int tipo, tot;
-//	strcpy(aux,per->simbolo);
-//	aux[1]='\0';
-//
-//	fd_mensaje(sock,O_TO_N_VICTIMA,aux,&tot);
-//	buffer = recv_variable(sock,&tipo);
-//
-//	return buffer;
-//}

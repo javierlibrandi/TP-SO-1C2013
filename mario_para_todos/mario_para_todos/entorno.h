@@ -39,7 +39,7 @@
 
 #define  Leido_error "Error en la lectura del socket......"
 
-typedef struct{
+typedef struct {
 	char * nombre;
 	char * nivel;
 	char simbolo;
@@ -47,20 +47,20 @@ typedef struct{
 	int sck;
 	char prox_recurso;
 	bool listo_para_planificar;
-}t_personaje; // re subido
+} t_personaje; // re subido
 
-typedef struct{
+typedef struct {
 	char* nombre;
 	//t_recusos* recursos;
 	char **recursos;
-}Nivel;
+} Nivel;
 
-typedef struct{
-	 int x;
-	 int y;
+typedef struct {
+	int x;
+	int y;
 } Posicion;
 
-typedef struct{
+typedef struct {
 	char *nombre;
 	char simbolo;
 	t_list *niveles;
@@ -78,7 +78,7 @@ typedef struct{
 	bool finNivel;
 	int vidasIniciales;
 	bool bloqueado;
-}Personaje;
+} Personaje;
 
 
 #endif /* ENTORNO_H_ */

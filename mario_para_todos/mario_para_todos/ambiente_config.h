@@ -131,14 +131,33 @@ void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq);
 
 void imprimir_listas(void *estruc, char tipo_estruc);
 
-t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
-		int *indice_personaje);
-
-
 void imprimir_listas(void *estruc, char tipo_estruc);
 
 void tabla_a_koopa(t_h_planificador *h_planificador);
 
+/// Muevo lo que estaba en el entorno.h
+
+#define PATH_PLATAFORMA_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+#define PATH_PERSONAJE_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+#define PATH_CONFIG_PERSONAJE "/home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg"
+#define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
+#define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
+#define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
+#define B_DIBUJAR false
+#define ESPERA_POR_KOOPA 5 //segundos de espera para comprobar las listas antes de matar a KOOPA
+#define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
+#define PATH_KOOPA ""
+
+#define LOG_NIVEL LOG_LEVEL_TRACE
+//		niveles de log
+//		LOG_LEVEL_TRACE,
+//		LOG_LEVEL_DEBUG,
+//		LOG_LEVEL_INFO,
+//		LOG_LEVEL_WARNING,
+//		LOG_LEVEL_ERROR
+
+#define  Leido_error "Error en la lectura del socket......"
 
 
 #endif /* AMBIENTE_CONFIG_H_ */

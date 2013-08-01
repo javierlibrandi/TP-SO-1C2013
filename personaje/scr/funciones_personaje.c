@@ -1059,7 +1059,7 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 	}
 
 	free(buffer);
-
+return 0; //agregado por que no compilaba 1/08/13
 }
 
 bool conocePosicionRecurso(char recursoActual) {

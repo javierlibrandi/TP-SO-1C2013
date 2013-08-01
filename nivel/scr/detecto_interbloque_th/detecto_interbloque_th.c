@@ -69,7 +69,7 @@ void *detecto_interbloque(void *p) {
 			}
 		}
 
-		if (cantidad_interbloquedos(t_personaje.l_personajes,
+	/*	if (cantidad_interbloquedos(t_personaje.l_personajes,
 				&personaje_bloquedos) != 0) {
 
 			log_in_disk_niv(LOG_LEVEL_INFO,
@@ -146,8 +146,8 @@ void *detecto_interbloque(void *p) {
 				}
 
 				//Recibir la victima, e iniciar el desbloqueo informando al orquestador.
+				pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 			}
-			pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 
 		} else {
 			pthread_mutex_unlock(t_personaje.s_personaje_recursos);
@@ -157,9 +157,10 @@ void *detecto_interbloque(void *p) {
 		free(buffer);
 		personaje_bloquedos = NULL;
 	}
-
 	return NULL ;
-}
+} */
+
+} }  //BORRAR ESTAS 2 llaves cuando descomento lo de arriba.
 
 /**
  * Inicializo las estructuras

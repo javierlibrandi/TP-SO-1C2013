@@ -615,6 +615,30 @@ void agregar_sck_personaje(int sck, const char *nom_personaje, t_list *l_listos)
 
 }
 
+t_personaje *busca_personaje_simbolo_pla(char id, t_list *l_personajes,
+		int *indice_personaje) {
+	int count;
+	int total_personajes = list_size(l_personajes);
+	t_personaje *per;
+
+	log_in_disk_niv(LOG_LEVEL_INFO, "busca_personaje_simbolo: %c", id);
+
+	for (count = 0; count < total_personajes; count++) {
+		per = list_get(l_personajes, count);
+
+		if (per->simbolo == id) {
+
+			log_in_disk_niv(LOG_LEVEL_INFO, "Retorno el personaje %s",
+					per->nombre);
+
+			*indice_personaje = count;
+			return per;
+		}
+	}
+
+	return NULL ;
+}
+
 t_personaje *busca_personaje_skc(int sck, t_list *l_listo,
 		int *indice_personaje) {
 	int count;
