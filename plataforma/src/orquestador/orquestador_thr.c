@@ -195,7 +195,7 @@ void *orequestador_thr(void* p) {
 						fd_mensaje(i, O_TO_N_ASIGNAR_RECURSOS,
 								respuesta_recursos, &byteEnviados);
 						log_in_disk_orq(LOG_LEVEL_INFO,
-								"Lo recusros asignados son los siguientes (ej: personaje;recurso) %s",
+								"Lo recursos asignados son los siguientes (ej: personaje;recurso) %s",
 								respuesta_recursos);
 					}
 					free(respuesta_recursos);

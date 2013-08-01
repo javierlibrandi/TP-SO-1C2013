@@ -450,6 +450,10 @@ int main(void) {
 					recursos_personaje = listarRecursosPersonaje(
 							nodo_lista_personaje->l_recursos_optenidos);
 
+					fd_mensaje(i, OK, "Saliste del nivel.", &tot_enviados);
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"Se envió OK de salida al personaje.");
+
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
 							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
@@ -462,10 +466,6 @@ int main(void) {
 							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
 					//TODO Listar recursos
 
-					tipo_mensaje = OK;
-
-					fd_mensaje(i, tipo_mensaje, "Saliste del nivel.",
-							&tot_enviados);
 					break;
 
 				default:
@@ -598,7 +598,7 @@ void desbloquear_Personajes(char * recursos_personaje, char *buffer,
 
 	case O_TO_N_ASIGNAR_RECURSOS_null:
 		log_in_disk_niv(LOG_LEVEL_INFO,
-				"Se recibieron los recursos asignados desde el orquestador pero no se desbloqueo ningun personaje");
+				"Se recibieron los recursos asignados desde el orquestador pero no se desbloqueó ningún personaje");
 
 		break;
 	}

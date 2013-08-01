@@ -622,8 +622,9 @@ void ejecutarTurno(Personaje *personaje) {
 //Avisa y se desconecta del planificador y del nivel
 void salirDelNivel(Personaje *personaje) {
 	char *mensajeFinNivel, *mensajeFinNivelP;
+	char mensajeSalir[max_len];
 	int vidas, sockNivel, sockPlanif;
-	int bytes_enviados, bytes_enviados1, bytes_enviados3, bytes_enviados4, tipo;
+	int bytes_enviados, bytes_enviados1, tipo;
 
 	vidas = personaje->vidas;
 	sockNivel = personaje->sockNivel;
@@ -631,6 +632,8 @@ void salirDelNivel(Personaje *personaje) {
 
 	mensajeFinNivel = "Bye Nivel";
 	mensajeFinNivelP = "Bye Planificador";
+
+	sprintf(mensajeSalir, "%c", personaje->simbolo);
 
 	log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del planificador.");
 
@@ -753,7 +756,7 @@ void salirDelNivel(Personaje *personaje) {
 
 		log_in_disk_per(LOG_LEVEL_INFO, "Me desconecto del nivel.");
 
-		fd_mensaje(sockNivel, P_TO_N_SALIR, "He muerto. Debo salir del nivel.",
+		fd_mensaje(sockNivel, P_TO_N_SALIR, mensajeSalir,
 				&bytes_enviados);
 
 		if (bytes_enviados == -1) {
@@ -881,6 +884,7 @@ void reiniciarPlanDeNiveles(Personaje *personaje) {
 	personaje->indexRecurso = -1;
 	personaje->finNivel = false;
 	personaje->bloqueado = false;
+	personaje->vidas = personaje->vidasIniciales;
 
 }
 
