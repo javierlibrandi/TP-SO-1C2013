@@ -5,6 +5,8 @@
 	<projects>
 		<project>commons</project>
 		<project>mario_para_todos</project>
+		<project>memoria</project>
+		<project>so-commons-library</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

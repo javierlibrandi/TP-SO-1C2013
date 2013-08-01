@@ -133,5 +133,6 @@ void imprimir_listas(void *estruc, char tipo_estruc);
 
 void tabla_a_koopa(t_h_planificador *h_planificador);
 
+void tabla_a_koopa_prueba();
 
 #endif /* AMBIENTE_CONFIG_H_ */
