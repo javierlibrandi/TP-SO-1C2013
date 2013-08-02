@@ -105,6 +105,7 @@ void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 	list_personajes->nombre_personaje = nombre_personaje;
 	list_personajes->sokc = i;
 	list_personajes->l_recursos_optenidos = list_create();
+	list_personajes->bloquedo = true;
 
 	list_add(t_personaje->l_personajes, list_personajes);
 

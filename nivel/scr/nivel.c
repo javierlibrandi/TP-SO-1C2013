@@ -30,7 +30,6 @@
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 #include <pthread.h>
 
-
 void imprimir_recursos(t_list * lista_Recursos);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
@@ -102,20 +101,23 @@ int main(void) {
 	tv.tv_usec = 50;
 
 	pthread_mutex_lock(&s_personaje_conectado);
-
 	//creo el hilo que va a escuchar conexiones del personaje
 	pthread_create(&escucho_personaje_th, NULL, (void*) escucho_personaje,
 			(void*) t_personaje);
-	//	pthread_mutex_lock(&s_personaje_conectado);
 
+	pthread_mutex_lock(&s_personaje_conectado);
 	//setteo las estructura para pasar al hilo
 	memcpy(&h_interbloqueo.t_personaje, t_personaje, sizeof(t_h_personaje));
 	h_interbloqueo.param_nivel = param_nivel;
 
 	//creo el hilo para la deteccion de interbloqueo
-//	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-//		(void*) &h_interbloqueo);
+
+	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+			(void*) &h_interbloqueo);
+
+	pthread_mutex_lock(&s_personaje_recursos);
 	imprmir_recursos_nivel(param_nivel.recusos);
+	pthread_mutex_unlock(&s_personaje_recursos);
 
 	for (;;) {
 		//recursos_personaje = malloc (sizeof(char) * 35);
@@ -152,7 +154,9 @@ int main(void) {
 						tipo, buffer);
 
 				mensaje = string_split(buffer, ";");
+
 				switch (tipo) {
+
 				case P_TO_N_UBIC_RECURSO:
 
 					pthread_mutex_lock(&s_personaje_recursos);
@@ -194,13 +198,20 @@ int main(void) {
 
 					posX = atoi(mensaje[3]);
 					posY = atoi(mensaje[4]);
+
 					pthread_mutex_lock(&s_personaje_recursos);
 					MoverPersonaje(ListaItems, mensaje[0][0], posX, posY);
 					//la informacion del la posicion la necesito para determinar el interbloqueo
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
 					nodo_lista_personaje->posX = posX;
-					nodo_lista_personaje->posX = posY;
+					nodo_lista_personaje->posY = posY;
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"PROBANDO COORDENADAS DE PERSONAJE a %s a (%d,%d)",
+							nodo_lista_personaje->nombre_personaje,
+							nodo_lista_personaje->posX,
+							nodo_lista_personaje->posY);
+
 					pthread_mutex_unlock(&s_personaje_recursos);
 					if (B_DIBUJAR) {
 						nivel_gui_dibujar(ListaItems);
@@ -242,6 +253,7 @@ int main(void) {
 							recursos_personaje);
 
 					if (B_DIBUJAR) {
+
 						pthread_mutex_lock(&s_personaje_recursos);
 						BorrarItem(&ListaItems,
 								nodo_lista_personaje->id_personaje);
@@ -258,7 +270,6 @@ int main(void) {
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
 							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
-					pthread_mutex_unlock(&s_personaje_recursos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Los recursos del nivel: %s despues de liberar el personaje: %s %c son los siguietes: (proximo log)",
@@ -272,8 +283,8 @@ int main(void) {
 
 					desbloquear_Personajes(recursos_personaje, buffer,
 							t_personaje, param_nivel, sck_plat);
+					pthread_mutex_unlock(&s_personaje_recursos);
 
-					//imprimir_recursos(param_nivel.recusos);
 					free(personaje_aux.nombre_personaje);
 					break;
 
@@ -298,7 +309,8 @@ int main(void) {
 						personaje_pantalla(mensaje[0][0], 1, 1, &ListaItems);
 						nivel_gui_dibujar(ListaItems);
 					}
-
+					nodo_lista_personaje->posX = 1;
+					nodo_lista_personaje->posY = 1;
 					imprmir_recursos_nivel(param_nivel.recusos);
 					recursos_personaje = "";
 
@@ -315,11 +327,9 @@ int main(void) {
 					nodo_lista_personaje->l_recursos_optenidos = list_create();
 
 					imprmir_recursos_nivel(param_nivel.recusos);
-
-					pthread_mutex_unlock(&s_personaje_recursos);
-
 					desbloquear_Personajes(recursos_personaje, buffer,
 							t_personaje, param_nivel, sck_plat);
+					pthread_mutex_unlock(&s_personaje_recursos);
 
 					tipo_mensaje = OK;
 
@@ -411,7 +421,7 @@ int main(void) {
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Cantidad de recursos después de la solicitud: %d",
 							nodo_lista_personaje->proximo_recurso->cantidad);
-
+					nodo_lista_personaje->proximo_recurso = NULL;
 					pthread_mutex_unlock(&s_personaje_recursos);
 					break;
 
@@ -444,10 +454,9 @@ int main(void) {
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
 							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
-					pthread_mutex_unlock(&s_personaje_recursos);
-
 					desbloquear_Personajes(recursos_personaje, buffer,
 							t_personaje, param_nivel, sck_plat);
+					pthread_mutex_unlock(&s_personaje_recursos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
@@ -510,23 +519,13 @@ void sig_handler(int signo) {
 
 }
 
-
 /**
  * Si el recurso no esta en la lista de los optenidos por elpersonaje se lo agrego con el valor 1
  * param 1 lista de recirsos del personaje
  * param 2 recurso actual del personaje
  */
 
-
-
-
-
 //Recibe una lista de recursos de tipo t_recusos y devuelve un string de tipo. EJ:"cantidadRecursos;simbolo1,cantidad1;simbolo2,cantidad2.."
-
-
-
-
-
 void imprimir_recursos(t_list * lista_Recursos) {
 	int tot_recusos = list_size(lista_Recursos);
 	int count;
