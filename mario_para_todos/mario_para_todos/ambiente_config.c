@@ -145,7 +145,7 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 	param.TiempoChequeoDeadlock = config_get_int_value(config,
 			"TiempoChequeoDeadlock");
-	param.Recovery = config_get_int_value(config, "Recovery");
+	param.Recovery = config_get_int_value(config, "RECOVERY");
 
 	return param;
 
