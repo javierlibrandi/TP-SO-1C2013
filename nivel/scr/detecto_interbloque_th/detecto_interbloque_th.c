@@ -295,7 +295,8 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 			} else {
 				difX = l_personaje->proximo_recurso->posX - l_personaje->posX;
 				difY = l_personaje->proximo_recurso->posY - l_personaje->posY;
-				if ((!(difX == 0 && difY == 0))  && l_personaje->proximo_recurso == NULL) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
+				if ((!(difX == 0 && difY == 0))
+						&& l_personaje->proximo_recurso == NULL ) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
 					l_personaje->bloquedo = false;
 					marcados++;
 

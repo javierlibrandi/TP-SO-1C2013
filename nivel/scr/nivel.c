@@ -330,7 +330,8 @@ int main(void) {
 
 					imprmir_recursos_nivel(param_nivel.recusos);
 
-					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s", mensaje[2]);
+					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s",
+							mensaje[2]);
 
 					if (mensaje[2][0] - '0') {
 						fd_mensaje(t_personaje->sck_orquestador,
@@ -339,9 +340,11 @@ int main(void) {
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se envió mensaje N_TO_O_PERS_REINICIO");
 
-						buffer = recv_variable(t_personaje->sck_orquestador, &tipo);
-						if(tipo == OK){
-							log_in_disk_niv(LOG_LEVEL_INFO, "Se recibió OK del orquestador de reinicio del personaje bloqueado.");
+						buffer = recv_variable(t_personaje->sck_orquestador,
+								&tipo);
+						if (tipo == OK) {
+							log_in_disk_niv(LOG_LEVEL_INFO,
+									"Se recibió OK del orquestador de reinicio del personaje bloqueado.");
 						}
 					}
 
@@ -469,17 +472,22 @@ int main(void) {
 					recursos_personaje = listarRecursosPersonaje(
 							nodo_lista_personaje->l_recursos_optenidos);
 
-					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s", mensaje[1]);
+					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s",
+							mensaje[1]);
 
 					if (mensaje[1][0] - '0') {
 						fd_mensaje(t_personaje->sck_orquestador,
-								N_TO_O_PERS_REINICIO, mensajeMover, &tot_enviados);
+								N_TO_O_PERS_REINICIO, mensajeMover,
+								&tot_enviados);
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"Se envió mensaje N_TO_O_PERS_REINICIO");
-						buff = recv_variable(t_personaje->sck_orquestador, &tipo);
 
-						if(tipo == OK){
-							log_in_disk_niv(LOG_LEVEL_INFO, "El personaje salió del planificador.");
+						"Se envió mensaje N_TO_O_PERS_REINICIO");
+						buff = recv_variable(t_personaje->sck_orquestador,
+								&tipo);
+
+						if (tipo == OK) {
+							log_in_disk_niv(LOG_LEVEL_INFO,
+									"El personaje salió del planificador.");
 						}
 
 					}
@@ -494,10 +502,8 @@ int main(void) {
 					elimino_sck_lista(i, t_personaje->readfds);
 					desbloquear_Personajes(recursos_personaje, buffer,
 							t_personaje, param_nivel, sck_plat);
-					
-					pthread_mutex_unlock(&s_personaje_recursos);
 
-					
+					pthread_mutex_unlock(&s_personaje_recursos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se eliminó el personaje del nivel. Se liberan sus recursos.");

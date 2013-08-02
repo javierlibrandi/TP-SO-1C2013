@@ -1,4 +1,5 @@
-echo 'levanta Level1-1'
+echo 'levanta_mario2'
+
 
 echo 'exporto las PATH'
 
@@ -8,10 +9,11 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Rele
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Release/
 echo $LD_LIBRARY_PATH
 
-echo 'copio archivo de configuracion'
 
-more $HOME/git/tp-20131c-gaturro/properties_nivel1-1.cfg  > $HOME/git/tp-20131c-gaturro/nivel/resources/properties.cfg
+echo 'copia archivos'
 
-echo 'ejecuto'
+more $HOME/git/tp-20131c-gaturro/personaje/resources/mario2_properties.cfg > $HOME/git/tp-20131c-gaturro/personaje/resources/properties.cfg 
 
-$HOME/git/tp-20131c-gaturro/nivel/Release/nivel
+echo 'ejecutar'
+
+$HOME/git/tp-20131c-gaturro/personaje/Release/personaje

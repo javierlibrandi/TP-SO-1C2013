@@ -1,4 +1,5 @@
-echo 'levanta Level1-1'
+echo 'levanta_goomba2'
+
 
 echo 'exporto las PATH'
 
@@ -8,10 +9,10 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Rele
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Release/
 echo $LD_LIBRARY_PATH
 
-echo 'copio archivo de configuracion'
+echo 'copia archivos'
 
-more $HOME/git/tp-20131c-gaturro/properties_nivel1-1.cfg  > $HOME/git/tp-20131c-gaturro/nivel/resources/properties.cfg
+more /home/utnso/git/tp-20131c-gaturro/personaje/resources/goomba2_properties.cfg > /home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg 
 
 echo 'ejecuto'
 
-$HOME/git/tp-20131c-gaturro/nivel/Release/nivel
+personaje/Release/personaje
