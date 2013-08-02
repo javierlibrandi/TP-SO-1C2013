@@ -31,7 +31,7 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	param.PUERTO = config_get_int_value(config, "PUERTO");
 
-	param.SEGUNDOS_ESPERA = config_get_int_value(config, "SEGUNDOS_ESPERA");
+	param.SEGUNDOS_ESPERA = config_get_double_value(config, "SEGUNDOS_ESPERA");
 
 	param.CUANTUM = config_get_int_value(config, "CUANTUM");
 

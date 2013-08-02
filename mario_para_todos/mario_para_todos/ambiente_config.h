@@ -16,7 +16,7 @@ int val_pos_recurso(int rows, int cols, int x, int y);
 typedef struct h_t_param_plat {
 	char** planificador_nivel;
 	int PUERTO;
-	int SEGUNDOS_ESPERA;
+	double SEGUNDOS_ESPERA;
 	int CUANTUM;
 } t_param_plat;
 
@@ -80,7 +80,7 @@ typedef struct {
 	pthread_mutex_t *s_terminados;
 	pthread_mutex_t *s_deadlock;
 	pthread_mutex_t *s_koopa;
-	int segundos_espera;
+	double segundos_espera;
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
 	bool error_nivel;//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
