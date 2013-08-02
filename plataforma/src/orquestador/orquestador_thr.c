@@ -23,8 +23,6 @@
 #include "../planificador/planificador_thr.h"
 #include <stdbool.h>
 
-
-
 void *orequestador_thr(void* p) {
 	t_h_orquestadro *t_h_orq = (t_h_orquestadro *) p;
 	char *buffer;
@@ -110,7 +108,6 @@ void *orequestador_thr(void* p) {
 								h_planificador->lista_planificadores);
 						h_planificador->error_nivel = true; //marco el error en la bandera para que el planificador mate el hilo.
 
-
 						lock_listas_plantaforma_orq(t_h_orq);
 						//muevo los que estan en nuevos a errores
 
@@ -118,24 +115,20 @@ void *orequestador_thr(void* p) {
 								h_planificador->desc_nivel, t_h_orq->l_nuevos,
 								t_h_orq->l_errores);
 
-
 						//muevo los que estan en listos a errores
 
 						mover_personaje_errores_por_nivel(
 								h_planificador->desc_nivel, t_h_orq->l_listos,
 								t_h_orq->l_errores);
 
-
 						//muevo los que estan en bloqueados a errores
 
 						mover_personaje_errores_por_nivel(
-								h_planificador->desc_nivel, t_h_orq->l_bloquedos,
-								t_h_orq->l_errores);
+								h_planificador->desc_nivel,
+								t_h_orq->l_bloquedos, t_h_orq->l_errores);
 
-						imprimir_listas(t_h_orq,'O');
+						imprimir_listas(t_h_orq, 'O');
 						un_lock_listas_plataforma_orq(t_h_orq);
-
-
 
 					} else {
 						//TODO Loquear que personaje es el que tuvo el error
@@ -356,7 +349,7 @@ void *orequestador_thr(void* p) {
 
 				case P_TO_O_PROX_NIVEL:
 					log_in_disk_orq(LOG_LEVEL_INFO,
-							"el personaje %s, pide el nivel; %s,", mensaje[0],
+							"El personaje %s, pide el nivel %s,", mensaje[0],
 							mensaje[1]);
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
@@ -412,8 +405,7 @@ void *orequestador_thr(void* p) {
 bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 		t_h_planificador* h_planificador) {
 
-	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador_2 de nivel: %s \t",
-			desc_nivel);
+	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador_2 de nivel: %s \t",desc_nivel);
 	struct hostent *dirIP;
 	int cant_planificadores, i;
 	//t_h_planificador * un_planificador;
@@ -540,5 +532,4 @@ void buscar_bloqueados_recurso(char * recur, char * nivel, t_list* bloqueados,
 	}
 	*pers = NULL;
 }
-
 

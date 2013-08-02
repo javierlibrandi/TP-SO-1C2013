@@ -113,8 +113,8 @@ int main(void) {
 
 	//creo el hilo para la deteccion de interbloqueo
 
-	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-			(void*) &h_interbloqueo);
+	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+		//	(void*) &h_interbloqueo);
 
 	pthread_mutex_lock(&s_personaje_recursos);
 	imprmir_recursos_nivel(param_nivel.recusos);
@@ -190,7 +190,6 @@ int main(void) {
 
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
-					//busco el personaje que me solicita el recurso
 
 					break;
 				case P_TO_N_MOVIMIENTO:
@@ -207,11 +206,11 @@ int main(void) {
 							t_personaje->l_personajes, &pos);
 					nodo_lista_personaje->posX = posX;
 					nodo_lista_personaje->posY = posY;
-					log_in_disk_niv(LOG_LEVEL_INFO,
+					/*log_in_disk_niv(LOG_LEVEL_INFO,
 							"PROBANDO COORDENADAS DE PERSONAJE a %s a (%d,%d)",
 							nodo_lista_personaje->nombre_personaje,
 							nodo_lista_personaje->posX,
-							nodo_lista_personaje->posY);
+							nodo_lista_personaje->posY);*/
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					if (B_DIBUJAR) {
@@ -227,6 +226,8 @@ int main(void) {
 					break;
 
 				case P_TO_N_OBJ_CUMPLIDO:
+
+					log_in_disk_niv(LOG_LEVEL_TRACE, "Se recibió un mensaje P_TO_N_OBJ_CUMPLIDO");
 
 					recursos_personaje = "";
 					pthread_mutex_lock(&s_personaje_recursos);
@@ -273,10 +274,8 @@ int main(void) {
 					elimino_sck_lista(i, t_personaje->readfds);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Los recursos del nivel: %s despues de liberar el personaje: %s %c son los siguietes: (proximo log)",
-							param_nivel.nom_nivel,
-							personaje_aux.nombre_personaje,
-							personaje_aux.id_personaje);
+							"Los recursos del %s después de liberar el personaje %s ", param_nivel.nom_nivel,
+							personaje_aux.nombre_personaje);
 
 					imprmir_recursos_nivel(param_nivel.recusos);
 					/*Informo al orquestador los recursos liberados y actualizo las instancias de los recursos dependiendo de la respuesta.
@@ -321,7 +320,7 @@ int main(void) {
 							nodo_lista_personaje->l_recursos_optenidos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"el personaje: %s Liberó estos recursos: %s.",
+							"El personaje: %s iberó estos recursos: %s.",
 							nodo_lista_personaje->nombre_personaje,
 							recursos_personaje);
 
