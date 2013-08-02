@@ -478,16 +478,13 @@ int main(void) {
 
 					if (mensaje[1][0] - '0') {
 						fd_mensaje(t_personaje->sck_orquestador,
-								N_TO_O_PERS_REINICIO, mensajeMover, &tot_enviados);
+								N_TO_O_PERS_REINICIO, mensajeMover,
+								&tot_enviados);
 						log_in_disk_niv(LOG_LEVEL_INFO,
-<<<<<<< HEAD
-								"Se envió mensaje N_TO_O_PERS_REINICIO");
+
+						"Se envió mensaje N_TO_O_PERS_REINICIO");
 						buff = recv_variable(t_personaje->sck_orquestador,
 								&tipo);
-=======
-								"Se envió mensaje N_TO_O_PERS_REINICIO");
-						buff = recv_variable(t_personaje->sck_orquestador, &tipo);
->>>>>>> branch 'master' of https://github.com/sisoputnfrba/tp-20131c-gaturro.git
 
 						if (tipo == OK) {
 							log_in_disk_niv(LOG_LEVEL_INFO,

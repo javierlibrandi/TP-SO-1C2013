@@ -205,30 +205,30 @@ void *orequestador_thr(void* p) {
 
 					break;
 
-				/*case N_TO_O_PERS_SALIR:
+					/*case N_TO_O_PERS_SALIR:
 
-					log_in_disk_orq(LOG_LEVEL_INFO,
-							"Nivel informa que un personaje bloqueado reinicia el plan de niveles.");
+					 log_in_disk_orq(LOG_LEVEL_INFO,
+					 "Nivel informa que un personaje bloqueado reinicia el plan de niveles.");
 
-					pers = busca_personaje_simbolo_pla(mensaje[0][0],
-												t_h_orq->l_bloquedos, &indice);
+					 pers = busca_personaje_simbolo_pla(mensaje[0][0],
+					 t_h_orq->l_bloquedos, &indice);
 
-					lock_listas_plantaforma_orq(t_h_orq);
+					 lock_listas_plantaforma_orq(t_h_orq);
 
-					//sock_aux = pers->sck;
+					 //sock_aux = pers->sck;
 
-					eliminar_personaje_termino_nivel(pers->sck,
-							t_h_orq->l_bloquedos);
+					 eliminar_personaje_termino_nivel(pers->sck,
+					 t_h_orq->l_bloquedos);
 
-					un_lock_listas_plataforma_orq(t_h_orq);
+					 un_lock_listas_plataforma_orq(t_h_orq);
 
-					fd_mensaje(i, OK,
-							"Personaje salió del planificador del nivel",
-							&byteEnviados);
+					 fd_mensaje(i, OK,
+					 "Personaje salió del planificador del nivel",
+					 &byteEnviados);
 
-					close(pers->sck);
+					 close(pers->sck);
 
-					break;*/
+					 break;*/
 
 				case N_TO_O_PERS_REINICIO:
 
@@ -246,8 +246,8 @@ void *orequestador_thr(void* p) {
 
 					log_in_disk_orq(LOG_LEVEL_INFO,
 							"Se movió el personaje a listos para planificar.");
-					fd_mensaje(i, OK, "Personaje movido a listos.", &byteEnviados);
-
+					fd_mensaje(i, OK, "Personaje movido a listos.",
+							&byteEnviados);
 
 					break;
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
@@ -347,15 +347,18 @@ void *orequestador_thr(void* p) {
 						//recv_variable(i,&tipo); //TODO Controlar el error. // Esperamos
 
 						pthread_mutex_lock(t_h_orq->reads_select);
+						pthread_mutex_lock(t_h_orq->s_nuevos);
 						busca_personaje_skc(i, t_h_orq->l_nuevos,
 								&indice_personaje)->listo_para_planificar =
 								true;
+						pthread_mutex_unlock(t_h_orq->s_nuevos);
 						elimino_sck_lista(i, t_h_orq->readfds);
 
 						pthread_mutex_unlock(t_h_orq->reads_select);
 
 					} else {
 						fd_mensaje(i, ERROR, respuesta, &byteEnviados);
+
 					}
 					pthread_mutex_unlock(t_h_orq->s_lista_plani);
 					break;
