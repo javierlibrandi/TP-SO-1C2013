@@ -217,6 +217,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador) {
 	int byteEnviados;
+	char **mensaje;
 	char *buffer;
 	int tipo;
 	int movimientos_realizados = 0;
@@ -344,8 +345,14 @@ static void mover_personaje(t_personaje *personaje,
 
 			break;
 
+		case P_TO_PL_TURNO_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
+
+			mensaje = string_split(buffer, ";");
+			log_in_disk_plan(LOG_LEVEL_INFO, "Se recibió notificación de turno cumplido del personaje %s", mensaje[0]);
+			break;
+
 		default:
-			log_in_disk_plan(LOG_LEVEL_TRACE,
+			log_in_disk_plan(LOG_LEVEL_ERROR,
 					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s",
 					tipo, buffer);
 

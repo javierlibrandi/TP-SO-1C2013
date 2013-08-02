@@ -477,8 +477,11 @@ void desbloquear_Personajes(char * recursos_personaje, char *buffer,
 					nodo_lista_personaje->l_recursos_optenidos);
 
 			if (recurso != NULL ) { //agreo a la lista de recursos asignados al personaje
+				log_in_disk_niv(LOG_LEVEL_TRACE, "Se incrementa la cantidad del recurso en personaje.");
 				recurso->cantidad++; //si esta en la lista le agrego una instancia el recurso que ya tiene el personaje
 			} else {
+				log_in_disk_niv(LOG_LEVEL_TRACE, "Se agrega el recurso en personaje.");
+				log_in_disk_niv(LOG_LEVEL_TRACE, "Proximo recurso: %c", nodo_lista_personaje->proximo_recurso->SIMBOLO);
 				add_recurso_personaje(
 						nodo_lista_personaje->l_recursos_optenidos,
 						nodo_lista_personaje->proximo_recurso);
@@ -528,12 +531,14 @@ void desbloquear_Personajes(char * recursos_personaje, char *buffer,
 
 }
 
-void add_recurso_personaje(t_list *l_recursos_optenidos,
-		struct h_t_recusos *recurso_actual) {
+void add_recurso_personaje(t_list *l_recursos_optenidos, struct h_t_recusos *recurso_actual) {
+
+	log_in_disk_niv(LOG_LEVEL_TRACE, "Entró en add_recurso");
+
 	struct h_t_recusos *recurso = malloc(sizeof(struct h_t_recusos));
+
 	log_in_disk_niv(LOG_LEVEL_TRACE,
-			"add_recurso_personaje agrego el recurso %c",
-			recurso_actual->SIMBOLO);
+			"add_recurso_personaje agrego el recurso %c", recurso_actual->SIMBOLO);
 
 	memcpy(recurso, recurso_actual, sizeof(struct h_t_recusos));
 
@@ -624,3 +629,5 @@ void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 	}
 	list_destroy(recursos_otenido); //TODO Destruir los nodos de la lista!
 }
+
+

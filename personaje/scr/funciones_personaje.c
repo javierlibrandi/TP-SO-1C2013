@@ -122,6 +122,7 @@ int conectarOrquestador(Personaje* personaje) {
 //Recibo OK del orquestador
 
 	buffer = recv_variable(descriptor, &tipo);
+	controlarConexion_recv(buffer);
 
 	if (tipo == ERROR) {
 		log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del orquestador: %s",
@@ -151,9 +152,6 @@ char* determinarProxNivel(Personaje *personaje) {
 	personaje->nivelActual++;
 	nivAct = personaje->nivelActual;
 
-	/*log_in_disk_per(LOG_LEVEL_INFO,
-	 "nivel actual: %d, tamaño lista niveles: %d",
-	 personaje->nivelActual, list_size(personaje->niveles));*/
 
 	if (list_size(personaje->niveles) > nivAct) {
 		proxNivel = list_get(personaje->niveles, nivAct);
@@ -202,7 +200,6 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 
 //Creo string con nombre y nivel para enviar al Orquestador en P_TO_O_PROX_NIVEL
 //Se fija en su lista de plan de niveles, cuál es el próximo nivel a completar.
-	//infoNivel.nombre_nivel = determinarProxNivel(personaje);
 	infoNivel.nombre_nivel = personaje->infoNivel.nombre;
 	log_in_disk_per(LOG_LEVEL_INFO, "Próximo Nivel -> %s",
 			infoNivel.nombre_nivel);
@@ -226,17 +223,18 @@ InfoProxNivel consultarProximoNivel(int descriptor, Personaje* personaje) {
 //Recibo ip/puerto del nivel en un string separados por ;
 	log_in_disk_per(LOG_LEVEL_INFO, "Esperando respuesta del orquestador");
 	buffer = recv_variable(descriptor, &tipo);
+	controlarConexion_recv(buffer);
+
 	if (tipo == ERROR) {
-		log_in_disk_per(LOG_LEVEL_ERROR, "%s", buffer);
+		log_in_disk_per(LOG_LEVEL_ERROR,
+				"Falló la consulta. Mensaje del Orquestador: %s", buffer);
+		log_in_disk_per(LOG_LEVEL_ERROR, "El proceso personaje va a terminar.");
 		exit(EXIT_FAILURE);
 	}
 
 	if (tipo == O_TO_P_UBIC_NIVEL) {
 		log_in_disk_per(LOG_LEVEL_INFO,
 				"Se recibió información del orquestador:%s", buffer);
-
-//ver como extraer ip y puerto del mensaje recibido en buffer
-//Por ahora harcodeo
 
 		aux_msj = string_split(buffer, ";");
 
@@ -320,6 +318,8 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	tipoN = 0;
 	while (tipoN != OK) {
 		bufferNiv = recv_variable(descriptorNiv, &tipoN);
+		controlarConexion_recv(bufferNiv);
+
 		if (tipoN == ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
 					bufferNiv);
@@ -372,6 +372,8 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 
 		log_in_disk_per(LOG_LEVEL_INFO, "Espero OKEY del planificador...");
 		bufferPla = recv_variable(descriptorPlan, &tipoP);
+		controlarConexion_recv(bufferPla);
+
 		if (tipoP == ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
 					"Falló. Respuesta del planificador:%s", bufferPla);
@@ -395,8 +397,6 @@ void iniciarNivel(Personaje* personaje, InfoProxNivel infoNivel) {
 	free(bufferNiv);
 	free(bufferPla);
 }
-
-//¿crear función con select que escuche al planif y al nivel?
 
 char* determinarProxRecurso(Personaje *personaje) {
 
@@ -466,6 +466,7 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
 	tipo = 0;
 	while (tipo != N_TO_P_UBIC_RECURSO && tipo != ERROR) {
 		buffer = recv_variable(personaje->sockNivel, &tipo);
+		controlarConexion_recv(buffer);
 
 		if (tipo == ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR, "Falló. Respuesta del Nivel:%s",
@@ -504,7 +505,6 @@ void solicitarUbicacionRecurso(Personaje* personaje) {
  * moverse() y solicitarInstanciaRecurso() y notificarBloqueo()
  */
 
-//***** REEMPLAZAR FUNCIÓN ejecutarTurno en REPO 21/7
 void ejecutarTurno(Personaje *personaje) {
 	int bytes_enviados, bytes_enviados1, bytes_enviados2, recursoAdjudicado;
 	char *mensajeFinTurno;
@@ -666,6 +666,7 @@ void salirPlanifPorMuerte(Personaje *personaje) {
 	char mensajeSalir[max_len];
 	int bytes_enviados, tipo;
 	int sockPlanif;
+	char *buffer;
 
 	sockPlanif = personaje->sockPlanif;
 	sprintf(mensajeSalir, "%c;%d", personaje->simbolo, personaje->bloqueado);
@@ -688,7 +689,9 @@ void salirPlanifPorMuerte(Personaje *personaje) {
 	tipo = 0;
 	while (tipo != OK) {
 
-		recv_variable(sockPlanif, &tipo);
+		buffer = recv_variable(sockPlanif, &tipo);
+		controlarConexion_recv(buffer);
+
 
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
@@ -709,9 +712,8 @@ void salirPlanifPorMuerte(Personaje *personaje) {
 
 }
 
-//Avisa y se desconecta del planificador y del nivel
 void salirNivelPorObjCumplido(Personaje *personaje) {
-	char *mensajeFinNivel, *mensajeFinNivelP;
+	char *mensajeFinNivel, *mensajeFinNivelP, *buffer;
 	char mensajeSalir[max_len];
 	int sockNivel, sockPlanif;
 	int bytes_enviados, bytes_enviados1, tipo;
@@ -742,7 +744,8 @@ void salirNivelPorObjCumplido(Personaje *personaje) {
 		tipo = 0;
 		while (tipo != OK) {
 
-			recv_variable(sockPlanif, &tipo);
+			buffer = recv_variable(sockPlanif, &tipo);
+			controlarConexion_recv(buffer);
 
 			if (tipo == OK) {
 				log_in_disk_per(LOG_LEVEL_ERROR,
@@ -781,7 +784,8 @@ void salirNivelPorObjCumplido(Personaje *personaje) {
 
 	tipo = 0;
 	while (tipo != OK) {
-		recv_variable(sockNivel, &tipo);
+		buffer = recv_variable(sockNivel, &tipo);
+		controlarConexion_recv(buffer);
 
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
@@ -818,7 +822,6 @@ bool objetivoNivelCumplido(Personaje* personaje) {
 	}
 }
 
-//REEMPLAZAR EN REPO 21/7
 bool planDeNivelesCumplido(Personaje* personaje) {
 
 	if (personaje->nivelActual == -2)
@@ -830,7 +833,6 @@ bool planDeNivelesCumplido(Personaje* personaje) {
 }
 
 //Avisa al nivel para que lo reinicie en el mapa y libere los recursos. Reinicia los recursos pendientes.
-//REEMPLAZAR TODA ESTA FUNCIÓN EN REPO 21/7
 void reiniciarNivel(Personaje *personaje) {
 
 	char mensaje[max_len];
@@ -869,6 +871,7 @@ void reiniciarNivel(Personaje *personaje) {
 	while (tipo != OK) {
 
 		buffer = recv_variable(personaje->sockNivel, &tipo);
+		controlarConexion_recv(buffer);
 
 		if (tipo == OK) {
 			log_in_disk_per(LOG_LEVEL_INFO, "Respuesta del nivel:%s", buffer);
@@ -982,7 +985,7 @@ void moverse(Personaje* personaje) {
 	}
 
 	log_in_disk_per(LOG_LEVEL_INFO,
-			"soy %s --->Mi nueva posición a pedir al nivel: (%d, %d)",
+			"Soy %s --->Mi nueva posición a pedir al nivel: (%d, %d)",
 			personaje->nombre, nuevaPosicion.x, nuevaPosicion.y);
 
 //Envío mensaje a nivel del tipo P_TO_N_MOVIMIENTO. "simbolo;xActual;yActual;xNuevo;yNuevo"
@@ -1005,6 +1008,7 @@ void moverse(Personaje* personaje) {
 	tipo = 0;
 	while (tipo != N_TO_P_MOVIDO) {
 		buffer = recv_variable(personaje->sockNivel, &tipo);
+		controlarConexion_recv(buffer);
 
 		if (tipo == N_TO_P_MOVIDO) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
@@ -1028,7 +1032,6 @@ void moverse(Personaje* personaje) {
 	free(buffer);
 }
 
-// ******** 21/7 REEMPLAZAR TODA FUNCIÓN solicitarInstanciaRecurso 21/7 EN REPO
 bool solicitarInstanciaRecurso(Personaje *personaje) {
 
 	char mensaje[max_len];
@@ -1058,6 +1061,7 @@ bool solicitarInstanciaRecurso(Personaje *personaje) {
 	tipo = 0;
 	while (tipo != N_TO_P_RECURSO_OK && tipo != N_TO_P_RECURSO_ERROR) {
 		buffer = recv_variable(personaje->sockNivel, &tipo);
+		controlarConexion_recv(buffer);
 
 		if (tipo == N_TO_P_RECURSO_ERROR) {
 			log_in_disk_per(LOG_LEVEL_ERROR,
@@ -1107,7 +1111,6 @@ bool conocePosicionRecurso(char recursoActual) {
 	}
 }
 
-//***** REMPLAZAR esta función 21/7 en REPO
 t_recusos *recursos_nivel(t_list *recursos, char *nivel) {
 	log_in_disk_per(LOG_LEVEL_TRACE, "Busco los recursos del %s", nivel);
 
@@ -1128,5 +1131,14 @@ t_recusos *recursos_nivel(t_list *recursos, char *nivel) {
 	}
 
 	return (t_recusos*) list_find(recursos, (void*) _list_elements);
+
+}
+
+void controlarConexion_recv(char *buffer) {
+
+	if (!strcmp(buffer, Leido_error)) {
+		log_in_disk_per(LOG_LEVEL_ERROR, "Hubo un error de conexión esperando un mensaje. Termina el proceso personaje.");
+		exit(EXIT_FAILURE);
+	}
 
 }

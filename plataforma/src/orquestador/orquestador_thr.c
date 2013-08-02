@@ -327,7 +327,7 @@ void *orequestador_thr(void* p) {
 
 				case P_TO_O_PROX_NIVEL:
 					log_in_disk_orq(LOG_LEVEL_INFO,
-							"el personaje %s, pide el nivel; %s,", mensaje[0],
+							"El personaje %s, pide el nivel %s,", mensaje[0],
 							mensaje[1]);
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
@@ -380,7 +380,7 @@ void *orequestador_thr(void* p) {
 bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 		t_h_planificador* h_planificador) {
 
-	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador de nivel: %s \t",
+	log_in_disk_orq(LOG_LEVEL_TRACE, "Busco el planificador de nivel: %s \t",
 			desc_nivel);
 	struct hostent *dirIP;
 	int cant_planificadores, i;
