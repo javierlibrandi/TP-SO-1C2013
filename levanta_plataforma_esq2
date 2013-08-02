@@ -14,7 +14,7 @@ more $HOME/git/tp-20131c-gaturro/properties_plataforma_esq2.cfg  > $HOME/git/tp-
 
 echo 'copio archivo koopa'
 
-more $HOME/git/tp-20131c-gaturro/koopa_esq2.txt  > $HOME/git/tp-20131c-gaturro/memoria/docs/ejemplo.txt
+more $HOME/git/tp-20131c-gaturro/koopa_esq2.txt  > $HOME/git/tp-20131c-gaturro/plataforma/src/planificador/Esquema.txt
 
 echo 'ejecuto'
 

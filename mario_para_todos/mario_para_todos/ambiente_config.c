@@ -392,3 +392,4 @@ void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
 	}
 
 }
+

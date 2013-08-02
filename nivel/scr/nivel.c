@@ -142,13 +142,11 @@ int main(void) {
 			if (FD_ISSET(i, t_personaje->readfds)) {
 
 				buffer = recv_variable(i, &tipo);
-				if (!strcmp(buffer, Leido_error)) {
-					pthread_mutex_lock(&s_personaje_recursos);
-					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
-							ListaItems);
-					elimino_sck_lista(i, t_personaje->readfds);
-					pthread_mutex_unlock(&s_personaje_recursos);
-				}
+
+				pthread_mutex_lock(&s_personaje_recursos);
+				controlar_error_rec(t_personaje, nodo_lista_personaje, buffer,
+						i, tot_enviados);
+				pthread_mutex_unlock(&s_personaje_recursos);
 
 				log_in_disk_niv(LOG_LEVEL_INFO,
 						"****** Se recibió un tipo de mensaje %d: %s ******",
@@ -195,6 +193,11 @@ int main(void) {
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
 
+					controlar_error_fd(t_personaje, nodo_lista_personaje,
+							buffer, i, tot_enviados);
+
+					//busco el personaje que me solicita el recurso
+
 					break;
 				case P_TO_N_MOVIMIENTO:
 					log_in_disk_niv(LOG_LEVEL_INFO,
@@ -223,6 +226,8 @@ int main(void) {
 
 					aux_mensaje = "te movi";
 					fd_mensaje(i, N_TO_P_MOVIDO, aux_mensaje, &tot_enviados);
+					controlar_error_fd(t_personaje, nodo_lista_personaje,
+							buffer, i, tot_enviados);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se envió confirmación de movimiento a %s a (%d,%d)",
 							nodo_lista_personaje->nombre_personaje, posX, posY);
@@ -268,12 +273,14 @@ int main(void) {
 						pthread_mutex_unlock(&s_personaje_recursos);
 					}
 
+					pthread_mutex_lock(&s_personaje_recursos);
 					fd_mensaje(i, OK, "Fin de nivel", &tot_enviados);
-
+					controlar_error_fd(t_personaje, nodo_lista_personaje,
+							buffer, i, tot_enviados);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se envió OK de fin de nivel al personaje");
 					//La funcion el "elimino_personaje_lista_nivel" ya suma los recursos que se liberaron y tambien actualiza los recursos en pantalla.
-					pthread_mutex_lock(&s_personaje_recursos);
+
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
 							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
@@ -308,62 +315,83 @@ int main(void) {
 					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
+					if (pos != -1) {
 
-					if (B_DIBUJAR) {
+						if (B_DIBUJAR) {
 
-						BorrarItem(&ListaItems,
-								nodo_lista_personaje->id_personaje);
-						nivel_gui_dibujar(ListaItems);
-						personaje_pantalla(mensaje[0][0], 1, 1, &ListaItems);
-						nivel_gui_dibujar(ListaItems);
-					}
-					nodo_lista_personaje->posX = 1;
-					nodo_lista_personaje->posY = 1;
-					imprmir_recursos_nivel(param_nivel.recusos);
-					recursos_personaje = "";
+							BorrarItem(&ListaItems,
+									nodo_lista_personaje->id_personaje);
+							nivel_gui_dibujar(ListaItems);
+							personaje_pantalla(mensaje[0][0], 1, 1,
+									&ListaItems);
+							nivel_gui_dibujar(ListaItems);
+						}
+						nodo_lista_personaje->posX = 1;
+						nodo_lista_personaje->posY = 1;
+						imprmir_recursos_nivel(param_nivel.recusos);
+						recursos_personaje = "";
 
-					recursos_personaje = listarRecursosPersonaje(
-							nodo_lista_personaje->l_recursos_optenidos);
+
+						recursos_personaje = listarRecursosPersonaje(
+								nodo_lista_personaje->l_recursos_optenidos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"El personaje %s liberó estos recursos: %s.",
 							nodo_lista_personaje->nombre_personaje,
 							recursos_personaje);
 
-					liberar_recursos(nodo_lista_personaje->l_recursos_optenidos,
-							ListaItems);
-					nodo_lista_personaje->l_recursos_optenidos = list_create();
 
-					imprmir_recursos_nivel(param_nivel.recusos);
-
-					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s",
-							mensaje[2]);
-
-					if (mensaje[2][0] - '0') {
-						fd_mensaje(t_personaje->sck_orquestador,
-								N_TO_O_PERS_REINICIO, mensajeMover,
-								&tot_enviados);
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"Se envió mensaje N_TO_O_PERS_REINICIO");
+								"el personaje: %s Liberó estos recursos: %s.",
+								nodo_lista_personaje->nombre_personaje,
+								recursos_personaje);
 
-						buffer = recv_variable(t_personaje->sck_orquestador,
-								&tipo);
-						if (tipo == OK) {
+						liberar_recursos(
+								nodo_lista_personaje->l_recursos_optenidos,
+								ListaItems);
+						nodo_lista_personaje->l_recursos_optenidos =
+								list_create();
+
+						imprmir_recursos_nivel(param_nivel.recusos);
+
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Personaje bloqueado?: %s", mensaje[2]);
+
+						if (mensaje[2][0] - '0') {
+							fd_mensaje(t_personaje->sck_orquestador,
+									N_TO_O_PERS_REINICIO, mensajeMover,
+									&tot_enviados);
+							controlar_error_fd(t_personaje,
+									nodo_lista_personaje, buffer,
+									t_personaje->sck_orquestador, tot_enviados);
 							log_in_disk_niv(LOG_LEVEL_INFO,
-									"Se recibió OK del orquestador de reinicio del personaje bloqueado.");
+									"Se envió mensaje N_TO_O_PERS_REINICIO");
+
+							buffer = recv_variable(t_personaje->sck_orquestador,
+									&tipo);
+
+							controlar_error_rec(t_personaje,
+									nodo_lista_personaje, buffer,
+									t_personaje->sck_orquestador, tot_enviados);
+
+							if (tipo == OK) {
+								log_in_disk_niv(LOG_LEVEL_INFO,
+										"Se recibió OK del orquestador de reinicio del personaje bloqueado.");
+							}
 						}
+
+						desbloquear_Personajes(recursos_personaje, buffer,
+								t_personaje, param_nivel, sck_plat);
+
+						tipo_mensaje = OK;
+
+						fd_mensaje(i, tipo_mensaje, "Nivel re-iniciado.",
+								&tot_enviados);
+						controlar_error_fd(t_personaje, nodo_lista_personaje,
+								buffer, i, tot_enviados);
 					}
-
-					desbloquear_Personajes(recursos_personaje, buffer,
-							t_personaje, param_nivel, sck_plat);
 					pthread_mutex_unlock(&s_personaje_recursos);
 
-					pthread_mutex_unlock(&s_personaje_recursos);
-
-					tipo_mensaje = OK;
-
-					fd_mensaje(i, tipo_mensaje, "Nivel re-iniciado.",
-							&tot_enviados);
 					break;
 
 				case P_TO_N_SOLIC_RECURSO:
@@ -399,6 +427,9 @@ int main(void) {
 						fd_mensaje(i, tipo_mensaje,
 								"LLEGASTE AL RECURSO, EN HORA BUENA!!!",
 								&tot_enviados);
+						controlar_error_fd(t_personaje, nodo_lista_personaje,
+								buffer, i, tot_enviados);
+
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se envió N_TO_P_RECURSO_OK");
 
@@ -430,6 +461,13 @@ int main(void) {
 									nodo_lista_personaje->l_recursos_optenidos,
 									nodo_lista_personaje->proximo_recurso);
 						}
+						nodo_lista_personaje->proximo_recurso->cantidad =
+								catidad_recursos;
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Cantidad de recursos después de la solicitud: %d",
+								nodo_lista_personaje->proximo_recurso->cantidad);
+						nodo_lista_personaje->proximo_recurso = NULL;
+
 
 						nodo_lista_personaje->proximo_recurso->cantidad =
 								catidad_recursos;
@@ -453,6 +491,9 @@ int main(void) {
 						fd_mensaje(i, tipo_mensaje,
 								"No hay instancias disponibles. Tendrás que esperar :P!!!",
 								&tot_enviados);
+						controlar_error_fd(t_personaje, nodo_lista_personaje,
+								buffer, i, tot_enviados);
+
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Se envió N_TO_P_RECURSO_ERROR");
 
@@ -492,12 +533,17 @@ int main(void) {
 						fd_mensaje(t_personaje->sck_orquestador,
 								N_TO_O_PERS_REINICIO, mensajeMover,
 								&tot_enviados);
+						controlar_error_fd(t_personaje, nodo_lista_personaje,
+								buffer, t_personaje->sck_orquestador,
+								tot_enviados);
 						log_in_disk_niv(LOG_LEVEL_INFO,
 
 						"Se envió mensaje N_TO_O_PERS_REINICIO");
 						buff = recv_variable(t_personaje->sck_orquestador,
 								&tipo);
-
+						controlar_error_rec(t_personaje, nodo_lista_personaje,
+								buffer, t_personaje->sck_orquestador,
+								tot_enviados);
 						if (tipo == OK) {
 							log_in_disk_niv(LOG_LEVEL_INFO,
 									"El personaje salió del planificador.");
@@ -507,6 +553,9 @@ int main(void) {
 
 					//esperar ok del orquestador?
 					fd_mensaje(i, OK, "Saliste del nivel.", &tot_enviados);
+					controlar_error_fd(t_personaje, nodo_lista_personaje,
+							buffer, i, tot_enviados);
+
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se envió OK de salida al personaje.");
 

@@ -18,6 +18,11 @@ typedef struct {
 
 } t_h_interbloqueo;
 
+void controlar_error_rec(t_h_personaje * t_personaje,
+		t_lista_personaje * nodo_lista_personaje, char *buffer, int sock, int bytes_enviados) ;
+
+void controlar_error_fd(t_h_personaje * t_personaje,
+		t_lista_personaje * nodo_lista_personaje, char *buffer, int sock, int bytes_enviados) ;
 void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item);
 
 void liberar_memoria(t_lista_personaje *personaje, ITEM_NIVEL *item);
