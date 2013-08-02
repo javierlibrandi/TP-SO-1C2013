@@ -331,17 +331,18 @@ int val_pos_recurso(int rows, int cols, int x, int y) {
 
 void tabla_a_koopa(t_h_planificador *h_planificador) {
 
+	int pasadas = 0;
 	//Si nadie espera por Koopa salgo
 	pthread_mutex_lock(h_planificador->s_koopa);
-	if (h_planificador->l_koopa) {
+	if (list_is_empty(h_planificador->l_koopa) ) {
 		return;
 	}
 
 	pthread_mutex_unlock(h_planificador->s_koopa);
 
-	while (VALIDAR_KOOPA) {
+	while (VALIDAR_KOOPA != pasadas) {
 		//TODO PONEMOS LA LISTA DE NUEVOS?????
-		pthread_mutex_lock(h_planificador->s_listos);
+		//pthread_mutex_lock(h_planificador->s_listos);
 		pthread_mutex_lock(h_planificador->s_bloquedos);
 
 		//si las lista tiene personajes SALGO
@@ -350,12 +351,16 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 			return;
 		}
 
-		pthread_mutex_unlock(h_planificador->s_listos);
+		//pthread_mutex_unlock(h_planificador->s_listos);
 		pthread_mutex_unlock(h_planificador->s_bloquedos);
+		sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
+
+		pasadas++;
 	}
-	sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
 
 	execlp(PATH_KOOPA, PATH_KOOPA, FILE_KOOPA, (const char *) NULL );
+
+	exit(EXIT_SUCCESS);
 
 }
 
