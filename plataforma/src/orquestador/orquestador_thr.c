@@ -28,7 +28,7 @@ void *orequestador_thr(void* p) {
 	char *buffer;
 	char *respuesta_recursos;
 	//char respuesta_recursos[200];
-	int i, j, k;
+	int i, j, k, sock_aux;
 	int tipo;
 	char **mensaje;
 	//char *aux_char=NULL;
@@ -205,6 +205,51 @@ void *orequestador_thr(void* p) {
 
 					break;
 
+				case N_TO_O_PERS_SALIR:
+
+					log_in_disk_orq(LOG_LEVEL_INFO,
+							"Nivel informa que un personaje bloqueado reinicia el plan de niveles.");
+
+					pers = busca_personaje_simbolo_pla(mensaje[0][0],
+												t_h_orq->l_bloquedos, &indice);
+
+					lock_listas_plantaforma_orq(t_h_orq);
+
+					sock_aux = pers->sck;
+
+					eliminar_personaje_termino_nivel(pers->sck,
+							t_h_orq->l_bloquedos);
+
+					un_lock_listas_plataforma_orq(t_h_orq);
+
+					fd_mensaje(i, OK,
+							"Personaje salió del planificador del nivel",
+							&byteEnviados);
+
+					close(pers->sck);
+
+					break;
+
+				case N_TO_O_PERS_REINICIO:
+
+					log_in_disk_orq(LOG_LEVEL_INFO,
+							"Nivel informa que un personaje bloqueado reinicia el mapa.");
+
+					lock_listas_plantaforma_orq(t_h_orq);
+					pers = busca_personaje_simbolo_pla(mensaje[0][0],
+							t_h_orq->l_bloquedos, &indice);
+
+					mover_personaje_lista(pers->sck, t_h_orq->l_bloquedos,
+							t_h_orq->l_listos);
+
+					un_lock_listas_plataforma_orq(t_h_orq);
+
+					log_in_disk_orq(LOG_LEVEL_INFO,
+							"Se movió el personaje a listos para planificar.");
+					fd_mensaje(i, OK, "Personaje movido a listos.", &byteEnviados);
+
+
+					break;
 				case N_TO_O_PERSONAJE_TERMINO_NIVEL:
 
 					log_in_disk_orq(LOG_LEVEL_ERROR,

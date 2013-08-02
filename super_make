@@ -26,4 +26,4 @@ export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Release/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Release/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Debug/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Debug/
-echo '$LD_LIBRARY_PATH'
+echo $LD_LIBRARY_PATH

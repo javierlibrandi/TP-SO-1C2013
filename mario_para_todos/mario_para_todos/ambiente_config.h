@@ -135,6 +135,9 @@ void imprimir_listas(void *estruc, char tipo_estruc);
 
 void tabla_a_koopa(t_h_planificador *h_planificador);
 
+<<<<<<< HEAD
+void tabla_a_koopa_prueba();
+=======
 /// Muevo lo que estaba en el entorno.h
 
 #define PATH_PLATAFORMA_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
@@ -159,5 +162,6 @@ void tabla_a_koopa(t_h_planificador *h_planificador);
 
 #define  Leido_error "Error en la lectura del socket......"
 
+>>>>>>> 3ebb830db09ab8d98edbeb3c7fe7fae0a33c860b
 
 #endif /* AMBIENTE_CONFIG_H_ */
