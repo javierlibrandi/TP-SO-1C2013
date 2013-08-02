@@ -205,7 +205,7 @@ void *orequestador_thr(void* p) {
 
 					break;
 
-				case N_TO_O_PERS_SALIR:
+				/*case N_TO_O_PERS_SALIR:
 
 					log_in_disk_orq(LOG_LEVEL_INFO,
 							"Nivel informa que un personaje bloqueado reinicia el plan de niveles.");
@@ -215,7 +215,7 @@ void *orequestador_thr(void* p) {
 
 					lock_listas_plantaforma_orq(t_h_orq);
 
-					sock_aux = pers->sck;
+					//sock_aux = pers->sck;
 
 					eliminar_personaje_termino_nivel(pers->sck,
 							t_h_orq->l_bloquedos);
@@ -228,7 +228,7 @@ void *orequestador_thr(void* p) {
 
 					close(pers->sck);
 
-					break;
+					break;*/
 
 				case N_TO_O_PERS_REINICIO:
 

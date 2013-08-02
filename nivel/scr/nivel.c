@@ -460,9 +460,9 @@ int main(void) {
 
 					if (mensaje[1][0] - '0') {
 						fd_mensaje(t_personaje->sck_orquestador,
-								N_TO_O_PERS_SALIR, mensajeMover, &tot_enviados);
+								N_TO_O_PERS_REINICIO, mensajeMover, &tot_enviados);
 						log_in_disk_niv(LOG_LEVEL_INFO,
-								"Se envió mensaje N_TO_O_PERS_SALIR");
+								"Se envió mensaje N_TO_O_PERS_REINICIO");
 						buff = recv_variable(t_personaje->sck_orquestador, &tipo);
 
 						if(tipo == OK){

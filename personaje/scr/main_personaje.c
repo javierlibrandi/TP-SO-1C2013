@@ -58,12 +58,11 @@ void manejador_signal(int signal) {
 					"Se han perdido todos los recursos y niveles cumplidos. ");
 
 			personaje->muerto = true;
-			if(personaje->bloqueado){
+
+			if (personaje->bloqueado) {
 				salirNivelPorMuerte(personaje);
-
+				//personaje->bloqueado = false;
 			}
-			//reiniciarPlanDeNiveles2(personaje);
-
 		}
 
 		break;
@@ -143,7 +142,11 @@ int main(void) {
 
 				if (personaje->muerto) {
 					salirPlanifPorMuerte(personaje);
-					salirNivelPorMuerte(personaje);
+
+					if (!personaje->bloqueado) {
+						salirNivelPorMuerte(personaje);
+						personaje->bloqueado = false;
+					}
 					personaje->muerto = false;
 					break;
 				}
@@ -175,21 +178,21 @@ int main(void) {
 		personaje->finNivel = false;
 
 		if (personaje->vidas > 0) {
-		log_in_disk_per(LOG_LEVEL_INFO,
-				"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
-				personaje->infoNivel.nombre);
-
-		if (personaje->nivelActual == -3) {
-
-			personaje->nivelActual = -2;
 			log_in_disk_per(LOG_LEVEL_INFO,
-					"Se acaba de completar el último nivel.");
-		}
+					"****** ¡OBJETIVO DE %s CUMPLIDO! ******",
+					personaje->infoNivel.nombre);
 
-		salirNivelPorObjCumplido(personaje);
-			}else{
-				reiniciarPlanDeNiveles2(personaje);
+			if (personaje->nivelActual == -3) {
+
+				personaje->nivelActual = -2;
+				log_in_disk_per(LOG_LEVEL_INFO,
+						"Se acaba de completar el último nivel.");
 			}
+
+			salirNivelPorObjCumplido(personaje);
+		} else {
+			reiniciarPlanDeNiveles2(personaje);
+		}
 
 		//Se informa al nivel y planificador del objetivo cumplido/muerte y se cierra la conexión con los mismos
 	}	// fin de while "Mientras haya niveles que completar"
