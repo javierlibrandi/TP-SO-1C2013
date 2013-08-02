@@ -11,7 +11,7 @@ echo $LD_LIBRARY_PATH
 
 echo 'copia archivos'
 
-more /home/utnso/git/tp-20131c-gaturro/personaje/resources/goomba2_properties.cfg > /home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg 
+more /home/utnso/git/tp-20131c-gaturro/goomba2_properties.cfg > /home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg 
 
 echo 'ejecuto'
 
