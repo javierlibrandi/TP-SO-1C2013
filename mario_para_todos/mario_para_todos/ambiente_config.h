@@ -16,7 +16,7 @@ int val_pos_recurso(int rows, int cols, int x, int y);
 typedef struct h_t_param_plat {
 	char** planificador_nivel;
 	int PUERTO;
-	int SEGUNDOS_ESPERA;
+	double SEGUNDOS_ESPERA;
 	int CUANTUM;
 } t_param_plat;
 
@@ -80,7 +80,7 @@ typedef struct {
 	pthread_mutex_t *s_terminados;
 	pthread_mutex_t *s_deadlock;
 	pthread_mutex_t *s_koopa;
-	int segundos_espera;
+	double segundos_espera;
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
 	bool error_nivel;//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
@@ -146,10 +146,10 @@ void tabla_a_koopa_prueba();
 #define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
 #define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
 #define B_DIBUJAR false
-#define ESPERA_POR_KOOPA 5 //segundos de espera para comprobar las listas antes de matar a KOOPA
+#define ESPERA_POR_KOOPA 30 //segundos de espera para comprobar las listas antes de matar a KOOPA
 #define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
-#define PATH_KOOPA ""
-#define FILE_KOOPA "/home/utnso/git/tp-20131c-gaturro/planificador/scr/Esquema.txt"
+#define PATH_KOOPA "/home/utnso/git/tp-20131c-gaturro/plataforma/scr/planificador/koopa"
+#define FILE_KOOPA "/home/utnso/git/tp-20131c-gaturro/plataforma/scr/planificador/Esquema.txt"
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
@@ -161,5 +161,7 @@ void tabla_a_koopa_prueba();
 
 #define  Leido_error "Error en la lectura del socket......"
 
+void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
+		t_list *l_errores);
 
 #endif /* AMBIENTE_CONFIG_H_ */

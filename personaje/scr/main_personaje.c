@@ -105,6 +105,9 @@ int main(void) {
 					personaje->infoNivel.nombre);
 
 			buffer = recv_variable(personaje->sockPlanif, &tipo);
+
+			controlarConexion_recv(buffer);
+
 			switch (tipo) {
 
 			case ERROR:

@@ -113,8 +113,8 @@ int main(void) {
 
 	//creo el hilo para la deteccion de interbloqueo
 
-	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-			(void*) &h_interbloqueo);
+	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+	//	(void*) &h_interbloqueo);
 
 	pthread_mutex_lock(&s_personaje_recursos);
 	imprmir_recursos_nivel(param_nivel.recusos);
@@ -171,6 +171,10 @@ int main(void) {
 					//para pruebas
 					//imprmir_recursos_nivel(param_nivel.recusos);
 					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
+					log_in_disk_niv(LOG_LEVEL_TRACE,
+							"Próximo recurso seteado para %s: %c",
+							nodo_lista_personaje->nombre_personaje,
+							nodo_lista_personaje->proximo_recurso->SIMBOLO);
 					pthread_mutex_unlock(&s_personaje_recursos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO, "encontro recurso: %c ",
@@ -188,6 +192,7 @@ int main(void) {
 
 					fd_mensaje(i, N_TO_P_UBIC_RECURSO, aux_mensaje,
 							&tot_enviados);
+
 					controlar_error_fd(t_personaje, nodo_lista_personaje,
 							buffer, i, tot_enviados);
 
@@ -208,11 +213,11 @@ int main(void) {
 							t_personaje->l_personajes, &pos);
 					nodo_lista_personaje->posX = posX;
 					nodo_lista_personaje->posY = posY;
-					log_in_disk_niv(LOG_LEVEL_INFO,
-							"PROBANDO COORDENADAS DE PERSONAJE a %s a (%d,%d)",
-							nodo_lista_personaje->nombre_personaje,
-							nodo_lista_personaje->posX,
-							nodo_lista_personaje->posY);
+					/*log_in_disk_niv(LOG_LEVEL_INFO,
+					 "PROBANDO COORDENADAS DE PERSONAJE a %s a (%d,%d)",
+					 nodo_lista_personaje->nombre_personaje,
+					 nodo_lista_personaje->posX,
+					 nodo_lista_personaje->posY);*/
 
 					pthread_mutex_unlock(&s_personaje_recursos);
 					if (B_DIBUJAR) {
@@ -230,6 +235,9 @@ int main(void) {
 					break;
 
 				case P_TO_N_OBJ_CUMPLIDO:
+
+					log_in_disk_niv(LOG_LEVEL_TRACE,
+							"Se recibió un mensaje P_TO_N_OBJ_CUMPLIDO");
 
 					recursos_personaje = "";
 					pthread_mutex_lock(&s_personaje_recursos);
@@ -278,10 +286,9 @@ int main(void) {
 					elimino_sck_lista(i, t_personaje->readfds);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Los recursos del nivel: %s despues de liberar el personaje: %s %c son los siguietes: (proximo log)",
+							"Los recursos del %s después de liberar el personaje %s ",
 							param_nivel.nom_nivel,
-							personaje_aux.nombre_personaje,
-							personaje_aux.id_personaje);
+							personaje_aux.nombre_personaje);
 
 					imprmir_recursos_nivel(param_nivel.recusos);
 					/*Informo al orquestador los recursos liberados y actualizo las instancias de los recursos dependiendo de la respuesta.
@@ -324,8 +331,15 @@ int main(void) {
 						imprmir_recursos_nivel(param_nivel.recusos);
 						recursos_personaje = "";
 
+
 						recursos_personaje = listarRecursosPersonaje(
 								nodo_lista_personaje->l_recursos_optenidos);
+
+					log_in_disk_niv(LOG_LEVEL_INFO,
+							"El personaje: %s iberó estos recursos: %s.",
+							nodo_lista_personaje->nombre_personaje,
+							recursos_personaje);
+
 
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"el personaje: %s Liberó estos recursos: %s.",
@@ -455,10 +469,22 @@ int main(void) {
 						nodo_lista_personaje->proximo_recurso = NULL;
 
 
+						nodo_lista_personaje->proximo_recurso->cantidad =
+								catidad_recursos;
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Cantidad de recursos después de la solicitud: %d",
+								nodo_lista_personaje->proximo_recurso->cantidad);
+						nodo_lista_personaje->proximo_recurso = NULL;
+
 					} else { // en caso de no tener bloqueo al personaje
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Actualmente no hay instancias disponibles de %s",
 								nombre_recurso);
+
+						log_in_disk_niv(LOG_LEVEL_TRACE,
+								"Próximo recurso seteado para %s: %c",
+								nodo_lista_personaje->nombre_personaje,
+								nodo_lista_personaje->proximo_recurso->SIMBOLO);
 
 						tipo_mensaje = N_TO_P_RECURSO_ERROR;
 

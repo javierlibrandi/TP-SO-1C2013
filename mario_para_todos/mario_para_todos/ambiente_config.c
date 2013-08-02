@@ -31,9 +31,13 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	param.PUERTO = config_get_int_value(config, "PUERTO");
 
-	param.SEGUNDOS_ESPERA = config_get_int_value(config, "SEGUNDOS_ESPERA");
+	param.SEGUNDOS_ESPERA = config_get_double_value(config, "SEGUNDOS_ESPERA");
 
 	param.CUANTUM = config_get_int_value(config, "CUANTUM");
+
+	log_in_disk_plat(LOG_LEVEL_TRACE,
+			"Parametros planificador puerto %d segundos de planificacions %.2f cuantum %d ",
+			param.PUERTO, param.SEGUNDOS_ESPERA, param.CUANTUM);
 
 	//param.planificador_nivel = config_get_array_value(config, "planDeNiveles");
 
@@ -325,21 +329,20 @@ int val_pos_recurso(int rows, int cols, int x, int y) {
 			&& (x != 2 || y != 2)) ? 1 : 0);
 }
 
-
-
 void tabla_a_koopa(t_h_planificador *h_planificador) {
 
+	int pasadas = 0;
 	//Si nadie espera por Koopa salgo
 	pthread_mutex_lock(h_planificador->s_koopa);
-	if (h_planificador->l_koopa) {
+	if (list_is_empty(h_planificador->l_koopa) ) {
 		return;
 	}
 
 	pthread_mutex_unlock(h_planificador->s_koopa);
 
-	while (VALIDAR_KOOPA) {
+	while (VALIDAR_KOOPA != pasadas) {
 		//TODO PONEMOS LA LISTA DE NUEVOS?????
-		pthread_mutex_lock(h_planificador->s_listos);
+		//pthread_mutex_lock(h_planificador->s_listos);
 		pthread_mutex_lock(h_planificador->s_bloquedos);
 
 		//si las lista tiene personajes SALGO
@@ -348,15 +351,41 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 			return;
 		}
 
-		pthread_mutex_unlock(h_planificador->s_listos);
+		//pthread_mutex_unlock(h_planificador->s_listos);
 		pthread_mutex_unlock(h_planificador->s_bloquedos);
-	}
-	sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
+		sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
 
-	execlp(PATH_KOOPA, PATH_KOOPA , FILE_KOOPA, (const char *)NULL);
+		pasadas++;
+	}
+
+	execlp(PATH_KOOPA, PATH_KOOPA, FILE_KOOPA, (const char *) NULL );
+
+	exit(EXIT_SUCCESS);
 
 }
 
+/**
+ * muevo los personajes que coinciden con el nivel a la lista de errores
+ * parametros
+ * 1)descripcion del nivel
+ * 2)lista que quiero recorrer
+ * 3)lista de errores
+ */
+void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
+		t_list *l_errores) {
 
+	int tot, i;
+	t_personaje *per;
 
+	tot = list_size(lista_auxiliar);
+
+	for (i = 0; i < tot; i++) {
+		per = list_get(lista_auxiliar, i);
+
+		if (!strcmp(per->nivel, desc_nivel)) {
+			mover_personaje_lista(per->sck, lista_auxiliar, l_errores);
+		}
+	}
+
+}
 

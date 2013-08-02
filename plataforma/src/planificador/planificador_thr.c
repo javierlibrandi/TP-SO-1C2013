@@ -43,6 +43,7 @@ t_personaje *busca_personaje_skc(int sck, t_list *l_listos,
 void liberar_memoria_personaje(t_personaje *personaje);
 void * hilo_planificador(void * p);
 void ejecutar_koopa(t_h_planificador *h_planificador);
+void eliminar_planificador(int sck, t_list *list_planificadores);
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
@@ -62,12 +63,12 @@ void* planificador_nivel_thr(void *p) {
 			(void*) p);
 
 	for (;;) {
-
+		pthread_mutex_lock(h_planificador->s_lista_plani);
 		if (h_planificador->error_nivel) {
-
+			eliminar_planificador(h_planificador->sck_planificador,h_planificador->lista_planificadores);
 			pthread_exit((void *) "Se desconecto el planificador"); // Si la bandera esta en true, es por que hubo error y hay que matar al hilo.
 		}
-
+		pthread_mutex_unlock(h_planificador->s_lista_plani);
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
 				NULL, &tv) == -1) {
 			perror("select");
@@ -161,6 +162,8 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 
 	if (list_find(list_planificadores, (void*) _list_elements)) {
 		h_planificador = list_get(list_planificadores, index);
+
+
 		list_remove(list_planificadores, index);
 
 		free(h_planificador->desc_nivel);
@@ -178,6 +181,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	int index_aux = *index;
 
 	//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
+
 
 	total_elementos = list_size(h_planificador->l_listos);
 	if (total_elementos > 0) {
@@ -201,7 +205,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			index_aux++;
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
+				log_in_disk_plan(LOG_LEVEL_INFO, "Personaje planificado: %s",
 						personaje->nombre);
 
 				*index = index_aux;
@@ -209,6 +213,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			}
 			*index = index_aux;
 		}
+	}else{
+		//KOOPA
+		log_in_disk_plan(LOG_LEVEL_TRACE, "Se va a ejecutar Koopa.");
+		tabla_a_koopa(h_planificador);
+
 	}
 	*index = index_aux;
 	return NULL ;
@@ -217,6 +226,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 static void mover_personaje(t_personaje *personaje,
 		t_h_planificador *h_planificador) {
 	int byteEnviados;
+	char **mensaje;
 	char *buffer;
 	int tipo;
 	int movimientos_realizados = 0;
@@ -344,8 +354,14 @@ static void mover_personaje(t_personaje *personaje,
 
 			break;
 
+		case P_TO_PL_TURNO_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
+
+			mensaje = string_split(buffer, ";");
+			log_in_disk_plan(LOG_LEVEL_INFO, "Se recibió notificación de turno cumplido del personaje %s", mensaje[0]);
+			break;
+
 		default:
-			log_in_disk_plan(LOG_LEVEL_TRACE,
+			log_in_disk_plan(LOG_LEVEL_ERROR,
 					"Opción del switch planificador no implementada. Tipo: %d. Buffer: %s",
 					tipo, buffer);
 
@@ -411,4 +427,5 @@ void * hilo_planificador(void * p) {
 		}
 	}
 }
+
 

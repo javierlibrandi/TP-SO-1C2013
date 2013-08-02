@@ -47,4 +47,5 @@ void elimino_personaje_lista_nivel(int sck, t_list *l_personajes,
 void *detecto_interbloque(void *p);
 struct h_t_recusos *busco_recurso(char id, t_list *recusos);
 
+
 #endif /* DETECTO_INTERBLOQUE_TH_H_ */

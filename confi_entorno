@@ -1,8 +1,8 @@
 
 echo 'exporto las PATH'
-export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Debug/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Debug/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Debug/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Debug/
+export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Release/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Release
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Release/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Release/
 echo $LD_LIBRARY_PATH
-/home/utnso/git/tp-20131c-gaturro/plataforma/Debug/plataforma
+/home/utnso/git/tp-20131c-gaturro/plataforma/Relese/plataforma
