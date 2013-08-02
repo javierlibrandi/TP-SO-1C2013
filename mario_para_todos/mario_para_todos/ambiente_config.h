@@ -161,5 +161,7 @@ void tabla_a_koopa_prueba();
 
 #define  Leido_error "Error en la lectura del socket......"
 
+void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
+		t_list *l_errores);
 
 #endif /* AMBIENTE_CONFIG_H_ */
