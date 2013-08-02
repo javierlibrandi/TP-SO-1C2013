@@ -35,6 +35,10 @@ t_param_plat leer_archivo_plataforma_config() {
 
 	param.CUANTUM = config_get_int_value(config, "CUANTUM");
 
+	log_in_disk_plat(LOG_LEVEL_TRACE,
+			"Parametros planificador puerto %d segundos de planificacions %.2f cuantum %d ",
+			param.PUERTO, param.SEGUNDOS_ESPERA, param.CUANTUM);
+
 	//param.planificador_nivel = config_get_array_value(config, "planDeNiveles");
 
 	//solo entro en el loop si el mivel de log es LOG_LEVEL_TRACE
@@ -325,8 +329,6 @@ int val_pos_recurso(int rows, int cols, int x, int y) {
 			&& (x != 2 || y != 2)) ? 1 : 0);
 }
 
-
-
 void tabla_a_koopa(t_h_planificador *h_planificador) {
 
 	//Si nadie espera por Koopa salgo
@@ -353,8 +355,31 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 	}
 	sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
 
-	execlp(PATH_KOOPA, PATH_KOOPA , FILE_KOOPA, (const char *)NULL);
+	execlp(PATH_KOOPA, PATH_KOOPA, FILE_KOOPA, (const char *) NULL );
 
 }
 
+/**
+ * muevo los personajes que coinciden con el nivel a la lista de errores
+ * parametros
+ * 1)descripcion del nivel
+ * 2)lista que quiero recorrer
+ * 3)lista de errores
+ */
+void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
+		t_list *l_errores) {
 
+	int tot, i;
+	t_personaje *per;
+
+	tot = list_size(lista_auxiliar);
+
+	for (i = 0; i < tot; i++) {
+		per = list_get(lista_auxiliar, i);
+
+		if (!strcmp(per->nivel, desc_nivel)) {
+			mover_personaje_lista(per->sck, lista_auxiliar, l_errores);
+		}
+	}
+
+}

@@ -43,6 +43,7 @@ t_personaje *busca_personaje_skc(int sck, t_list *l_listos,
 void liberar_memoria_personaje(t_personaje *personaje);
 void * hilo_planificador(void * p);
 void ejecutar_koopa(t_h_planificador *h_planificador);
+void eliminar_planificador(int sck, t_list *list_planificadores);
 
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
@@ -62,12 +63,12 @@ void* planificador_nivel_thr(void *p) {
 			(void*) p);
 
 	for (;;) {
-
+		pthread_mutex_lock(h_planificador->s_lista_plani);
 		if (h_planificador->error_nivel) {
-
+			eliminar_planificador(h_planificador->sck_planificador,h_planificador->lista_planificadores);
 			pthread_exit((void *) "Se desconecto el planificador"); // Si la bandera esta en true, es por que hubo error y hay que matar al hilo.
 		}
-
+		pthread_mutex_unlock(h_planificador->s_lista_plani);
 		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
 				NULL, &tv) == -1) {
 			perror("select");
@@ -161,6 +162,8 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 
 	if (list_find(list_planificadores, (void*) _list_elements)) {
 		h_planificador = list_get(list_planificadores, index);
+
+
 		list_remove(list_planificadores, index);
 
 		free(h_planificador->desc_nivel);
@@ -411,4 +414,5 @@ void * hilo_planificador(void * p) {
 		}
 	}
 }
+
 
