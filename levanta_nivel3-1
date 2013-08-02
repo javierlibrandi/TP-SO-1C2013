@@ -1,4 +1,4 @@
-echo 'levanta Level1-1'
+echo 'levanta Level3-1'
 
 echo 'exporto las PATH'
 
@@ -10,7 +10,7 @@ echo $LD_LIBRARY_PATH
 
 echo 'copio archivo de configuracion'
 
-more $HOME/git/tp-20131c-gaturro/properties_nivel1-1.cfg  > $HOME/git/tp-20131c-gaturro/nivel/resources/properties.cfg
+more $HOME/git/tp-20131c-gaturro/properties_nivel3-1.cfg  > $HOME/git/tp-20131c-gaturro/nivel/resources/properties.cfg
 
 echo 'ejecuto'
 

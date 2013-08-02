@@ -1,0 +1,21 @@
+echo 'levanta plataforma del esquema 2'
+echo 'exporto las PATH'
+export LD_LIBRARY_PATH=$HOME/git/tp-20131c-gaturro/commons/Release/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/mario_para_todos/Release
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Release/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Release/
+echo $LD_LIBRARY_PATH
+
+TERM=xterm
+
+echo 'copio archivo de configuracion'
+
+more $HOME/git/tp-20131c-gaturro/properties_plataforma_esq2.cfg  > $HOME/git/tp-20131c-gaturro/plataforma/resources/properties.cfg
+
+echo 'copio archivo koopa'
+
+more $HOME/git/tp-20131c-gaturro/koopa_esq2.txt  > $HOME/git/tp-20131c-gaturro/memoria/docs/ejemplo.txt
+
+echo 'ejecuto'
+
+$HOME/git/tp-20131c-gaturro/plataforma/Release/plataforma
