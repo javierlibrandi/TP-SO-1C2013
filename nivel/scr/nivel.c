@@ -326,7 +326,7 @@ int main(void) {
 							nodo_lista_personaje->l_recursos_optenidos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El personaje: %s iberó estos recursos: %s.",
+							"El personaje %s liberó estos recursos: %s.",
 							nodo_lista_personaje->nombre_personaje,
 							recursos_personaje);
 
