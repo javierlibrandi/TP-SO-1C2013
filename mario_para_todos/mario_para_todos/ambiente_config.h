@@ -135,9 +135,7 @@ void imprimir_listas(void *estruc, char tipo_estruc);
 
 void tabla_a_koopa(t_h_planificador *h_planificador);
 
-<<<<<<< HEAD
 void tabla_a_koopa_prueba();
-=======
 /// Muevo lo que estaba en el entorno.h
 
 #define PATH_PLATAFORMA_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
@@ -151,6 +149,7 @@ void tabla_a_koopa_prueba();
 #define ESPERA_POR_KOOPA 5 //segundos de espera para comprobar las listas antes de matar a KOOPA
 #define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
 #define PATH_KOOPA ""
+#define FILE_KOOPA "/home/utnso/git/tp-20131c-gaturro/planificador/scr/Esquema.txt"
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
@@ -162,6 +161,5 @@ void tabla_a_koopa_prueba();
 
 #define  Leido_error "Error en la lectura del socket......"
 
->>>>>>> 3ebb830db09ab8d98edbeb3c7fe7fae0a33c860b
 
 #endif /* AMBIENTE_CONFIG_H_ */
