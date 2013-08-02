@@ -113,8 +113,8 @@ int main(void) {
 
 	//creo el hilo para la deteccion de interbloqueo
 
-	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-	//	(void*) &h_interbloqueo);
+	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+		(void*) &h_interbloqueo);
 
 	pthread_mutex_lock(&s_personaje_recursos);
 	imprmir_recursos_nivel(param_nivel.recusos);
@@ -336,7 +336,7 @@ int main(void) {
 								nodo_lista_personaje->l_recursos_optenidos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
-							"El personaje: %s iberó estos recursos: %s.",
+							"El personaje %s liberó estos recursos: %s.",
 							nodo_lista_personaje->nombre_personaje,
 							recursos_personaje);
 
@@ -463,14 +463,7 @@ int main(void) {
 						}
 						nodo_lista_personaje->proximo_recurso->cantidad =
 								catidad_recursos;
-						log_in_disk_niv(LOG_LEVEL_INFO,
-								"Cantidad de recursos después de la solicitud: %d",
-								nodo_lista_personaje->proximo_recurso->cantidad);
-						nodo_lista_personaje->proximo_recurso = NULL;
 
-
-						nodo_lista_personaje->proximo_recurso->cantidad =
-								catidad_recursos;
 						log_in_disk_niv(LOG_LEVEL_INFO,
 								"Cantidad de recursos después de la solicitud: %d",
 								nodo_lista_personaje->proximo_recurso->cantidad);

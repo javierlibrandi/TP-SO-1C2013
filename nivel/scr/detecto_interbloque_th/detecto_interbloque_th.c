@@ -70,8 +70,8 @@ void *detecto_interbloque(void *p) {
 			otnego_vector_diponibles(param_nivel.recusos, NULL ); //paso 2
 
 			while (marchar_personaje_c_recursos(t_personaje.l_personajes) != 0) { //paso  3 miestra sea distinto de 0
-				aux1 = list_get(t_personaje.l_personajes, 0);
-				aux2 = list_get(t_personaje.l_personajes, 1);
+//				aux1 = list_get(t_personaje.l_personajes, 0);
+//				aux2 = list_get(t_personaje.l_personajes, 1);
 				otnego_vector_diponibles(param_nivel.recusos,
 						t_personaje.l_personajes); //paso 4
 			}

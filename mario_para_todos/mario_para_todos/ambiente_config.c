@@ -145,7 +145,7 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 	param.TiempoChequeoDeadlock = config_get_int_value(config,
 			"TiempoChequeoDeadlock");
-	param.Recovery = config_get_int_value(config, "Recovery");
+	param.Recovery = config_get_int_value(config, "RECOVERY");
 
 	return param;
 
@@ -334,13 +334,16 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 	int pasadas = 0;
 	//Si nadie espera por Koopa salgo
 	pthread_mutex_lock(h_planificador->s_koopa);
-	if (list_is_empty(h_planificador->l_koopa) ) {
+	if (list_is_empty(h_planificador->l_koopa)) {
+		pthread_mutex_unlock(h_planificador->s_koopa);
 		return;
 	}
 
 	pthread_mutex_unlock(h_planificador->s_koopa);
 
 	while (VALIDAR_KOOPA != pasadas) {
+		log_in_disk_plan(LOG_LEVEL_TRACE, "Se va a ejecutar Koopa.");
+
 		//TODO PONEMOS LA LISTA DE NUEVOS?????
 		//pthread_mutex_lock(h_planificador->s_listos);
 		pthread_mutex_lock(h_planificador->s_bloquedos);
@@ -348,6 +351,7 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 		//si las lista tiene personajes SALGO
 		if (!list_is_empty(h_planificador->l_listos)
 				|| !list_is_empty(h_planificador->l_bloquedos)) {
+			pthread_mutex_unlock(h_planificador->s_bloquedos);
 			return;
 		}
 
