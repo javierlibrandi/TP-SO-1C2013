@@ -1,7 +1,7 @@
 #ifndef LIBMEMORIA_H_
 #define LIBMEMORIA_H_
 #include <stdbool.h>
-#include "commons/collections/list.h"
+#include <src/commons/collections/list.h>
 
     typedef char* t_memoria;
 
