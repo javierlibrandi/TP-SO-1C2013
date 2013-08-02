@@ -182,6 +182,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 
 	//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
 
+
 	total_elementos = list_size(h_planificador->l_listos);
 	if (total_elementos > 0) {
 //si me pase del ultimo elemento me posicione en el primero y recorro hasta el ultimo, esto puede ser porque se elimino algun personaje
@@ -204,7 +205,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			index_aux++;
 
 			if (!strcmp(h_planificador->desc_nivel, personaje->nivel)) {
-				log_in_disk_plat(LOG_LEVEL_INFO, "Personaje planificado: %s",
+				log_in_disk_plan(LOG_LEVEL_INFO, "Personaje planificado: %s",
 						personaje->nombre);
 
 				*index = index_aux;
@@ -212,6 +213,11 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 			}
 			*index = index_aux;
 		}
+	}else{
+		//KOOPA
+		log_in_disk_plan(LOG_LEVEL_TRACE, "Se va a ejecutar Koopa.");
+		tabla_a_koopa(h_planificador);
+
 	}
 	*index = index_aux;
 	return NULL ;
