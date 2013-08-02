@@ -358,3 +358,5 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 }
 
 
+
+

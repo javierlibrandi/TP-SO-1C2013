@@ -106,7 +106,7 @@ void add_personaje_lista(char id_personaje, char *nombre_personaje, int i,
 	list_personajes->sokc = i;
 	list_personajes->l_recursos_optenidos = list_create();
 	list_personajes->bloquedo = true;
-
+	list_personajes->proximo_recurso = NULL;
 	list_add(t_personaje->l_personajes, list_personajes);
 
 	log_in_disk_niv(LOG_LEVEL_TRACE,
