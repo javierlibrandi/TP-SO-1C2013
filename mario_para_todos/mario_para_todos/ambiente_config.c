@@ -15,6 +15,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "entorno.h"
+#include <unistd.h>
 
 static void impimir_lista(t_list *lista);
 
@@ -77,8 +78,6 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 	char **aux;
 	char *aux_char;
 
-
-
 	log_in_disk_niv(LOG_LEVEL_TRACE,
 			"comienzo lectura archivo de configuracion del nivel en el %s ",
 			PATH_CONFIG_NIVEL);
@@ -117,7 +116,8 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 		list_recursos->posX = atoi(aux[j++]);
 		list_recursos->posY = atoi(aux[j]);
 
-		if (val_pos_recurso(rows, cols,list_recursos->posX,list_recursos->posY)) {
+		if (val_pos_recurso(rows, cols, list_recursos->posX,
+				list_recursos->posY)) {
 
 			log_in_disk_niv(LOG_LEVEL_TRACE,
 					"Cargo a la lista la caja %s que contiene el recurso %s con el simbolo %c y la candidad %d en la poscion [x,y] [%d][%d] ",
@@ -210,7 +210,6 @@ void lock_listas_plantaforma(t_h_planificador *h_planificador) {
 	pthread_mutex_lock(h_planificador->s_bloquedos);
 	pthread_mutex_lock(h_planificador->s_errores);
 	pthread_mutex_lock(h_planificador->s_koopa);
-
 
 }
 
@@ -307,7 +306,6 @@ static void impimir_lista(t_list *lista) {
 	int total_personajes;
 	t_personaje *per;
 
-
 	if (list_size(lista) > 0) {
 		total_personajes = list_size(lista);
 		for (count = 0; count < total_personajes; count++) {
@@ -315,15 +313,16 @@ static void impimir_lista(t_list *lista) {
 			per = list_get(lista, count);
 
 			log_in_disk_plat(LOG_LEVEL_INFO, "Nombre personaje %s nivel %s",
-					per->nombre,per->nivel);
+					per->nombre, per->nivel);
 
 		}
 	}
 
 }
 
-int val_pos_recurso(int rows, int cols, int x, int y){
-	return (((y<=rows && x<= cols) && (x>=1 && y>=1) && (x!=2 || y!=2)) ? 1 : 0);
+int val_pos_recurso(int rows, int cols, int x, int y) {
+	return (((y <= rows && x <= cols) && (x >= 1 && y >= 1)
+			&& (x != 2 || y != 2)) ? 1 : 0);
 }
 
 
@@ -354,7 +353,8 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 	}
 	sleep(ESPERA_POR_KOOPA); //Epero un tiempo por koopa si las listas vacias HAY TABLA PARA KOOPA
 
-	//execv();
+	execlp(PATH_KOOPA, PATH_KOOPA , FILE_KOOPA, (const char *)NULL);
 
 }
+
 
