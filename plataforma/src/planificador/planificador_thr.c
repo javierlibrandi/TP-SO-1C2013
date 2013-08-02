@@ -238,8 +238,10 @@ static void mover_personaje(t_personaje *personaje,
 		if (byteEnviados == -1) {
 			log_in_disk_plan(LOG_LEVEL_ERROR,
 					"El personaje cerró la conexión. Se lo mueve a lista de errores.");
+			lock_listas_plantaforma(h_planificador);
 			mover_personaje_lista(personaje->sck, h_planificador->l_listos,
 					h_planificador->l_errores);
+			un_lock_listas_plataforma(h_planificador);
 		}
 
 		buffer = recv_variable(personaje->sck, &tipo);

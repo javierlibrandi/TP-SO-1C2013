@@ -78,7 +78,7 @@ void *detecto_interbloque(void *p) {
 				&personaje_bloquedos) != 0) {
 
 			log_in_disk_niv(LOG_LEVEL_INFO,
-					"#######################INTER_BLOQUEO  SE DETECTO UN INTERBLOQUEO EN EL NIVEL: %s. Y LOS PERSONAJES QUE PARTICIPAN DEL MISMO SON: %s.  #######INTER_BLOQUEO",
+					"#######################INTER_BLOQUEO  SE DETECTO UN INTERBLOQUEO EN EL NIVEL: %s. Y LOS PERSONAJES QUE PARTICIPAN DEL MISMO SON: %s .  #######INTER_BLOQUEO",
 					param_nivel.nom_nivel, personaje_bloquedos);
 
 			if (param_nivel.Recovery) {
@@ -166,7 +166,7 @@ void *detecto_interbloque(void *p) {
 		pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 		//free(personaje_bloquedos);
 		free(buffer);
-		personaje_bloquedos = NULL;
+		personaje_bloquedos = string_new();
 	}
 	return NULL ;
 }
@@ -234,7 +234,7 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 			tot_personajes = list_size(personajes);
 			for (cont_personajes = 0; cont_personajes < tot_personajes;
 					cont_personajes++) { //recorro todos los personajes
-
+				l_personaje = list_get(personajes, cont_personajes);
 				if (!l_personaje->bloquedo && !l_personaje->recusos_sumados) { //los personajes que no estan bloquedos ya que si terminan pueden devolver los recursos los sumo
 
 					tot_personajes_personaje = list_size(
@@ -270,6 +270,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 	int tot_personajes = list_size(personajes);
 	int cont, marcados = 0;
 	t_lista_personaje *l_personaje;
+	int difX, difY;
 
 	log_in_disk_niv(LOG_LEVEL_INFO,
 			"marchar_personaje_c_recursos total de personajes %d",
@@ -287,14 +288,14 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 				l_personaje->bloquedo = false;
 				log_in_disk_niv(LOG_LEVEL_TRACE,
 						"El personaje %c no es candidato para el interbloqueo, exiten %d recurso %s para cumplir su solicitud",
+						l_personaje->id_personaje,
 						l_personaje->proximo_recurso->cantidad,
 						l_personaje->proximo_recurso->NOMBRE);
 				marcados++;
 			} else {
-
-				if (l_personaje->proximo_recurso->posX != l_personaje->posX
-						|| l_personaje->proximo_recurso->posY
-								!= l_personaje->posY) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
+				difX = l_personaje->proximo_recurso->posX - l_personaje->posX;
+				difY = l_personaje->proximo_recurso->posY - l_personaje->posY;
+				if ((!(difX == 0 && difY == 0))  && l_personaje->proximo_recurso == NULL) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
 					l_personaje->bloquedo = false;
 					marcados++;
 
@@ -315,7 +316,8 @@ int cantidad_interbloquedos(t_list *personajes, char **personajes_bloquedos) {
 	int tot_perosnajes = list_size(personajes);
 	int tot_interbloquedos = 0;
 	t_lista_personaje *l_personaje;
-
+	char respuesta_recu_aux[10] = ("");
+	*personajes_bloquedos = string_new();
 	for (cont_personajes = 0; cont_personajes < tot_perosnajes;
 			cont_personajes++) {
 		l_personaje = list_get(personajes, cont_personajes);
@@ -323,11 +325,15 @@ int cantidad_interbloquedos(t_list *personajes, char **personajes_bloquedos) {
 		if (l_personaje->bloquedo) {
 			tot_interbloquedos++;
 
-			if (personajes_bloquedos == NULL ) {
-				string_append(personajes_bloquedos, &l_personaje->id_personaje);
+			if (!strcmp(*personajes_bloquedos, "")) {
+				//if (*personajes_bloquedos == ("")) {
+				sprintf(respuesta_recu_aux, "%c", l_personaje->id_personaje);
+				//string_append(&respuesta_recursos, respuesta_recu_aux);
+				string_append(personajes_bloquedos, respuesta_recu_aux);
 			} else {
-				string_append(personajes_bloquedos, ";");
-				string_append(personajes_bloquedos, &l_personaje->id_personaje);
+				sprintf(respuesta_recu_aux, ";%c", l_personaje->id_personaje);
+				//string_append(personajes_bloquedos, ";");
+				string_append(personajes_bloquedos, respuesta_recu_aux);
 			}
 		}
 	}
@@ -422,7 +428,7 @@ char* listarRecursosPersonaje(t_list * lista_Recursos) {
 	return recursos;
 
 }
-/** ESta funcion usa el semaforo(&s_personaje_recursos) adentro **/
+
 void desbloquear_Personajes(char * recursos_personaje, char *buffer,
 		t_h_personaje * t_personaje, struct h_t_param_nivel param_nivel,
 		int sck_plat) {
