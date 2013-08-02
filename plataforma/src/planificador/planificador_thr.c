@@ -325,7 +325,7 @@ static void mover_personaje(t_personaje *personaje,
 
 			lock_listas_plantaforma(h_planificador);
 			sock_aux = personaje->sck;
-			//TODO buscar si no esta en bloqeados para sacar el personaje.
+
 			eliminar_personaje_termino_nivel(personaje->sck,
 					h_planificador->l_listos);
 			eliminar_personaje_termino_nivel(personaje->sck,

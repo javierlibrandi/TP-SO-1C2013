@@ -30,7 +30,6 @@
 #include "detecto_interbloque_th/detecto_interbloque_th.h"
 #include <pthread.h>
 
-
 void imprimir_recursos(t_list * lista_Recursos);
 
 //void libero_memoria(t_h_personaje *t_personaje, struct t_param_nivel *param_nivel);
@@ -54,11 +53,12 @@ int main(void) {
 	char **mensaje;
 	int tot_enviados, cont_msj;
 	char *aux_mensaje;
+	char mensajeMover[3];
 	struct h_t_recusos *recurso;
 	//ITEM_NIVEL *ListaItems = NULL;
 	t_lista_personaje *nodo_lista_personaje;
 	int tipo_mensaje, catidad_recursos;
-	char *nombre_recurso;
+	char *nombre_recurso, *buff;
 	char *recursos_personaje;
 	int pos; //la posicion en la lista de un personaje
 	int cant_presonajes_conectados = 0;
@@ -286,6 +286,8 @@ int main(void) {
 							"****** El personaje %c reinicia el nivel. Se lo reubica en la posición (1,1) del mapa y se liberan sus recursos. ******",
 							mensaje[0][0]);
 
+					sprintf(mensajeMover, "%c", mensaje[0][0]);
+
 					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
@@ -316,10 +318,25 @@ int main(void) {
 
 					imprmir_recursos_nivel(param_nivel.recusos);
 
-					pthread_mutex_unlock(&s_personaje_recursos);
+					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s", mensaje[2]);
+
+					if (mensaje[2][0] - '0') {
+						fd_mensaje(t_personaje->sck_orquestador,
+								N_TO_O_PERS_REINICIO, mensajeMover,
+								&tot_enviados);
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Se envió mensaje N_TO_O_PERS_REINICIO");
+
+						buffer = recv_variable(t_personaje->sck_orquestador, &tipo);
+						if(tipo == OK){
+							log_in_disk_niv(LOG_LEVEL_INFO, "Se recibió OK del orquestador de reinicio del personaje bloqueado.");
+						}
+					}
 
 					desbloquear_Personajes(recursos_personaje, buffer,
 							t_personaje, param_nivel, sck_plat);
+
+					pthread_mutex_unlock(&s_personaje_recursos);
 
 					tipo_mensaje = OK;
 
@@ -423,6 +440,8 @@ int main(void) {
 							"****** El personaje %c sale del nivel por muerte. ******",
 							mensaje[0][0]);
 
+					sprintf(mensajeMover, "%c", mensaje[0][0]);
+
 					pthread_mutex_lock(&s_personaje_recursos);
 					nodo_lista_personaje = busco_personaje(i,
 							t_personaje->l_personajes, &pos);
@@ -437,6 +456,22 @@ int main(void) {
 					recursos_personaje = listarRecursosPersonaje(
 							nodo_lista_personaje->l_recursos_optenidos);
 
+					log_in_disk_niv(LOG_LEVEL_INFO, "Personaje bloqueado?: %s", mensaje[1]);
+
+					if (mensaje[1][0] - '0') {
+						fd_mensaje(t_personaje->sck_orquestador,
+								N_TO_O_PERS_SALIR, mensajeMover, &tot_enviados);
+						log_in_disk_niv(LOG_LEVEL_INFO,
+								"Se envió mensaje N_TO_O_PERS_SALIR");
+						buff = recv_variable(t_personaje->sck_orquestador, &tipo);
+
+						if(tipo == OK){
+							log_in_disk_niv(LOG_LEVEL_INFO, "El personaje salió del planificador.");
+						}
+
+					}
+
+					//esperar ok del orquestador?
 					fd_mensaje(i, OK, "Saliste del nivel.", &tot_enviados);
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se envió OK de salida al personaje.");
@@ -444,10 +479,11 @@ int main(void) {
 					elimino_personaje_lista_nivel(i, t_personaje->l_personajes,
 							ListaItems);
 					elimino_sck_lista(i, t_personaje->readfds);
-					pthread_mutex_unlock(&s_personaje_recursos);
 
 					desbloquear_Personajes(recursos_personaje, buffer,
 							t_personaje, param_nivel, sck_plat);
+
+					pthread_mutex_unlock(&s_personaje_recursos);
 
 					log_in_disk_niv(LOG_LEVEL_INFO,
 							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
@@ -510,23 +546,13 @@ void sig_handler(int signo) {
 
 }
 
-
 /**
  * Si el recurso no esta en la lista de los optenidos por elpersonaje se lo agrego con el valor 1
  * param 1 lista de recirsos del personaje
  * param 2 recurso actual del personaje
  */
 
-
-
-
-
 //Recibe una lista de recursos de tipo t_recusos y devuelve un string de tipo. EJ:"cantidadRecursos;simbolo1,cantidad1;simbolo2,cantidad2.."
-
-
-
-
-
 void imprimir_recursos(t_list * lista_Recursos) {
 	int tot_recusos = list_size(lista_Recursos);
 	int count;

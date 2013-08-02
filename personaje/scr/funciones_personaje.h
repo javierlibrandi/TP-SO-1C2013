@@ -73,13 +73,19 @@ bool objetivoNivelCumplido(Personaje* personaje);
 
 bool planDeNivelesCumplido(Personaje* personaje);
 
-void salirDelNivel(Personaje *personaje);
+void salirNivelPorObjCumplido(Personaje *personaje);
+
+void salirPlanifPorMuerte(Personaje *personaje);
+
+void salirNivelPorMuerte(Personaje *personaje);
 
 void reiniciarNivel(Personaje *personaje);
 
 void reiniciarListaRecursos(Personaje *personaje);
 
 void reiniciarPlanDeNiveles(Personaje *personaje);
+
+void reiniciarPlanDeNiveles2(Personaje *personaje);
 
 bool conocePosicionRecurso(char recursoActual);
 

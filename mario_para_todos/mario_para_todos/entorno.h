@@ -77,6 +77,7 @@ typedef struct {
 	bool finNivel;
 	int vidasIniciales;
 	bool bloqueado;
+	bool muerto;
 } Personaje;
 
 #endif /* ENTORNO_H_ */
