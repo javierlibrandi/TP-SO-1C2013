@@ -37,6 +37,7 @@ void sig_handler(int signo);
 
 static pthread_mutex_t s_personaje_conectado = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_personaje_recursos = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_deadlock = PTHREAD_MUTEX_INITIALIZER;
 ITEM_NIVEL *ListaItems = NULL;
 
 int main(void) {
@@ -97,6 +98,7 @@ int main(void) {
 	t_personaje->ListaItemss = &ListaItems;
 	t_personaje->ListaItemsss = ListaItems;
 	t_personaje->sck_orquestador = sck_plat;
+	t_personaje->s_deadlock = &s_deadlock;
 	struct timeval tv;
 	tv.tv_sec = 5;
 	tv.tv_usec = 50;
@@ -122,6 +124,7 @@ int main(void) {
 
 	for (;;) {
 		//recursos_personaje = malloc (sizeof(char) * 35);
+		pthread_mutex_lock(&s_deadlock);
 		FD_ZERO(t_personaje->readfds);
 		FD_SET(sck_plat, t_personaje->readfds);
 		cant_presonajes_conectados = list_size(t_personaje->l_personajes);
@@ -590,6 +593,7 @@ int main(void) {
 //
 //		}
 		//free(recursos_personaje);
+		pthread_mutex_unlock(&s_deadlock);
 	}
 
 	pthread_join(escucho_personaje_th, NULL );
