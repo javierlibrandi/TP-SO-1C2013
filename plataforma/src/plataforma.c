@@ -32,7 +32,8 @@
 
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
-		char ip_cliente[], t_h_orquestadro *h_orquestador, int segundos_espera,
+		char ip_cliente[], t_h_orquestadro *h_orquestador,
+		double segundos_espera,
 		int *cuantum);
 void escucho_conexiones(t_param_plat param_plataforma, t_list *list_plataforma,
 		t_h_orquestadro *h_orquestador, pthread_t *orquestador_thr);
@@ -61,6 +62,7 @@ static pthread_mutex_t reads_orquestador = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_deadlock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_koopa = PTHREAD_MUTEX_INITIALIZER;
 
+
 int main(void) {
 
 	t_param_plat param_plataforma;
@@ -73,6 +75,7 @@ int main(void) {
 	t_list *list_planificadores = list_create(); //creo lista de hilos
 
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
+
 
 	//leo el archivo de configuracion para el hilo orquestador
 	param_plataforma = leer_archivo_plataforma_config();
@@ -271,7 +274,7 @@ void escucho_conexiones(t_param_plat param_plataforma,
 ////////////////////////////////////////////////////////////////////
 
 void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
-		char ip_cliente[], t_h_orquestadro *h_orquestador, int segundos_espera,
+		char ip_cliente[], t_h_orquestadro *h_orquestador, double segundos_espera,
 		int *cuantum) {
 
 	pthread_t planificador_pthread;
@@ -294,6 +297,7 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->s_deadlock = h_orquestador->s_deadlock;
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
 	h_planificador->s_errores = h_orquestador->s_errores;
+
 
 	h_planificador->segundos_espera = segundos_espera;
 	h_planificador->cuantum = cuantum;
