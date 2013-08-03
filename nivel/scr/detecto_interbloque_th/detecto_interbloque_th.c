@@ -32,6 +32,7 @@ int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
 int marchar_personaje_c_recursos(t_list *personajes);
 int cantidad_interbloquedos(t_list *personajes, char **personaje_bloquedos);
+void imprimo_asigmados(t_list *l_rec);
 
 void *detecto_interbloque(void *p) {
 	//int sck_orq;
@@ -291,6 +292,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 			error_show("El personaje %c bandera %d",l_personaje->id_personaje,l_personaje->bloquedo);
 			error_show("posicion personaje [%d,%d]",l_personaje->posX,l_personaje->posX);
 			error_show("proximo recurso %c",l_personaje->proximo_recurso);
+			imprimo_asigmados(l_personaje->l_recursos_optenidos);
 
 			if (l_personaje->proximo_recurso != NULL ) {
 
@@ -701,5 +703,14 @@ void controlar_error_fd(t_h_personaje * t_personaje,
 			elimino_sck_lista(nodo_lista_personaje->sokc, t_personaje->readfds);
 		}
 
+	}
+}
+void imprimo_asigmados(t_list *l_rec){
+	int tot_recursos = list_size(l_rec);
+	int i;
+	t_recusos *t_rec;
+	for(i=0;i<tot_recursos;i++){
+		t_rec = list_get(l_rec,i);
+		error_show("Recurso %c cantidad restate %d  ",t_rec->SIMBOLO,t_rec->cantidad);
 	}
 }
