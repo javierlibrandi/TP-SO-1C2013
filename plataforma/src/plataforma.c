@@ -259,9 +259,10 @@ void escucho_conexiones(t_param_plat param_plataforma,
 			break;
 
 		default:
-			log_in_disk_plat(LOG_LEVEL_ERROR,
-					"opcion en el switch no implementada", tipo);
-			//exit(1);
+
+			koopita_querido();
+
+
 		}
 
 		free(buffer);
