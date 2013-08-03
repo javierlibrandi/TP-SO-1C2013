@@ -169,9 +169,9 @@ void eliminar_planificador(int sck, t_list *list_planificadores) {
 
 		list_remove(list_planificadores, index);
 
-		free(h_planificador->desc_nivel);
-		free(h_planificador->sock);
-		free(h_planificador);
+//		free(h_planificador->desc_nivel);
+//		free(h_planificador->sock);
+//		free(h_planificador);
 	}
 }
 
