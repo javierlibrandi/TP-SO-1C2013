@@ -81,9 +81,10 @@ void *inotify_thr(void* p) {
 						printf("The directory %s was modified.\n", event->name);
 					} else {
 						cuantum = leer_archivo_plataforma_config_cuantum();
-						pthread_mutex_lock(param.s_inotify);
+						log_in_disk_plat(LOG_LEVEL_DEBUG, "Nuevo cuantum de %d",
+								cuantum);
 						memcpy(&(param_plataforma->CUANTUM),&cuantum,sizeof(int));
-						pthread_mutex_unlock(param.s_inotify);
+
 					}
 				}
 
