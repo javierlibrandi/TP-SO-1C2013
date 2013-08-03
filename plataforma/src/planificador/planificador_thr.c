@@ -65,8 +65,9 @@ void* planificador_nivel_thr(void *p) {
 	for (;;) {
 		pthread_mutex_lock(h_planificador->s_lista_plani);
 		if (h_planificador->error_nivel) {
-			eliminar_planificador(h_planificador->sck_planificador,
-					h_planificador->lista_planificadores);
+//			eliminar_planificador(h_planificador->sck_planificador,
+//					h_planificador->lista_planificadores);
+			pthread_mutex_unlock(h_planificador->s_lista_plani);
 			pthread_exit((void *) "Se desconecto el planificador"); // Si la bandera esta en true, es por que hubo error y hay que matar al hilo.
 		}
 		pthread_mutex_unlock(h_planificador->s_lista_plani);
