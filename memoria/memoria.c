@@ -2,9 +2,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <src/commons/collections/list.h>
+#include <commons/collections/list.h>
 #include "memoria.h"
-#include <src/commons/string.h>
+#include <commons/string.h>
 
 t_list* list_particiones;
 int tamanioTotal;
