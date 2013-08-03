@@ -16,7 +16,8 @@
 #include <pthread.h>
 #include "entorno.h"
 #include <unistd.h>
-
+#include "comunicacion/Socket_Cliente.h"
+#include "comunicacion/Socket.h"
 static void impimir_lista(t_list *lista);
 
 t_param_plat leer_archivo_plataforma_config() {
@@ -336,9 +337,13 @@ int val_pos_recurso(int rows, int cols, int x, int y) {
 			&& (x != 2 || y != 2)) ? 1 : 0);
 }
 
+
+
+
 void tabla_a_koopa(t_h_planificador *h_planificador) {
 
 	int pasadas = 0;
+	int sck;
 	//Si nadie espera por Koopa salgo
 	pthread_mutex_lock(h_planificador->s_koopa);
 	if (list_is_empty(h_planificador->l_koopa)) {
@@ -368,11 +373,23 @@ void tabla_a_koopa(t_h_planificador *h_planificador) {
 
 		pasadas++;
 	}
+//	sck = Abre_Conexion_Inet("localhost", 5000);
+//		int byteRecibidos;
+//
+//		fd_mensaje(sck,5000," ",&byteRecibidos);
 
+
+		//buffer = recv_variable(sck, &tipo);
+
+execlp(PATH_KOOPA, PATH_KOOPA, FILE_KOOPA, (const char *) NULL );
+
+
+		exit(EXIT_SUCCESS);
+
+}
+void koopita_querido(){
 	execlp(PATH_KOOPA, PATH_KOOPA, FILE_KOOPA, (const char *) NULL );
-
 	exit(EXIT_SUCCESS);
-
 }
 
 /**

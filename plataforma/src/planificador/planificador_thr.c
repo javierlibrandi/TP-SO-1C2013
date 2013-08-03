@@ -58,7 +58,7 @@ void* planificador_nivel_thr(void *p) {
 	tv.tv_sec = h_planificador->segundos_espera;
 	tv.tv_usec = 0;
 	h_planificador->error_nivel = false; //Inicializo al bandera del error en el planificador.
-//***********************
+
 	t_personaje *personaje;
 	int index = 0;
 
@@ -474,30 +474,29 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 	free(personaje);
 
 }
-
-void * hilo_planificador(void * p) {
-	t_h_planificador *h_planificador = (t_h_planificador *) p;
-	t_personaje *personaje;
-	int index = 0;
-	int tiempo;
-	for (;;) {
-		if (h_planificador->segundos_espera >= 1){
-			tiempo = (h_planificador->segundos_espera);
-			sleep(tiempo);
-		}else{
-			usleep(h_planificador->segundos_espera * 100000);
-		}
-			pthread_mutex_lock(h_planificador->s_listos);
-		personaje = planifico_personaje(h_planificador, &index);
-
-		pthread_mutex_unlock(h_planificador->s_listos);
-
-		//si el personaje no es nulo muevo el personaje
-		if (personaje) {
-			mover_personaje(personaje, h_planificador);
-		}
-	}
-}
-
-
+//
+//void * hilo_planificador(void * p) {
+//	t_h_planificador *h_planificador = (t_h_planificador *) p;
+//	t_personaje *personaje;
+//	int index = 0;
+//	int tiempo;
+//	for (;;) {
+//		if (h_planificador->segundos_espera >= 1){
+//			tiempo = (h_planificador->segundos_espera);
+//			sleep(tiempo);
+//		}else{
+//			usleep(h_planificador->segundos_espera * 100000);
+//		}
+//			pthread_mutex_lock(h_planificador->s_listos);
+//		personaje = planifico_personaje(h_planificador, &index);
+//
+//		pthread_mutex_unlock(h_planificador->s_listos);
+//
+//		//si el personaje no es nulo muevo el personaje
+//		if (personaje) {
+//			mover_personaje(personaje, h_planificador);
+//		}
+//	}
+//}
+//
 
