@@ -151,6 +151,11 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 }
 
+int leer_archivo_plataforma_config_cuantum(){
+	t_config* config = config_create(PATH_CONFIG_PLATAFORMA);
+	return config_get_int_value(config, "CUANTUM");
+
+}
 t_param_persoje leer_personaje_config() {
 	t_config* config;
 	t_param_persoje param;

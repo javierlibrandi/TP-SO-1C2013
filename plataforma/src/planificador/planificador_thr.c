@@ -126,7 +126,10 @@ void* planificador_nivel_thr(void *p) {
 						break;
 
 					}
-					tv.tv_sec = h_planificador->segundos_espera;
+					if (h_planificador->segundos_espera >= 1)
+						tv.tv_sec = h_planificador->segundos_espera;
+					else
+						tv.tv_usec = h_planificador->segundos_espera * 100000;
 
 				}
 
@@ -393,9 +396,17 @@ static void mover_personaje(t_personaje *personaje,
 
 		}
 		free(buffer);
-		sleep(h_planificador->segundos_espera);
+		if (h_planificador->segundos_espera >= 1) {
+			sleep(h_planificador->segundos_espera);
+
+		} else {
+			usleep((h_planificador->segundos_espera) * 100000);
+
+		}
+
 	}
 	personaje_bloqueado = false;
+
 }
 
 void eliminar_personaje_termino_nivel(int sck, t_list *l_listos) {
@@ -427,8 +438,10 @@ void * hilo_planificador(void * p) {
 	t_personaje *personaje;
 	int index = 0;
 	for (;;) {
-
-		sleep(h_planificador->segundos_espera);
+		if (h_planificador->segundos_espera >= 1)
+			sleep(h_planificador->segundos_espera);
+		else
+			usleep(h_planificador->segundos_espera * 100000);
 		pthread_mutex_lock(h_planificador->s_listos);
 		personaje = planifico_personaje(h_planificador, &index);
 

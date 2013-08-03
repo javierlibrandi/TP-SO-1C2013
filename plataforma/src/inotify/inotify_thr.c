@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <mario_para_todos/grabar.h>
 #include <string.h>
+#include <pthread.h>
 // El tamaño de un evento es igual al tamaño de la estructura de inotify
 // mas el tamaño maximo de nombre de archivo que nosotros soportemos
 // en este caso el tamaño de nombre maximo que vamos a manejar es de 24
@@ -38,6 +39,7 @@ void *inotify_thr(void* p) {
 	// Al inicializar inotify este nos devuelve un descriptor de archivo
 	int file_descriptor = inotify_init();
 	int length;
+	int cuantum;
 	// El buffer es de tipo array de char, o array de bytes. Esto es porque como los
 	// nombres pueden tener nombres mas cortos que 24 caracteres el tamaño va a ser menor
 	// a sizeof( struct inotify_event ) + 24.
@@ -78,8 +80,10 @@ void *inotify_thr(void* p) {
 					if (event->mask & IN_ISDIR) {
 						printf("The directory %s was modified.\n", event->name);
 					} else {
-						param = leer_archivo_plataforma_config();
-						param_plataforma->CUANTUM = param.CUANTUM;
+						cuantum = leer_archivo_plataforma_config_cuantum();
+						pthread_mutex_lock(param.s_inotify);
+						memcpy(&(param_plataforma->CUANTUM),&cuantum,sizeof(int));
+						pthread_mutex_unlock(param.s_inotify);
 					}
 				}
 

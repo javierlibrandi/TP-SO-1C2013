@@ -358,8 +358,8 @@ void *orequestador_thr(void* p) {
 
 				case P_TO_O_PROX_NIVEL:
 					log_in_disk_orq(LOG_LEVEL_INFO,
-							"El personaje %s, pide el nivel %s,", mensaje[0],
-							mensaje[1]);
+							"El personaje %s, pide el nivel %s, %d", mensaje[0],
+							mensaje[1],i);
 
 					pthread_mutex_lock(t_h_orq->s_lista_plani);
 
