@@ -184,39 +184,39 @@ void *orequestador_thr(void* p) {
 					pthread_mutex_unlock(t_h_orq->s_bloquedos);
 					pthread_mutex_unlock(t_h_orq->s_deadlock);
 
-					fd_mensaje(i, O_TO_N_MUERTE,
-							string_from_format("%c", per_aux->simbolo),
-							&byteEnviados);
+//					fd_mensaje(i, O_TO_N_MUERTE,
+//							string_from_format("%c", per_aux->simbolo),
+//							&byteEnviados);
 
-					usleep(200000);
+					usleep(500000);
 
 					fd_mensaje(per_aux->sck, PL_TO_P_MUERTE, "moriste",
 							&byteEnviados);
 
-					buffer = recv_variable(per_aux->sck, &tipo);
-
-					if (!strcmp(buffer, Leido_error)) {
-
-						log_in_disk_orq(LOG_LEVEL_ERROR, "%s ", Leido_error);
-
-						log_in_disk_orq(LOG_LEVEL_ERROR,
-								"Error en el socket del nivel: %s, se mata el hilo ",
-								h_planificador->desc_nivel);
-						//Saco el planificador de la lista de planificadores
-						pthread_mutex_lock(h_planificador->s_lista_plani);
-						eliminar_planificador(i, t_h_orq->planificadores);
-						pthread_mutex_unlock(t_h_orq->s_lista_plani);
-						h_planificador->error_nivel = true; //marco el error en la bandera para que el planificador mate el hilo.
-
-					}
-
-					if (tipo == P_TO_PL_SALIR) {
-						// ELIMINAR EL PERSONAJE DE TODAS LAS LISTAS. ( BLOQUEADOS O DEADLOCK)
-					}
-
-					if (tipo == P_TO_O_REINICIAR_NIVEL) {
-						// PONER EL PERSONAJE EN LA COLA DE LISTOS.
-					}
+//					buffer = recv_variable(per_aux->sck, &tipo);
+//
+//					if (!strcmp(buffer, Leido_error)) {
+//
+//						log_in_disk_orq(LOG_LEVEL_ERROR, "%s ", Leido_error);
+//
+//						log_in_disk_orq(LOG_LEVEL_ERROR,
+//								"Error en el socket del nivel: %s, se mata el hilo ",
+//								h_planificador->desc_nivel);
+//						//Saco el planificador de la lista de planificadores
+//						pthread_mutex_lock(h_planificador->s_lista_plani);
+//						eliminar_planificador(i, t_h_orq->planificadores);
+//						pthread_mutex_unlock(t_h_orq->s_lista_plani);
+//						h_planificador->error_nivel = true; //marco el error en la bandera para que el planificador mate el hilo.
+//
+//					}
+//
+//					if (tipo == P_TO_PL_SALIR) {
+//						// ELIMINAR EL PERSONAJE DE TODAS LAS LISTAS. ( BLOQUEADOS O DEADLOCK)
+//					}
+//
+//					if (tipo == P_TO_O_REINICIAR_NIVEL) {
+//						// PONER EL PERSONAJE EN LA COLA DE LISTOS.
+//					}
 
 //					if (tipo == OK) {
 //						usleep(200000);
@@ -405,7 +405,8 @@ void *orequestador_thr(void* p) {
 bool busca_planificador_2(char *desc_nivel, t_list *list_plataforma, char * msj,
 		t_h_planificador* h_planificador) {
 
-	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador_2 de nivel: %s \t",desc_nivel);
+	log_in_disk_orq(LOG_LEVEL_TRACE, "busco el planificador_2 de nivel: %s \t",
+			desc_nivel);
 	struct hostent *dirIP;
 	int cant_planificadores, i;
 	//t_h_planificador * un_planificador;
