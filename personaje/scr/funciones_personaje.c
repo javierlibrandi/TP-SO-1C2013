@@ -97,11 +97,12 @@ int conectarOrquestador(Personaje* personaje) {
 	if (descriptor == -1) {
 		log_in_disk_per(LOG_LEVEL_ERROR, "%s",
 				"Hubo un error al conectarse al orquestador");
+		exit(EXIT_FAILURE);
 
 	} else {
 		log_in_disk_per(LOG_LEVEL_INFO, "%s",
 				"Conexión exitosa con el orquestador");
-	}
+
 
 //Armo mensaje P_TO_P_SALUDO con "nombrePersonaje;simbolo;nivel"
 
@@ -142,6 +143,7 @@ int conectarOrquestador(Personaje* personaje) {
 
 	free(buffer);
 	return descriptor;
+}
 }
 
 char* determinarProxNivel(Personaje *personaje) {

@@ -45,6 +45,8 @@ void liberar_memoria_personaje(t_personaje *personaje);
 void ejecutar_koopa(t_h_planificador *h_planificador);
 void eliminar_planificador(int sck, t_list *list_planificadores);
 
+
+
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 
@@ -471,6 +473,7 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 
 }
 
+
 void * hilo_planificador(void * p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 	t_personaje *personaje;
@@ -494,5 +497,6 @@ void * hilo_planificador(void * p) {
 		}
 	}
 }
+
 
 

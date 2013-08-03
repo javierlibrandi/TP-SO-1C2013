@@ -61,7 +61,7 @@ static pthread_mutex_t s_sock_orquestador = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t reads_orquestador = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_deadlock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_koopa = PTHREAD_MUTEX_INITIALIZER;
-
+t_param_plat param_plataforma;
 
 int main(void) {
 
@@ -258,9 +258,9 @@ void escucho_conexiones(t_param_plat param_plataforma,
 
 			break;
 
-		default:
+	
 
-			koopita_querido();
+	
 
 
 		}
