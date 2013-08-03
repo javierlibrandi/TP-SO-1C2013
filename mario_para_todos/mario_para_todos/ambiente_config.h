@@ -86,6 +86,7 @@ typedef struct {
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
 	bool error_nivel;//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
 	pthread_mutex_t *s_inotify;
+	t_param_plat * param_plat;
 } t_h_planificador;
 
 typedef struct {
@@ -110,6 +111,8 @@ typedef struct {
 	pthread_mutex_t *s_terminados;
 	pthread_mutex_t *s_deadlock;
 	pthread_mutex_t *s_koopa;
+	t_param_plat * param_plat;
+
 } t_h_orquestadro;
 
 t_param_plat leer_archivo_plataforma_config();

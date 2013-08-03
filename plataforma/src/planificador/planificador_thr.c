@@ -45,8 +45,6 @@ void liberar_memoria_personaje(t_personaje *personaje);
 void ejecutar_koopa(t_h_planificador *h_planificador);
 void eliminar_planificador(int sck, t_list *list_planificadores);
 
-
-
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 
@@ -268,8 +266,12 @@ static void mover_personaje(t_personaje *personaje,
 	bool personaje_bloqueado = false;
 	int sock_aux;
 	int tiempo;
+	h_planificador->param_plat;
+	*h_planificador->param_plat;
 //permito mover al personaje mientras el cuantun no llegue a 0
-	while (*(h_planificador->cuantum) > movimientos_realizados //TODO Revisar condicion del ciclo.
+//	while (*(h_planificador->cuantum) > movimientos_realizados //TODO Revisar condicion del ciclo.
+//	&& !personaje_bloqueado) {
+	while (((h_planificador->param_plat->CUANTUM) > movimientos_realizados) //TODO Revisar condicion del ciclo.
 	&& !personaje_bloqueado) {
 
 		log_in_disk_plan(LOG_LEVEL_INFO,
@@ -472,7 +474,6 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 	free(personaje);
 
 }
-
 
 //void * hilo_planificador(void * p) {
 //	t_h_planificador *h_planificador = (t_h_planificador *) p;

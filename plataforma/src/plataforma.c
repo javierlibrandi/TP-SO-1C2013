@@ -33,8 +33,7 @@
 void libero_memoria(t_list *list_plataforma);
 void creo_hilos_planificador(char *msj, t_list *list_plataforma, int sock,
 		char ip_cliente[], t_h_orquestadro *h_orquestador,
-		double segundos_espera,
-		int *cuantum);
+		double segundos_espera, int *cuantum);
 void escucho_conexiones(t_param_plat param_plataforma, t_list *list_plataforma,
 		t_h_orquestadro *h_orquestador, pthread_t *orquestador_thr);
 void join_orquestador(t_list *list_plataforma); //pthread_join de los hilos orquestadores
@@ -65,7 +64,7 @@ t_param_plat param_plataforma;
 
 int main(void) {
 
-	t_param_plat param_plataforma;
+	//t_param_plat param_plataforma;
 	pthread_t inotify_pthread;
 
 	pthread_t orquestador_thr;
@@ -76,10 +75,9 @@ int main(void) {
 
 	t_h_orquestadro *h_orquestador = malloc(sizeof(t_h_orquestadro));
 
-
 	//leo el archivo de configuracion para el hilo orquestador
 	param_plataforma = leer_archivo_plataforma_config();
-
+	h_orquestador->param_plat = &param_plataforma;
 	h_orquestador->readfds = malloc(sizeof(fd_set));
 	h_orquestador->sock = malloc(sizeof(int));
 	h_orquestador->planificadores = list_planificadores;
@@ -111,6 +109,8 @@ int main(void) {
 	//creo los hilos para inotify
 	pthread_create(&inotify_pthread, &attr, (void*) inotify_thr,
 			(void*) &param_plataforma);
+//	pthread_create(&inotify_pthread, &attr, (void*) inotify_thr,
+//				(void*) &orquestador_thr);
 
 	escucho_conexiones(param_plataforma, list_planificadores, h_orquestador,
 			&orquestador_thr);
@@ -274,8 +274,8 @@ void escucho_conexiones(t_param_plat param_plataforma,
 ////////////////////////////////////////////////////////////////////
 
 void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
-		char ip_cliente[], t_h_orquestadro *h_orquestador, double segundos_espera,
-		int *cuantum) {
+		char ip_cliente[], t_h_orquestadro *h_orquestador,
+		double segundos_espera, int *cuantum) {
 
 	pthread_t planificador_pthread;
 	t_h_planificador *h_planificador = malloc(sizeof(t_h_planificador));
@@ -298,11 +298,10 @@ void creo_hilos_planificador(char *msj, t_list *list_planificadores, int sock,
 	h_planificador->s_bloquedos = h_orquestador->s_bloquedos;
 	h_planificador->s_errores = h_orquestador->s_errores;
 
-
 	h_planificador->segundos_espera = segundos_espera;
 	h_planificador->cuantum = cuantum;
 	h_planificador->sck_planificador = sock; // guardo el socked del planificador para poder diferencialo de los personajes //En realidad es el socket del nivel.
-
+	h_planificador->param_plat = h_orquestador->param_plat ;
 ///////configuro el select() que despues voy a usar en el hilo////////
 	FD_ZERO(&readfds);
 	// FD_SET(sock, &readfds);   // Lo comento por que ahora al nivel lo escucha el orquestador.

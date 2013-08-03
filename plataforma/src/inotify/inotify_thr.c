@@ -80,10 +80,13 @@ void *inotify_thr(void* p) {
 					if (event->mask & IN_ISDIR) {
 						printf("The directory %s was modified.\n", event->name);
 					} else {
-						cuantum = leer_archivo_plataforma_config_cuantum();
+						*param_plataforma = leer_archivo_plataforma_config();
+						//cuantum = leer_archivo_plataforma_config_cuantum();
 						log_in_disk_plat(LOG_LEVEL_DEBUG, "Nuevo cuantum de %d",
-								cuantum);
-						memcpy(&(param_plataforma->CUANTUM),&cuantum,sizeof(int));
+								param_plataforma->CUANTUM);
+//						log_in_disk_plat(LOG_LEVEL_DEBUG, "Nuevo cuantum de %d",
+//								cuantum);
+						//memcpy(&(param_plataforma->CUANTUM),&cuantum,sizeof(int));
 
 					}
 				}
