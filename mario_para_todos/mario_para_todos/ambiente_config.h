@@ -18,6 +18,7 @@ typedef struct h_t_param_plat {
 	int PUERTO;
 	double SEGUNDOS_ESPERA;
 	int CUANTUM;
+	pthread_mutex_t *s_inotify;
 } t_param_plat;
 
 /**
@@ -84,7 +85,7 @@ typedef struct {
 	int *cuantum;
 	int sck_planificador; //guardo el socked del planificador para poder diferencialo de los personajes //Es el que se usa para comunicarse con el nivel.
 	bool error_nivel;//Es una bandera para que el el planificador sepa si tiene que matar el hilo. Se pone en false cuando se crea el planificador y la cambio el orquestador si hubo error con algun nivel.
-
+	pthread_mutex_t *s_inotify;
 } t_h_planificador;
 
 typedef struct {
@@ -163,5 +164,7 @@ void tabla_a_koopa_prueba();
 
 void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
 		t_list *l_errores);
+
+int leer_archivo_plataforma_config_cuantum();
 
 #endif /* AMBIENTE_CONFIG_H_ */
