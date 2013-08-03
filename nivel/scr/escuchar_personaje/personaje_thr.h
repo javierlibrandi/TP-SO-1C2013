@@ -25,6 +25,7 @@ typedef struct {
 	ITEM_NIVEL* ListaItemsss;
 	pthread_mutex_t *s_personaje_recursos;
 	pthread_mutex_t * s_deadlock;
+	pthread_mutex_t * s_deadlock_escucha_pesonaje;
 	//uso el semaforo para asigunar liberar recursos y verificar el interbloqueo
 } t_h_personaje;
 

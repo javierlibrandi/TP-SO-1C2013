@@ -904,6 +904,7 @@ void reiniciarPlanDeNiveles2(Personaje *personaje) {
 	personaje->finNivel = false;
 	personaje->bloqueado = false;
 	personaje->vidas = personaje->vidasIniciales;
+	personaje->muerto = false;
 
 }
 

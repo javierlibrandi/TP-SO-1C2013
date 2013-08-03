@@ -136,7 +136,16 @@ int main(void) {
 					log_in_disk_per(LOG_LEVEL_INFO,
 							"Se han perdido todos los recursos y niveles cumplidos. ",
 							personaje->infoNivel.nombre);
-					reiniciarPlanDeNiveles(personaje);
+					personaje->muerto = true;
+					salirNivelPorMuerte(personaje);
+
+					buffer = recv_variable(personaje->sockPlanif, &tipo);
+					if(tipo == PL_TO_P_TURNO){
+						log_in_disk_per(LOG_LEVEL_INFO, "lalalalala" );
+						salirPlanifPorMuerte(personaje);
+						//reiniciarPlanDeNiveles2(personaje);
+					}
+
 				}
 
 				break;
@@ -193,7 +202,7 @@ int main(void) {
 			}
 
 			salirNivelPorObjCumplido(personaje);
-		} else {
+		}else{
 			reiniciarPlanDeNiveles2(personaje);
 		}
 

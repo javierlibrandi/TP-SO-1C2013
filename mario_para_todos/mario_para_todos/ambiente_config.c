@@ -151,6 +151,11 @@ struct h_t_param_nivel leer_nivel_config(int rows, int cols) {
 
 }
 
+int leer_archivo_plataforma_config_cuantum(){
+	t_config* config = config_create(PATH_CONFIG_PLATAFORMA);
+	return config_get_int_value(config, "CUANTUM");
+
+}
 t_param_persoje leer_personaje_config() {
 	t_config* config;
 	t_param_persoje param;
@@ -230,6 +235,7 @@ void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_lock(h_orq->s_errores);
 	pthread_mutex_lock(h_orq->s_koopa);
 	pthread_mutex_lock(h_orq->s_nuevos);
+	pthread_mutex_lock(h_orq->s_deadlock);
 
 }
 
@@ -239,6 +245,7 @@ void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_unlock(h_orq->s_errores);
 	pthread_mutex_unlock(h_orq->s_koopa);
 	pthread_mutex_unlock(h_orq->s_nuevos);
+	pthread_mutex_unlock(h_orq->s_deadlock);
 }
 
 /**
