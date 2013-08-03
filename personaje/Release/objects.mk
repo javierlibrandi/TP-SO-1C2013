@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lmario_para_todos -lpthread -lcommons
+LIBS := -lmario_para_todos -lcommons -lpthread
 

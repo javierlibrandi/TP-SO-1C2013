@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lcommons -llib_mario -lmario_para_todos -lmemoria -lso-commons-library -lpthread
+LIBS := -lcommons -lmario_para_todos -lmemoria -lso-commons-library -lpthread
 

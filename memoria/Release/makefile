@@ -24,11 +24,14 @@ endif
 # All Target
 all: libmemoria.so
 
+dependents:
+	-cd /home/utnso/git/tp-20131c-gaturro/so-commons-library/Release && $(MAKE) clean all
+
 # Tool invocations
-libmemoria.so: $(OBJS) $(USER_OBJS)
+libmemoria.so: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/so-commons-library/Release/libso-commons-library.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/git/tp-20131c-gaturro/so-commons-library" -shared -o "libmemoria.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/git/tp-20131c-gaturro/commons/Release" -L"/home/utnso/git/tp-20131c-gaturro/so-commons-library" -shared -o "libmemoria.so" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -39,5 +42,6 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
+/home/utnso/git/tp-20131c-gaturro/so-commons-library/Release/libso-commons-library.so:
 
 -include ../makefile.targets

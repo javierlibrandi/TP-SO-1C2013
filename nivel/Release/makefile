@@ -29,8 +29,12 @@ endif
 # All Target
 all: nivel
 
+dependents:
+	-cd /home/utnso/git/tp-20131c-gaturro/commons/Release && $(MAKE) clean all
+	-cd /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release && $(MAKE) clean all
+
 # Tool invocations
-nivel: $(OBJS) $(USER_OBJS)
+nivel: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Release/libcommons.so /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release/libmario_para_todos.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
 	gcc -L"/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release" -L"/home/utnso/git/tp-20131c-gaturro/commons/Release" -o "nivel" $(OBJS) $(USER_OBJS) $(LIBS)
@@ -44,5 +48,7 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
+/home/utnso/git/tp-20131c-gaturro/commons/Release/libcommons.so:
+/home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release/libmario_para_todos.so:
 
 -include ../makefile.targets
