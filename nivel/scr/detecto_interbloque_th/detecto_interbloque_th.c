@@ -26,6 +26,7 @@
 #include "../manjo_pantalla/pantalla.h"
 #include "../manjo_pantalla/nivel_p.h"
 #include "../manjo_pantalla/tad_items.h"
+#include <commons/error.h>
 
 int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
@@ -47,8 +48,6 @@ void *detecto_interbloque(void *p) {
 	memcpy(&param_nivel, &h_interbloqueo.param_nivel,
 			sizeof(struct h_t_param_nivel));
 	t_lista_personaje * nodo_lista_personaje;
-	t_lista_personaje * aux1;
-	t_lista_personaje *aux2;
 
 	//conecxion con el orquestador, solo si tengo el valor Recovery = 1
 //	if (param_nivel.Recovery) {
@@ -289,7 +288,14 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 
 		if (l_personaje->bloquedo) {
 
+			error_show("El personaje %c bandera %d",l_personaje->id_personaje,l_personaje->bloquedo);
+			error_show("posicion personaje [%d,%d]",l_personaje->posX,l_personaje->posX);
+			error_show("proximo recurso %c",l_personaje->proximo_recurso);
+
 			if (l_personaje->proximo_recurso != NULL ) {
+
+				error_show("cantidad de proximos recursos %d",l_personaje->proximo_recurso->recursos_disponibles);
+
 				if (l_personaje->proximo_recurso->recursos_disponibles > 0) { //si la cantidad del vertor de disponible del proximo recurso del personaje es mayor a 0 por lo tanto el personaje no esta bloquedo
 					l_personaje->bloquedo = false;
 					log_in_disk_niv(LOG_LEVEL_TRACE,
@@ -303,6 +309,8 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 							- l_personaje->posX;
 					difY = l_personaje->proximo_recurso->posY
 							- l_personaje->posY;
+					error_show("posicion recuso[%d,%d]",l_personaje->proximo_recurso->posX,l_personaje->proximo_recurso->posY);
+					error_show("la comparacion anterior devuelve %s",!(difX == 0 && difY == 0)?"TRUE":"FALSE");
 					if (!(difX == 0 && difY == 0)) {
 						//				if ((!(difX == 0 && difY == 0))
 //						&& l_personaje->proximo_recurso == NULL ) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
@@ -321,6 +329,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 			}
 		}
 	}
+	error_show("el personaje quedo con los siguiente valores bloquedo=%d, proximo recurso %c",l_personaje->bloquedo,l_personaje->proximo_recurso);
 	return marcados;
 }
 
