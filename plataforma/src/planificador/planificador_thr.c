@@ -229,6 +229,7 @@ static void mover_personaje(t_personaje *personaje,
 	int movimientos_realizados = 0;
 	bool personaje_bloqueado = false;
 	int sock_aux;
+	int tiempo;
 //permito mover al personaje mientras el cuantun no llegue a 0
 	while (*(h_planificador->cuantum) > movimientos_realizados //TODO Revisar condicion del ciclo.
 	&& !personaje_bloqueado) {
@@ -397,7 +398,8 @@ static void mover_personaje(t_personaje *personaje,
 		}
 		free(buffer);
 		if (h_planificador->segundos_espera >= 1) {
-			sleep(h_planificador->segundos_espera);
+			tiempo = (h_planificador->segundos_espera);
+			sleep(tiempo);
 
 		} else {
 			usleep((h_planificador->segundos_espera) * 100000);
@@ -437,12 +439,15 @@ void * hilo_planificador(void * p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 	t_personaje *personaje;
 	int index = 0;
+	int tiempo;
 	for (;;) {
-		if (h_planificador->segundos_espera >= 1)
-			sleep(h_planificador->segundos_espera);
-		else
+		if (h_planificador->segundos_espera >= 1){
+			tiempo = (h_planificador->segundos_espera);
+			sleep(tiempo);
+		}else{
 			usleep(h_planificador->segundos_espera * 100000);
-		pthread_mutex_lock(h_planificador->s_listos);
+		}
+			pthread_mutex_lock(h_planificador->s_listos);
 		personaje = planifico_personaje(h_planificador, &index);
 
 		pthread_mutex_unlock(h_planificador->s_listos);
