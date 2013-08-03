@@ -41,7 +41,7 @@ void eliminar_personaje_termino_nivel(int sck, t_list *l_listos);
 t_personaje *busca_personaje_skc(int sck, t_list *l_listos,
 		int *indice_personaje);
 void liberar_memoria_personaje(t_personaje *personaje);
-void * hilo_planificador(void * p);
+//void * hilo_planificador(void * p);
 void ejecutar_koopa(t_h_planificador *h_planificador);
 void eliminar_planificador(int sck, t_list *list_planificadores);
 
@@ -51,98 +51,133 @@ void* planificador_nivel_thr(void *p) {
 	void *buffer = NULL;
 	int tipo, sck;
 	struct timeval tv;
-	pthread_t _planificador_t_h;
+	//pthread_t _planificador_t_h;
 	log_in_disk_plan(LOG_LEVEL_DEBUG, "Creo el panificador del nivel %s ",
 			h_planificador->desc_nivel);
 
 	tv.tv_sec = h_planificador->segundos_espera;
 	tv.tv_usec = 0;
 	h_planificador->error_nivel = false; //Inicializo al bandera del error en el planificador.
-
-	pthread_create(&_planificador_t_h, NULL, (void*) hilo_planificador,
-			(void*) p);
+//***********************
+	t_personaje *personaje;
+	int index = 0;
 
 	for (;;) {
+		if (h_planificador->segundos_espera >= 1) {
+			sleep(h_planificador->segundos_espera);
+
+		} else {
+			usleep((h_planificador->segundos_espera) * 1000000);
+
+		}
 		pthread_mutex_lock(h_planificador->s_lista_plani);
 		if (h_planificador->error_nivel) {
-//			eliminar_planificador(h_planificador->sck_planificador,
-//					h_planificador->lista_planificadores);
+			log_in_disk_plan(LOG_LEVEL_ERROR,
+					"Se mata al planificador de nivel: %s ",
+					h_planificador->desc_nivel);
 			pthread_mutex_unlock(h_planificador->s_lista_plani);
 			pthread_exit((void *) "Se desconecto el planificador"); // Si la bandera esta en true, es por que hubo error y hay que matar al hilo.
 		}
 		pthread_mutex_unlock(h_planificador->s_lista_plani);
-		if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
-				NULL, &tv) == -1) {
-			perror("select");
-			exit(EXIT_FAILURE);
+
+		if (h_planificador->segundos_espera >= 1)
+			sleep(h_planificador->segundos_espera);
+		else
+			usleep(h_planificador->segundos_espera * 1000000);
+		pthread_mutex_lock(h_planificador->s_listos);
+		personaje = planifico_personaje(h_planificador, &index);
+
+		pthread_mutex_unlock(h_planificador->s_listos);
+
+		//si el personaje no es nulo muevo el personaje
+		if (personaje) {
+			mover_personaje(personaje, h_planificador);
 		}
-
-		for (sck = 0; sck <= *(h_planificador->sock); sck++) {
-
-			if (FD_ISSET(sck, h_planificador->readfds)) {
-				buffer = recv_variable(sck, &tipo);
-
-				if (!strcmp(buffer, Leido_error)) {
-
-					log_in_disk_plan(LOG_LEVEL_ERROR,
-							"%s lo saco de la lista  ", Leido_error);
-
-//					log_in_disk_plan(LOG_LEVEL_ERROR,
-//												"Error en la coneccion con el personaje: %c con el planificador de nivel: %s  "); // TODO Agregar el nombre del personaje que tuvo el error. 1ro buscarlo en la lista por socket.
-
-					lock_listas_plantaforma(h_planificador);
-					mover_personaje_lista(sck, h_planificador->l_listos,
-							h_planificador->l_errores);
-					mover_personaje_lista(sck, h_planificador->l_bloquedos,
-							h_planificador->l_errores);
-					imprimir_listas(h_planificador, 'p');
-					un_lock_listas_plataforma(h_planificador);
-
-					elimino_sck_lista(sck, h_planificador->readfds);
-					free(buffer);
-
-				} else {
-
-					log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
-					switch (tipo) {
-
-					case P_TO_PL_OBJ_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
-
-						log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
-
-						lock_listas_plantaforma(h_planificador);
-
-						eliminar_personaje_termino_nivel(sck,
-								h_planificador->l_listos);
-						elimino_sck_lista(sck, h_planificador->readfds);
-						imprimir_listas(h_planificador, 'p');
-						un_lock_listas_plataforma(h_planificador);
-
-						free(buffer); // TODO Donde se hace el malloc??
-
-						// Aca se responde a los mensajes que reciba el planificador.
-						log_in_disk_plan(LOG_LEVEL_TRACE,
-								"salida del segundo llamado %s nivel %s \n",
-								buffer, h_planificador->desc_nivel);
-						break;
-
-					}
-					if (h_planificador->segundos_espera >= 1)
-						tv.tv_sec = h_planificador->segundos_espera;
-					else
-						tv.tv_usec = h_planificador->segundos_espera * 100000;
-
-				}
-
-			}
-		}
-		/* Forzamos la expulsión de la CPU con sched_yield */
-		sched_yield();
 	}
+
+//	pthread_create(&_planificador_t_h, NULL, (void*) hilo_planificador,
+//			(void*) p);
+	/*
+	 for (;;) {
+	 pthread_mutex_lock(h_planificador->s_lista_plani);
+	 if (h_planificador->error_nivel) {
+	 //			eliminar_planificador(h_planificador->sck_planificador,
+	 //					h_planificador->lista_planificadores);
+	 pthread_mutex_unlock(h_planificador->s_lista_plani);
+	 pthread_exit((void *) "Se desconecto el planificador"); // Si la bandera esta en true, es por que hubo error y hay que matar al hilo.
+	 }
+	 pthread_mutex_unlock(h_planificador->s_lista_plani);
+	 if (select(*(h_planificador->sock) + 1, h_planificador->readfds, NULL,
+	 NULL, &tv) == -1) {
+	 perror("select");
+	 exit(EXIT_FAILURE);
+	 }
+
+	 for (sck = 0; sck <= *(h_planificador->sock); sck++) {
+
+	 if (FD_ISSET(sck, h_planificador->readfds)) {
+	 buffer = recv_variable(sck, &tipo);
+
+	 if (!strcmp(buffer, Leido_error)) {
+
+	 log_in_disk_plan(LOG_LEVEL_ERROR,
+	 "%s lo saco de la lista  ", Leido_error);
+
+	 //					log_in_disk_plan(LOG_LEVEL_ERROR,
+	 //												"Error en la coneccion con el personaje: %c con el planificador de nivel: %s  "); // TODO Agregar el nombre del personaje que tuvo el error. 1ro buscarlo en la lista por socket.
+
+	 lock_listas_plantaforma(h_planificador);
+	 mover_personaje_lista(sck, h_planificador->l_listos,
+	 h_planificador->l_errores);
+	 mover_personaje_lista(sck, h_planificador->l_bloquedos,
+	 h_planificador->l_errores);
+	 imprimir_listas(h_planificador, 'p');
+	 un_lock_listas_plataforma(h_planificador);
+
+	 elimino_sck_lista(sck, h_planificador->readfds);
+	 free(buffer);
+
+	 } else {
+
+	 log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
+	 switch (tipo) {
+
+	 case P_TO_PL_OBJ_CUMPLIDO: //cuando el nivel esta complido saco el personaje de las listas
+
+	 log_in_disk_plan(LOG_LEVEL_TRACE, "TIPO %d", tipo);
+
+	 lock_listas_plantaforma(h_planificador);
+
+	 eliminar_personaje_termino_nivel(sck,
+	 h_planificador->l_listos);
+	 elimino_sck_lista(sck, h_planificador->readfds);
+	 imprimir_listas(h_planificador, 'p');
+	 un_lock_listas_plataforma(h_planificador);
+
+	 free(buffer); // TODO Donde se hace el malloc??
+
+	 // Aca se responde a los mensajes que reciba el planificador.
+	 log_in_disk_plan(LOG_LEVEL_TRACE,
+	 "salida del segundo llamado %s nivel %s \n",
+	 buffer, h_planificador->desc_nivel);
+	 break;
+
+	 }
+	 if (h_planificador->segundos_espera >= 1)
+	 tv.tv_sec = h_planificador->segundos_espera;
+	 else
+	 tv.tv_usec = h_planificador->segundos_espera * 100000;
+
+	 }
+
+	 }
+	 }
+
+	 sched_yield();
+	 }  */
 
 //cierro el socket que escucha para no aceptar nuevas conexiones.
 //Como estoy en un while infinito no tiene sentido lo pogo como ejempo
-
 	pthread_exit(EXIT_SUCCESS);
 }
 
@@ -184,7 +219,7 @@ static t_personaje *planifico_personaje(t_h_planificador *h_planificador,
 	t_personaje *personaje;
 	int index_aux = *index;
 
-	//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
+//log_in_disk_plat(LOG_LEVEL_INFO, "planifico_nivel");
 
 	total_elementos = list_size(h_planificador->l_listos);
 	if (total_elementos > 0) {
@@ -434,24 +469,24 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 
 }
 
-void * hilo_planificador(void * p) {
-	t_h_planificador *h_planificador = (t_h_planificador *) p;
-	t_personaje *personaje;
-	int index = 0;
-	for (;;) {
-		if (h_planificador->segundos_espera >= 1)
-			sleep(h_planificador->segundos_espera);
-		else
-			usleep(h_planificador->segundos_espera * 100000);
-		pthread_mutex_lock(h_planificador->s_listos);
-		personaje = planifico_personaje(h_planificador, &index);
-
-		pthread_mutex_unlock(h_planificador->s_listos);
-
-		//si el personaje no es nulo muevo el personaje
-		if (personaje) {
-			mover_personaje(personaje, h_planificador);
-		}
-	}
-}
+//void * hilo_planificador(void * p) {
+//	t_h_planificador *h_planificador = (t_h_planificador *) p;
+//	t_personaje *personaje;
+//	int index = 0;
+//	for (;;) {
+//		if (h_planificador->segundos_espera >= 1)
+//			sleep(h_planificador->segundos_espera);
+//		else
+//			usleep(h_planificador->segundos_espera * 100000);
+//		pthread_mutex_lock(h_planificador->s_listos);
+//		personaje = planifico_personaje(h_planificador, &index);
+//
+//		pthread_mutex_unlock(h_planificador->s_listos);
+//
+//		//si el personaje no es nulo muevo el personaje
+//		if (personaje) {
+//			mover_personaje(personaje, h_planificador);
+//		}
+//	}
+//}
 
