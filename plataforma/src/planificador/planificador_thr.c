@@ -227,7 +227,7 @@ static void mover_personaje(t_personaje *personaje,
 	bool personaje_bloqueado = false;
 	int sock_aux;
 //permito mover al personaje mientras el cuantun no llegue a 0
-	while (*(h_planificador->cuantum) >= movimientos_realizados //TODO Revisar condicion del ciclo.
+	while (*(h_planificador->cuantum) > movimientos_realizados //TODO Revisar condicion del ciclo.
 	&& !personaje_bloqueado) {
 
 		log_in_disk_plan(LOG_LEVEL_INFO,

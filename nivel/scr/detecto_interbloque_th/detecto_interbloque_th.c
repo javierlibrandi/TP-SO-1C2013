@@ -26,11 +26,13 @@
 #include "../manjo_pantalla/pantalla.h"
 #include "../manjo_pantalla/nivel_p.h"
 #include "../manjo_pantalla/tad_items.h"
+#include <commons/error.h>
 
 int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
 int marchar_personaje_c_recursos(t_list *personajes);
 int cantidad_interbloquedos(t_list *personajes, char **personaje_bloquedos);
+//void imprimo_asigmados(t_list *l_rec);
 
 void *detecto_interbloque(void *p) {
 	//int sck_orq;
@@ -47,8 +49,6 @@ void *detecto_interbloque(void *p) {
 	memcpy(&param_nivel, &h_interbloqueo.param_nivel,
 			sizeof(struct h_t_param_nivel));
 	t_lista_personaje * nodo_lista_personaje;
-	t_lista_personaje * aux1;
-	t_lista_personaje *aux2;
 
 	//conecxion con el orquestador, solo si tengo el valor Recovery = 1
 //	if (param_nivel.Recovery) {
@@ -59,9 +59,10 @@ void *detecto_interbloque(void *p) {
 			"####INTERBLOQUEO	Hilo pra la deteccion de interbloqueo del nivel %s levantado",
 			param_nivel.nom_nivel);
 	for (;;) {
-		usleep(param_nivel.TiempoChequeoDeadlock);
-		pthread_mutex_lock(t_personaje.s_personaje_recursos);
 
+		usleep(param_nivel.TiempoChequeoDeadlock);
+		//pthread_mutex_lock(t_personaje.s_personaje_recursos);
+		pthread_mutex_lock(t_personaje.s_deadlock);
 		log_in_disk_niv(LOG_LEVEL_INFO,
 				"#######INTER_BLOQUEO	Comienza el algoritmo de deteccion de interbloqueo del nivel: %s	#######INTER_BLOQUEO",
 				param_nivel.nom_nivel);
@@ -70,8 +71,8 @@ void *detecto_interbloque(void *p) {
 			otnego_vector_diponibles(param_nivel.recusos, NULL ); //paso 2
 
 			while (marchar_personaje_c_recursos(t_personaje.l_personajes) != 0) { //paso  3 miestra sea distinto de 0
-				aux1 = list_get(t_personaje.l_personajes, 0);
-				aux2 = list_get(t_personaje.l_personajes, 1);
+//				aux1 = list_get(t_personaje.l_personajes, 0);
+//				aux2 = list_get(t_personaje.l_personajes, 1);
 				otnego_vector_diponibles(param_nivel.recusos,
 						t_personaje.l_personajes); //paso 4
 			}
@@ -84,94 +85,100 @@ void *detecto_interbloque(void *p) {
 					"#######################INTER_BLOQUEO  SE DETECTO UN INTERBLOQUEO EN EL NIVEL: %s. Y LOS PERSONAJES QUE PARTICIPAN DEL MISMO SON: %s .  #######INTER_BLOQUEO",
 					param_nivel.nom_nivel, personaje_bloquedos);
 
-			if (param_nivel.Recovery) {
-				//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
+//			if (param_nivel.Recovery) {
+			//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
 
-				fd_mensaje(t_personaje.sck_orquestador, N_TO_O_RECOVERY,
-						personaje_bloquedos, &tot_enviados);
-
-				controlar_error_fd(&t_personaje, nodo_lista_personaje, buffer,
-						t_personaje.sck_orquestador, tot_enviados);
-
-				buffer = recv_variable(t_personaje.sck_orquestador, &tipo);
-				controlar_error_rec(&t_personaje, nodo_lista_personaje, buffer,
-						t_personaje.sck_orquestador, tot_enviados);
-
-				if (tipo == O_TO_N_MUERTE) {
-					nodo_lista_personaje = busca_personaje_simbolo(buffer[0],
-							t_personaje.l_personajes, &indice);
-
-					buffer = recv_variable(nodo_lista_personaje->sokc, &tipo);
-
-					controlar_error_rec(&t_personaje, nodo_lista_personaje,
-							buffer, nodo_lista_personaje->sokc, tot_enviados);
-
-					log_in_disk_niv(LOG_LEVEL_INFO,
-							"#######################INTER_BLOQUEO Se recibió un tipo de mensaje %d: %s #######################INTER_BLOQUEO",
-							tipo, buffer);
-
-					switch (tipo) {
-					mensaje = string_split(buffer, ";");
-
-				case P_TO_N_SALIR:
-
-					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Se recibió un mensaje P_TO_N_SALIR");
-
-					log_in_disk_niv(LOG_LEVEL_INFO,
-							"****** El personaje %c sale del nivel por muerte. ******",
-							mensaje[0][0]);
-
-//					nodo_lista_personaje = busco_personaje(i,
-//							t_personaje->l_personajes, &pos);
-
-					if (B_DIBUJAR) {
-						BorrarItem(t_personaje.ListaItemss,
-								nodo_lista_personaje->id_personaje);
-						nivel_gui_dibujar(t_personaje.ListaItemsss);
-					}
-
-					recursos_personaje = string_new();
-					recursos_personaje = listarRecursosPersonaje(
-							nodo_lista_personaje->l_recursos_optenidos);
-					tipo_mensaje = OK;
-
-					fd_mensaje(nodo_lista_personaje->sokc, tipo_mensaje,
-							"Saliste del nivel.", &tot_enviados);
-
-					controlar_error_fd(&t_personaje, nodo_lista_personaje,
-							buffer, nodo_lista_personaje->sokc, tot_enviados);
-
-					elimino_personaje_lista_nivel(nodo_lista_personaje->sokc,
-							t_personaje.l_personajes, t_personaje.ListaItemsss);
-					elimino_sck_lista(nodo_lista_personaje->sokc,
-							t_personaje.readfds);
-
-					desbloquear_Personajes(recursos_personaje, buffer,
-							&t_personaje, param_nivel,
-							t_personaje.sck_orquestador);
-
-					log_in_disk_niv(LOG_LEVEL_INFO,
-							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
-					//TODO Listar recursos
-
-					break;
-
-					//TODO AGregar el case del salir. y controlar semaforos.
-
-					}
-
-					//Recibir la victima, e iniciar el desbloqueo informando al orquestador.
-
-				}
-
-			}
-
+//				fd_mensaje(t_personaje.sck_orquestador, N_TO_O_RECOVERY,
+//						personaje_bloquedos, &tot_enviados);
+//
+//				controlar_error_fd(&t_personaje, nodo_lista_personaje, buffer,
+//						t_personaje.sck_orquestador, tot_enviados);
+//
+//				buffer = recv_variable(t_personaje.sck_orquestador, &tipo);
+//				controlar_error_rec(&t_personaje, nodo_lista_personaje, buffer,
+//						t_personaje.sck_orquestador, tot_enviados);
+//
+//				if (tipo == O_TO_N_MUERTE) {
+//					nodo_lista_personaje = busca_personaje_simbolo(buffer[0],
+//							t_personaje.l_personajes, &indice);
+//
+//					buffer = recv_variable(nodo_lista_personaje->sokc, &tipo);
+//
+//					controlar_error_rec(&t_personaje, nodo_lista_personaje,
+//							buffer, nodo_lista_personaje->sokc, tot_enviados);
+//
+//					log_in_disk_niv(LOG_LEVEL_INFO,
+//							"#######################INTER_BLOQUEO Se recibió un tipo de mensaje %d: %s #######################INTER_BLOQUEO",
+//							tipo, buffer);
+//
+//					switch (tipo) {
+//					mensaje = string_split(buffer, ";");
+//
+//				case P_TO_N_SALIR:
+//
+//					log_in_disk_niv(LOG_LEVEL_INFO,
+//							"Se recibió un mensaje P_TO_N_SALIR");
+//
+//					log_in_disk_niv(LOG_LEVEL_INFO,
+//							"****** El personaje %c sale del nivel por muerte. ******",
+//							mensaje[0][0]);
+//
+////					nodo_lista_personaje = busco_personaje(i,
+////							t_personaje->l_personajes, &pos);
+//
+//					if (B_DIBUJAR) {
+//						BorrarItem(t_personaje.ListaItemss,
+//								nodo_lista_personaje->id_personaje);
+//						nivel_gui_dibujar(t_personaje.ListaItemsss);
+//					}
+//
+//					recursos_personaje = string_new();
+//					recursos_personaje = listarRecursosPersonaje(
+//							nodo_lista_personaje->l_recursos_optenidos);
+//					tipo_mensaje = OK;
+//
+//					fd_mensaje(nodo_lista_personaje->sokc, tipo_mensaje,
+//							"Saliste del nivel.", &tot_enviados);
+//
+//					controlar_error_fd(&t_personaje, nodo_lista_personaje,
+//							buffer, nodo_lista_personaje->sokc, tot_enviados);
+//
+//					elimino_personaje_lista_nivel(nodo_lista_personaje->sokc,
+//							t_personaje.l_personajes, t_personaje.ListaItemsss);
+//					elimino_sck_lista(nodo_lista_personaje->sokc,
+//							t_personaje.readfds);
+//
+//					desbloquear_Personajes(recursos_personaje, buffer,
+//							&t_personaje, param_nivel,
+//							t_personaje.sck_orquestador);
+//
+//					log_in_disk_niv(LOG_LEVEL_INFO,
+//							"Se eliminó el personaje del nivel. Se liberan sus recursos.");
+//					//TODO Listar recursos
+//					pthread_mutex_unlock(t_personaje.s_deadlock);
+//					break;
+//				default:
+//					pthread_mutex_unlock(t_personaje.s_deadlock);
+//					//TODO AGregar el case del salir. y controlar semaforos.
+//
+//					}
+//
+//					//Recibir la victima, e iniciar el desbloqueo informando al orquestador.
+//
+//				}
+//
+//			}
+			pthread_mutex_unlock(t_personaje.s_deadlock);
+			//pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+		} else {
+			pthread_mutex_unlock(t_personaje.s_deadlock);
+			//pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 		}
-		pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+		//
 		//free(personaje_bloquedos);
-		free(buffer);
+		//free(buffer);
 		personaje_bloquedos = string_new();
+		pthread_mutex_unlock(t_personaje.s_deadlock);
 	}
 	return NULL ;
 }
@@ -248,9 +255,11 @@ void otnego_vector_diponibles(t_list *recursos, t_list *personajes) {
 					for (cont_recursos_personaje = 0;
 							cont_recursos_personaje < tot_personajes_personaje;
 							cont_recursos_personaje++) { // recorro todos los recursos del presonaje
-
-						l_recursos_personaje = list_get(recursos,
+						l_recursos_personaje = list_get(
+								l_personaje->l_recursos_optenidos,
 								cont_recursos_personaje); // obtengo el primer recurso del personaje
+//						l_recursos_personaje = list_get(recursos,
+//								cont_recursos_personaje); // obtengo el primer recurso del personaje
 						char id = l_recursos_personaje->SIMBOLO;
 						aux_recurso = busco_recurso(id, recursos); // bueco en la lista de recurso por el ID del recuros del personaje
 
@@ -290,6 +299,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 		if (l_personaje->bloquedo) {
 
 			if (l_personaje->proximo_recurso != NULL ) {
+
 				if (l_personaje->proximo_recurso->recursos_disponibles > 0) { //si la cantidad del vertor de disponible del proximo recurso del personaje es mayor a 0 por lo tanto el personaje no esta bloquedo
 					l_personaje->bloquedo = false;
 					log_in_disk_niv(LOG_LEVEL_TRACE,
@@ -303,6 +313,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 							- l_personaje->posX;
 					difY = l_personaje->proximo_recurso->posY
 							- l_personaje->posY;
+
 					if (!(difX == 0 && difY == 0)) {
 						//				if ((!(difX == 0 && difY == 0))
 //						&& l_personaje->proximo_recurso == NULL ) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
@@ -311,6 +322,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 
 						log_in_disk_niv(LOG_LEVEL_TRACE,
 								"El personaje %c no es candidato para el interbloqueo, exiten %d recurso %s para cumplir su solicitud pero el personaje no llego a la posicion del recurso",
+								l_personaje->id_personaje,
 								l_personaje->proximo_recurso->cantidad,
 								l_personaje->proximo_recurso->NOMBRE);
 					}
@@ -321,6 +333,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 			}
 		}
 	}
+
 	return marcados;
 }
 
@@ -647,7 +660,6 @@ void liberar_recursos(t_list *recursos_otenido, ITEM_NIVEL *item) {
 	}
 	list_destroy(recursos_otenido); //TODO Destruir los nodos de la lista!
 }
-
 
 void controlar_error_rec(t_h_personaje * t_personaje,
 		t_lista_personaje * nodo_lista_personaje, char *buffer, int sock,
