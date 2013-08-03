@@ -113,8 +113,8 @@ int main(void) {
 
 	//creo el hilo para la deteccion de interbloqueo
 
-	//pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
-	//	(void*) &h_interbloqueo);
+	pthread_create(&detecto_interbloque_th, NULL, (void*) detecto_interbloque,
+		(void*) &h_interbloqueo);
 
 	pthread_mutex_lock(&s_personaje_recursos);
 	imprmir_recursos_nivel(param_nivel.recusos);

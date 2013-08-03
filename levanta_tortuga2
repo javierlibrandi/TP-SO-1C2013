@@ -9,7 +9,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/memoria/Rele
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/git/tp-20131c-gaturro/so-commons-library/Release/
 echo $LD_LIBRARY_PATH
 
-echo 'copia archivos
+echo 'copia archivos'
 
 more $HOME/git/tp-20131c-gaturro/tortuga2_properties.cfg > $HOME/git/tp-20131c-gaturro/personaje/resources/properties.cfg 
 
