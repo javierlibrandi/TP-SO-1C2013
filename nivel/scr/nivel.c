@@ -174,6 +174,7 @@ int main(void) {
 					//para pruebas
 					//imprmir_recursos_nivel(param_nivel.recusos);
 					recurso = busco_recurso(mensaje[0][0], param_nivel.recusos);
+
 					//para pruebas
 					//imprmir_recursos_nivel(param_nivel.recusos);
 					nodo_lista_personaje->proximo_recurso = recurso; //lo relaciono con el proximo recuros que tiene que obtener
