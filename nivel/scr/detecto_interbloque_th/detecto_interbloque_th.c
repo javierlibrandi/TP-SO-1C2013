@@ -63,34 +63,37 @@ void *detecto_interbloque(void *p) {
 		usleep(param_nivel.TiempoChequeoDeadlock);
 		//pthread_mutex_lock(t_personaje.s_personaje_recursos);
 		pthread_mutex_lock(t_personaje.s_deadlock);
+
 		log_in_disk_niv(LOG_LEVEL_INFO,
 				"#######INTER_BLOQUEO	Comienza el algoritmo de deteccion de interbloqueo del nivel: %s	#######INTER_BLOQUEO",
 				param_nivel.nom_nivel);
+		if ((list_size(t_personaje.l_personajes)) > 1) {
 
-		if (marcar_personajes_s_recursos(t_personaje.l_personajes) != 0) { // paso 1
-			otnego_vector_diponibles(param_nivel.recusos, NULL ); //paso 2
+			if (marcar_personajes_s_recursos(t_personaje.l_personajes) != 0) { // paso 1
+				otnego_vector_diponibles(param_nivel.recusos, NULL ); //paso 2
 
-			while (marchar_personaje_c_recursos(t_personaje.l_personajes) != 0) { //paso  3 miestra sea distinto de 0
-				otnego_vector_diponibles(param_nivel.recusos,
-						t_personaje.l_personajes); //paso 4
+				while (marchar_personaje_c_recursos(t_personaje.l_personajes)
+						!= 0) { //paso  3 miestra sea distinto de 0
+					otnego_vector_diponibles(param_nivel.recusos,
+							t_personaje.l_personajes); //paso 4
+				}
 			}
-		}
 
-		if (cantidad_interbloquedos(t_personaje.l_personajes,
-				&personaje_bloquedos) != 0) {
+			if (cantidad_interbloquedos(t_personaje.l_personajes,
+					&personaje_bloquedos) != 0) {
 
-			log_in_disk_niv(LOG_LEVEL_INFO,
-					"#######################INTER_BLOQUEO  SE DETECTO UN INTERBLOQUEO EN EL NIVEL: %s. Y LOS PERSONAJES QUE PARTICIPAN DEL MISMO SON: %s .  #######INTER_BLOQUEO",
-					param_nivel.nom_nivel, personaje_bloquedos);
+				log_in_disk_niv(LOG_LEVEL_INFO,
+						"#######################INTER_BLOQUEO  SE DETECTO UN INTERBLOQUEO EN EL NIVEL: %s. Y LOS PERSONAJES QUE PARTICIPAN DEL MISMO SON: %s .  #######INTER_BLOQUEO",
+						param_nivel.nom_nivel, personaje_bloquedos);
 
-			if (param_nivel.Recovery) {
-				//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
+				if (param_nivel.Recovery) {
+					//TODO envio mensaje personajes interbloquedos para que se elija a la visticm
 
-				fd_mensaje(t_personaje.sck_orquestador, N_TO_O_RECOVERY,
-						personaje_bloquedos, &tot_enviados);
+					fd_mensaje(t_personaje.sck_orquestador, N_TO_O_RECOVERY,
+							personaje_bloquedos, &tot_enviados);
 
-				controlar_error_fd(&t_personaje, nodo_lista_personaje, buffer,
-						t_personaje.sck_orquestador, tot_enviados);
+					controlar_error_fd(&t_personaje, nodo_lista_personaje,
+							buffer, t_personaje.sck_orquestador, tot_enviados);
 
 //				buffer = recv_variable(t_personaje.sck_orquestador, &tipo);
 //				controlar_error_rec(&t_personaje, nodo_lista_personaje, buffer,
@@ -165,17 +168,18 @@ void *detecto_interbloque(void *p) {
 //
 //				}
 
+				}
+				pthread_mutex_unlock(t_personaje.s_deadlock);
+				//pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+			} else {
+				pthread_mutex_unlock(t_personaje.s_deadlock);
+				//pthread_mutex_unlock(t_personaje.s_personaje_recursos);
 			}
-			pthread_mutex_unlock(t_personaje.s_deadlock);
-			//pthread_mutex_unlock(t_personaje.s_personaje_recursos);
-		} else {
-			pthread_mutex_unlock(t_personaje.s_deadlock);
-			//pthread_mutex_unlock(t_personaje.s_personaje_recursos);
+			//
+			//free(personaje_bloquedos);
+			free(buffer);
+			personaje_bloquedos = string_new();
 		}
-		//
-		//free(personaje_bloquedos);
-		free(buffer);
-		personaje_bloquedos = string_new();
 		pthread_mutex_unlock(t_personaje.s_deadlock);
 	}
 	return NULL ;

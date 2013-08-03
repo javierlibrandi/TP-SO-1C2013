@@ -261,8 +261,17 @@ void *orequestador_thr(void* p) {
 					pers = busca_personaje_simbolo_pla(mensaje[0][0],
 							t_h_orq->l_bloquedos, &indice);
 
-					mover_personaje_lista(pers->sck, t_h_orq->l_bloquedos,
-							t_h_orq->l_listos);
+					if (indice == -1) {
+						pers = busca_personaje_simbolo_pla(mensaje[0][0],
+								t_h_orq->l_deadlock, &indice);
+
+						mover_personaje_lista(pers->sck, t_h_orq->l_deadlock,
+								t_h_orq->l_listos);
+
+					} else {
+						mover_personaje_lista(pers->sck, t_h_orq->l_bloquedos,
+								t_h_orq->l_listos);
+					}
 
 					un_lock_listas_plataforma_orq(t_h_orq);
 

@@ -47,6 +47,7 @@ void *escucho_personaje(void *p) {
 		buffer = recv_variable(new_sck, &tipo);
 
 		mensaje = string_split(buffer, ";");
+		pthread_mutex_lock(t_personaje->s_deadlock_escucha_pesonaje);
 
 		log_in_disk_niv(LOG_LEVEL_TRACE,
 				"1er mensaje recibido en el nivel. Tipo de mensaje %d ", tipo);
@@ -82,7 +83,7 @@ void *escucho_personaje(void *p) {
 			log_in_disk_niv(LOG_LEVEL_INFO,
 					"****** El personaje %s inicia el nivel ******",
 					mensaje[0]);
-
+			pthread_mutex_unlock(t_personaje->s_deadlock_escucha_pesonaje);
 			break;
 		}
 

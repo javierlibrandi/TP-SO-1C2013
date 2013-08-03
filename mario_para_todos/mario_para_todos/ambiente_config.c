@@ -230,6 +230,7 @@ void lock_listas_plantaforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_lock(h_orq->s_errores);
 	pthread_mutex_lock(h_orq->s_koopa);
 	pthread_mutex_lock(h_orq->s_nuevos);
+	pthread_mutex_lock(h_orq->s_deadlock);
 
 }
 
@@ -239,6 +240,7 @@ void un_lock_listas_plataforma_orq(t_h_orquestadro *h_orq) {
 	pthread_mutex_unlock(h_orq->s_errores);
 	pthread_mutex_unlock(h_orq->s_koopa);
 	pthread_mutex_unlock(h_orq->s_nuevos);
+	pthread_mutex_unlock(h_orq->s_deadlock);
 }
 
 /**
