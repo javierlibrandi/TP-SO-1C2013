@@ -38,6 +38,7 @@ void sig_handler(int signo);
 static pthread_mutex_t s_personaje_conectado = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_personaje_recursos = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t s_deadlock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t s_deadlock_escucha_pesonaje = PTHREAD_MUTEX_INITIALIZER;
 ITEM_NIVEL *ListaItems = NULL;
 
 int main(void) {
@@ -99,6 +100,8 @@ int main(void) {
 	t_personaje->ListaItemsss = ListaItems;
 	t_personaje->sck_orquestador = sck_plat;
 	t_personaje->s_deadlock = &s_deadlock;
+	t_personaje->s_deadlock_escucha_pesonaje = &s_deadlock_escucha_pesonaje;
+
 	struct timeval tv;
 	tv.tv_sec = 5;
 	tv.tv_usec = 50;
@@ -542,7 +545,7 @@ int main(void) {
 								tot_enviados);
 						if (tipo == OK) {
 							log_in_disk_niv(LOG_LEVEL_INFO,
-									"El personaje salió del planificador.");
+									"El personaje salió del nivel.");
 						}
 
 					}
