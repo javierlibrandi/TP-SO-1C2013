@@ -32,7 +32,7 @@ int marcar_personajes_s_recursos(t_list *personajes);
 void otnego_vector_diponibles(t_list *recursos, t_list *personajes);
 int marchar_personaje_c_recursos(t_list *personajes);
 int cantidad_interbloquedos(t_list *personajes, char **personaje_bloquedos);
-void imprimo_asigmados(t_list *l_rec);
+//void imprimo_asigmados(t_list *l_rec);
 
 void *detecto_interbloque(void *p) {
 	//int sck_orq;
@@ -298,14 +298,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 
 		if (l_personaje->bloquedo) {
 
-			error_show("El personaje %c bandera %d",l_personaje->id_personaje,l_personaje->bloquedo);
-			error_show("posicion personaje [%d,%d]",l_personaje->posX,l_personaje->posX);
-			error_show("proximo recurso %c",l_personaje->proximo_recurso);
-			imprimo_asigmados(l_personaje->l_recursos_optenidos);
-
 			if (l_personaje->proximo_recurso != NULL ) {
-
-				error_show("cantidad de proximos recursos %d",l_personaje->proximo_recurso->recursos_disponibles);
 
 				if (l_personaje->proximo_recurso->recursos_disponibles > 0) { //si la cantidad del vertor de disponible del proximo recurso del personaje es mayor a 0 por lo tanto el personaje no esta bloquedo
 					l_personaje->bloquedo = false;
@@ -320,8 +313,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 							- l_personaje->posX;
 					difY = l_personaje->proximo_recurso->posY
 							- l_personaje->posY;
-					error_show("posicion recuso[%d,%d]",l_personaje->proximo_recurso->posX,l_personaje->proximo_recurso->posY);
-					error_show("la comparacion anterior devuelve %s",!(difX == 0 && difY == 0)?"TRUE":"FALSE");
+
 					if (!(difX == 0 && difY == 0)) {
 						//				if ((!(difX == 0 && difY == 0))
 //						&& l_personaje->proximo_recurso == NULL ) { //si el proximo recurso del personaje es 0 pero el personaje no llego al recurso por lo tanto no esta bloqueado
@@ -341,7 +333,7 @@ int marchar_personaje_c_recursos(t_list *personajes) {
 			}
 		}
 	}
-	error_show("el personaje quedo con los siguiente valores bloquedo=%d, proximo recurso %c",l_personaje->bloquedo,l_personaje->proximo_recurso);
+
 	return marcados;
 }
 
@@ -712,14 +704,5 @@ void controlar_error_fd(t_h_personaje * t_personaje,
 			elimino_sck_lista(nodo_lista_personaje->sokc, t_personaje->readfds);
 		}
 
-	}
-}
-void imprimo_asigmados(t_list *l_rec){
-	int tot_recursos = list_size(l_rec);
-	int i;
-	t_recusos *t_rec;
-	for(i=0;i<tot_recursos;i++){
-		t_rec = list_get(l_rec,i);
-		error_show("Recurso %c cantidad restate %d  ",t_rec->SIMBOLO,t_rec->cantidad);
 	}
 }
