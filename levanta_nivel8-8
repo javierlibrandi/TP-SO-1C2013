@@ -11,6 +11,7 @@ echo $LD_LIBRARY_PATH
 echo 'copio archivo de configuracion'
 
 more $HOME/git/tp-20131c-gaturro/properties_nivel8-8.cfg  > $HOME/git/tp-20131c-gaturro/nivel/resources/properties.cfg
+TERM=xterm
 
 echo 'ejecuto'
 
