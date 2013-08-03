@@ -143,17 +143,17 @@ void tabla_a_koopa_prueba();
 /// Muevo lo que estaba en el entorno.h
 
 #define PATH_PLATAFORMA_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
-#define PATH_PERSONAJE_LOG "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
-#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/log/tracer.log"
+#define PATH_PERSONAJE_LOG "/home/utnso/git/tp-20131c-gaturro/personaje/log/tracer.log"
+#define PATH_PLATAFORMA_LOG_NIVEL "/home/utnso/git/tp-20131c-gaturro/plataforma/log/tracer.log"
 #define PATH_CONFIG_PERSONAJE "/home/utnso/git/tp-20131c-gaturro/personaje/resources/properties.cfg"
 #define PATH_CONFIG_NIVEL "/home/utnso/git/tp-20131c-gaturro/nivel/resources/properties.cfg"
 #define PATH_CONFIG_PLATAFORMA "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/properties.cfg"
 #define PATH_CONFIG_INOTIFY "/home/utnso/git/tp-20131c-gaturro/plataforma/resources/"
-#define B_DIBUJAR false
-#define ESPERA_POR_KOOPA 30 //segundos de espera para comprobar las listas antes de matar a KOOPA
-#define VALIDAR_KOOPA  2  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
-#define PATH_KOOPA "/home/utnso/git/tp-20131c-gaturro/plataforma/scr/planificador/koopa"
-#define FILE_KOOPA "/home/utnso/git/tp-20131c-gaturro/plataforma/scr/planificador/Esquema.txt"
+#define B_DIBUJAR true
+#define ESPERA_POR_KOOPA 10 //segundos de espera para comprobar las listas antes de matar a KOOPA
+#define VALIDAR_KOOPA  6  //cantidad de veces que valido que las listas esnten vacias antes de ejecutar KOOPAAAA!!!
+#define PATH_KOOPA "/home/utnso/git/tp-20131c-gaturro/plataforma/src/planificador/koopa"
+#define FILE_KOOPA "/home/utnso/git/tp-20131c-gaturro/plataforma/src/planificador/Esquema.txt"
 
 #define LOG_NIVEL LOG_LEVEL_TRACE
 //		niveles de log
@@ -169,5 +169,7 @@ void mover_personaje_errores_por_nivel(char *desc_nivel, t_list *lista_auxiliar,
 		t_list *l_errores);
 
 int leer_archivo_plataforma_config_cuantum();
+
+void koopita_querido();
 
 #endif /* AMBIENTE_CONFIG_H_ */
