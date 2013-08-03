@@ -45,6 +45,8 @@ void liberar_memoria_personaje(t_personaje *personaje);
 void ejecutar_koopa(t_h_planificador *h_planificador);
 void eliminar_planificador(int sck, t_list *list_planificadores);
 
+
+
 void* planificador_nivel_thr(void *p) {
 	t_h_planificador *h_planificador = (t_h_planificador *) p;
 
@@ -471,7 +473,7 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 
 }
 
-<<<<<<< HEAD
+
 //void * hilo_planificador(void * p) {
 //	t_h_planificador *h_planificador = (t_h_planificador *) p;
 //	t_personaje *personaje;
@@ -492,29 +494,3 @@ void liberar_memoria_personaje(t_personaje *personaje) {
 //		}
 //	}
 //}
-=======
-void * hilo_planificador(void * p) {
-	t_h_planificador *h_planificador = (t_h_planificador *) p;
-	t_personaje *personaje;
-	int index = 0;
-	int tiempo;
-	for (;;) {
-		if (h_planificador->segundos_espera >= 1){
-			tiempo = (h_planificador->segundos_espera);
-			sleep(tiempo);
-		}else{
-			usleep(h_planificador->segundos_espera * 100000);
-		}
-			pthread_mutex_lock(h_planificador->s_listos);
-		personaje = planifico_personaje(h_planificador, &index);
-
-		pthread_mutex_unlock(h_planificador->s_listos);
-
-		//si el personaje no es nulo muevo el personaje
-		if (personaje) {
-			mover_personaje(personaje, h_planificador);
-		}
-	}
-}
->>>>>>> origin/master
-
