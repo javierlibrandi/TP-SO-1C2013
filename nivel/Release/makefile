@@ -30,8 +30,8 @@ endif
 all: nivel
 
 dependents:
-	-cd /home/utnso/git/tp-20131c-gaturro/commons/Release && $(MAKE) clean all
-	-cd /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release && $(MAKE) clean all
+	-cd /home/utnso/git/tp-20131c-gaturro/commons/Release && $(MAKE) all
+	-cd /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release && $(MAKE) all
 
 # Tool invocations
 nivel: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/commons/Release/libcommons.so /home/utnso/git/tp-20131c-gaturro/mario_para_todos/Release/libmario_para_todos.so

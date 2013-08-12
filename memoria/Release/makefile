@@ -25,7 +25,7 @@ endif
 all: libmemoria.so
 
 dependents:
-	-cd /home/utnso/git/tp-20131c-gaturro/so-commons-library/Release && $(MAKE) clean all
+	-cd /home/utnso/git/tp-20131c-gaturro/so-commons-library/Release && $(MAKE) all
 
 # Tool invocations
 libmemoria.so: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-20131c-gaturro/so-commons-library/Release/libso-commons-library.so
